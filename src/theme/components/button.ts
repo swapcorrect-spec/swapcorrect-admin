@@ -7,7 +7,8 @@ export const buttonRecipe = defineRecipe({
   },
   variants: {
     variant: {
-      solid: { bg: "#0D5EBA", color: "#fff", borderRadius: '6px', _hover: {bg: '#0d5ebae6'} },
+      solid: { bg: "#222222", color: "#fff", borderRadius: '32px', _hover: {bg: '#222222'} },
+      subtle: { bg: "#F6F6F6", color: "#737373", borderRadius: '32px', _hover: {bg: '#F6F6F6'} },
       outline: { borderWidth: "1px", borderColor: "red.200" },
     },
     size: {
