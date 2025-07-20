@@ -1,1 +1,3 @@
-export const index = 'index'
+import { Dashboard } from "./dashboard";
+
+export { Dashboard };
