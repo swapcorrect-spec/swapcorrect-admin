@@ -39,6 +39,30 @@ export interface UsersData extends DataItem {
   productid?: string;
   status: string;
   // product?: Record<string | number, string | number> | any;
-  dateJoined?: string;
+  dateJoined: string;
   role: string;
+}
+export interface SwapActivityData extends DataItem {
+  itemOne: string;
+  itemTwo: string;
+  swapperOne: string;
+  swapperTwo: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FlagData extends DataItem {
+  reporter: string;
+  type: string;
+  reportedEntity: string;
+  status: string;
+  createdAt: string;
+  reason?: string;
+}
+
+export interface IPaginationProps {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }

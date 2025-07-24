@@ -105,9 +105,9 @@ export const UserManagement = () => {
       </Flex>
       <UsersTable
         data={tableData}
-        currentPage={1}
+        currentPage={currentPage}
         onPageChange={onPageChange}
-        totalPages={1}
+        totalPages={30}
         loading={false}
       />
     </PageLayout>

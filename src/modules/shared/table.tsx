@@ -3,6 +3,7 @@
 import { Table, Spinner, Flex, Box, Text } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 import type { DataItem, ITableProps } from "~/types/base";
+import { Pagination } from "./pagination";
 
 type CellRenderer<T> = (item: T, column: keyof T) => ReactNode;
 
@@ -69,65 +70,63 @@ export function TableComponent<T extends DataItem>({
   }
 
   return (
-    <Box
-      w="full"
-      borderWidth="1px"
-      borderColor="gray.100"
-      rounded="md"
-      overflow="hidden"
-    >
-      <Table.Root size="md" variant="outline">
-        {/* Table Header */}
-        <Table.Header bg="#FAFAFA">
-          <Table.Row>
-            {columns.map((column, index) => (
-              <Table.ColumnHeader
-                key={String(column)}
-                px={index === 0 ? "16px" : "8px"}
-                py="12px"
-                fontWeight={500}
-                fontSize="sm"
-                color="#737373"
-              >
-                {formatColumnName(String(column))}
-              </Table.ColumnHeader>
-            ))}
-          </Table.Row>
-        </Table.Header>
-
-        {/* Table Body */}
-        <Table.Body>
-          {tableData.map((item, rowIndex) => (
-            <Table.Row
-              key={rowIndex}
-              _hover={{ bg: "gray.50", cursor: "pointer" }}
-              borderBottom="1px solid"
-              borderColor="gray.50"
-            >
-              {columns.map((column, colIndex) => (
-                <Table.Cell
+    <Box w="full">
+      <Box
+        borderWidth="1px"
+        borderColor="gray.100"
+        rounded="md"
+        overflow="hidden"
+        mb={6}
+      >
+        <Table.Root size="md" variant="outline">
+          {/* Table Header */}
+          <Table.Header bg="#FAFAFA">
+            <Table.Row>
+              {columns.map((column, index) => (
+                <Table.ColumnHeader
                   key={String(column)}
-                  px={colIndex === 0 ? "16px" : "8px"}
+                  px={index === 0 ? "16px" : "8px"}
                   py="12px"
-                  color="#111827"
+                  fontWeight={500}
+                  fontSize="sm"
+                  color="#737373"
                 >
-                  {renderCellContent(item, column)}
-                </Table.Cell>
+                  {formatColumnName(String(column))}
+                </Table.ColumnHeader>
               ))}
             </Table.Row>
-          ))}
-        </Table.Body>
+          </Table.Header>
 
-        <Table.Footer>
-          <Table.Row>
-            <Table.Cell
-              colSpan={columns.length}
-              textAlign="center"
-              py="12px"
-            ></Table.Cell>
-          </Table.Row>
-        </Table.Footer>
-      </Table.Root>
+          {/* Table Body */}
+          <Table.Body>
+            {tableData.map((item, rowIndex) => (
+              <Table.Row
+                key={rowIndex}
+                _hover={{ bg: "gray.50", cursor: "pointer" }}
+                borderBottom="1px solid"
+                borderColor="gray.50"
+              >
+                {columns.map((column, colIndex) => (
+                  <Table.Cell
+                    key={String(column)}
+                    px={colIndex === 0 ? "16px" : "8px"}
+                    py="12px"
+                    color="#111827"
+                    borderBottom="1px solid #EAEAEA"
+                  >
+                    {renderCellContent(item, column)}
+                  </Table.Cell>
+                ))}
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table.Root>
+      </Box>
+      <Pagination
+        totalPages={totalPages}
+        currentPage={currentPage}
+        onPageChange={safeOnPageChange}
+      />
     </Box>
   );
 }

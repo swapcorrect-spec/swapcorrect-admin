@@ -9,6 +9,8 @@ import { Dashboard } from "../app";
 import { Listing } from "../app/listing";
 import { UserManagement } from "../app/user-management";
 import { Settings } from "../app/settings";
+import { SwapActivity } from "../app/swap-activity";
+import { FlagsAndReports } from "../app/flags-reports";
 
 const Routes: FunctionComponent<Record<string, never>> = () => {
   return (
@@ -21,6 +23,8 @@ const Routes: FunctionComponent<Record<string, never>> = () => {
             <Route path={PATHS.LISTING} element={<Listing />} />
             <Route path={PATHS.USERMANAGEMENT} element={<UserManagement />} />
             <Route path={PATHS.SETTINGS} element={<Settings />} />
+            <Route path={PATHS.SWAPACTIVITY} element={<SwapActivity />} />
+            <Route path={PATHS.FLAGSANDREPORTS} element={<FlagsAndReports />} />
           </Route>
 
           <Route path="*" element={<div>Page not found</div>}></Route>
