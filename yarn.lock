@@ -1303,6 +1303,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node@npm:^24.0.15":
+  version: 24.0.15
+  resolution: "@types/node@npm:24.0.15"
+  dependencies:
+    undici-types: ~7.8.0
+  checksum: 27f31e6976587efdfd13c0024703d7e11e6a27a6af48d488c6e5662733c9e8d47ac059e38cd9d491425f68f0c5e8e2bc060859b0b66afe79af0697acb0c25e4d
+  languageName: node
+  linkType: hard
+
 "@types/parse-json@npm:^4.0.0":
   version: 4.0.2
   resolution: "@types/parse-json@npm:4.0.2"
@@ -4704,6 +4713,7 @@ __metadata:
     "@emotion/react": ^11.14.0
     "@eslint/js": ^9.30.1
     "@tanstack/react-query": ^5.81.5
+    "@types/node": ^24.0.15
     "@types/react": ^19.1.8
     "@types/react-dom": ^19.1.6
     "@vitejs/plugin-react": ^4.6.0
@@ -4865,6 +4875,13 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 1b503525a88ff0ff5952e95870971c4fb2118c17364d60302c21935dedcd6c37e6a0a692f350892bafcef6f4a16d09073fe461158547978d2f16fbe4cb18581c
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~7.8.0":
+  version: 7.8.0
+  resolution: "undici-types@npm:7.8.0"
+  checksum: 59521a5b9b50e72cb838a29466b3557b4eacbc191a83f4df5a2f7b156bc8263072b145dc4bb8ec41da7d56a7e9b178892458da02af769243d57f801a50ac5751
   languageName: node
   linkType: hard
 

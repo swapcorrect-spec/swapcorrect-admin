@@ -5,7 +5,7 @@ import {
   OfferDeclined,
   NewReview,
 } from "~/assets/images";
-import MomentAgo from "../moment-ago";
+import MomentAgo from "../../../components/moment-ago";
 import { Box, Flex, Text, Circle } from "@chakra-ui/react";
 
 interface Notify {

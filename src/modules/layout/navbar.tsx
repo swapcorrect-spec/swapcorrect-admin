@@ -12,15 +12,14 @@ import {
 
 // SVGs
 
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { PATHS } from "../_constants/paths";
 import { mockNotifications, notifyType } from "../_constants";
-import { Bell, Search } from "~/assets/images";
-import Notification from "~/components/widgets";
+import { Bell } from "~/assets/images";
+import Notification from "~/modules/shared/widgets";
 import profyle from "~/assets/images/profyle.png";
 
 export const Navbar: React.FC = () => {
-  const navigate = useNavigate();
   const path = useLocation().pathname;
 
   const handleLogout = () => {
@@ -49,7 +48,7 @@ export const Navbar: React.FC = () => {
       width="100%"
       bg="white"
       borderBottom="1px solid #E9E9E9"
-      py="15px"
+      py="20px"
       px="42px"
       align="center"
       gap="110px"

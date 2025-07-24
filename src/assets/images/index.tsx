@@ -18,8 +18,34 @@ import NewReview from "../images/svgs/new_review.svg?react";
 import NewSwap from "../images/svgs/new_swap.svg?react";
 import OfferAccepted from "../images/svgs/offer_accepted.svg?react";
 import OfferDeclined from "../images/svgs/offer_declined.svg?react";
+import TotalUsers from "../images/svgs/total_users.svg?react";
+import RecentActivity from "../images/svgs/recent_activity.svg?react";
+import ProgressUp from "../images/svgs/progress_up.svg?react";
+import ProgressDown from "../images/svgs/progress_down.svg?react";
+import NewSignUps from "../images/svgs/new_signups.svg?react";
+import CompletedSwaps from "../images/svgs/completed_swaps.svg?react";
+import ActiveSwaps from "../images/svgs/active_swaps.svg?react";
+import Approve from "../images/svgs/approve.svg?react";
+import Reject from "../images/svgs/reject.svg?react";
+import Star from "../images/svgs/star.svg?react";
+import TotalSwapper from "../images/svgs/total_swapper.svg?react";
+import TotalVisitor from "../images/svgs/total_visitor.svg?react";
+import HorizontalDots from "../images/svgs/horizontal_dots.svg?react";
 
 export {
+  Star,
+  TotalSwapper,
+  TotalVisitor,
+  Approve,
+  Reject,
+  HorizontalDots,
+  TotalUsers,
+  RecentActivity,
+  ProgressUp,
+  ProgressDown,
+  NewSignUps,
+  CompletedSwaps,
+  ActiveSwaps,
   NewChat,
   NewReview,
   NewSwap,

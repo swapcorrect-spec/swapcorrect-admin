@@ -12,7 +12,7 @@ const PageLayout: FC<iProps> = ({ children }) => {
     <Flex height="100vh" width="100vw">
       <Sidebar />
 
-      <Flex direction="column" flex="1" bg="#F9FAFB">
+      <Flex direction="column" flex="1" bg="#F9FAFB" overflowY={"scroll"}>
         <Navbar />
         <Box as="main" flex="1" p={6}>
           {children}

@@ -81,3 +81,64 @@ export const notifyType = [
     value: "unread",
   },
 ];
+
+export const listingStatus = [
+  {
+    title: "All",
+    value: "all",
+  },
+  {
+    title: "Active",
+    value: "active",
+  },
+  {
+    title: "Pending",
+    value: "pending",
+  },
+  {
+    title: "Flagged",
+    value: "flagged",
+  },
+  {
+    title: "Completed",
+    value: "completed",
+  },
+];
+
+export const mockListings = [
+  {
+    title: "New Swap Listing Approved",
+    date: "2025-07-21T10:30:00Z",
+    gadget: "iPhone 14 Pro Max",
+    owner: "Sarah Johnson",
+    status: "Completed",
+  },
+  {
+    title: "Pending Verification",
+    date: "2025-07-20T15:45:00Z",
+    gadget: "Samsung Galaxy Z Fold 5",
+    owner: "Michael Adeyemi",
+    status: "Pending",
+  },
+  {
+    title: "Flagged for Review",
+    date: "2025-07-19T09:20:00Z",
+    gadget: "MacBook Pro 2023",
+    owner: "Amaka Okoro",
+    status: "Flagged",
+  },
+  {
+    title: "Active Trade Ongoing",
+    date: "2025-07-18T12:10:00Z",
+    gadget: "PlayStation 5",
+    owner: "James Oladipo",
+    status: "Active",
+  },
+  {
+    title: "Completed Swap Transaction",
+    date: "2025-07-17T18:55:00Z",
+    gadget: "Canon EOS R5 Camera",
+    owner: "Chidinma Bello",
+    status: "Completed",
+  },
+];

@@ -1,9 +1,7 @@
-
 import { defineConfig } from "@chakra-ui/react";
 
-import {buttonRecipe} from './components/button'
-import {inputRecipe} from './components/input'
-
+import { buttonRecipe } from "./components/button";
+import { inputRecipe } from "./components/input";
 
 export const config = defineConfig({
   theme: {

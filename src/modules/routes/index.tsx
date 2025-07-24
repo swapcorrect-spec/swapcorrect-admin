@@ -6,6 +6,9 @@ import {
 } from "react-router-dom";
 import { PATHS } from "../_constants/paths";
 import { Dashboard } from "../app";
+import { Listing } from "../app/listing";
+import { UserManagement } from "../app/user-management";
+import { Settings } from "../app/settings";
 
 const Routes: FunctionComponent<Record<string, never>> = () => {
   return (
@@ -15,6 +18,9 @@ const Routes: FunctionComponent<Record<string, never>> = () => {
           <Route>
             <Route path="/" element={<p>welcome</p>} />
             <Route path={PATHS.DASHBOARD} element={<Dashboard />} />
+            <Route path={PATHS.LISTING} element={<Listing />} />
+            <Route path={PATHS.USERMANAGEMENT} element={<UserManagement />} />
+            <Route path={PATHS.SETTINGS} element={<Settings />} />
           </Route>
 
           <Route path="*" element={<div>Page not found</div>}></Route>
