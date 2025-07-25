@@ -14,6 +14,7 @@ type ButtonProps = {
   spinner?: React.ReactNode;
   rounded?: "sm" | "md" | "lg" | "xl" | "2xl" | "full";
   width?: string | number;
+  bg?: string;
 };
 
 export const Button: FC<ButtonProps> = ({

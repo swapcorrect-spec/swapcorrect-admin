@@ -3,6 +3,7 @@ import { listingStatus, mockListings } from "~/modules/_constants";
 import { Header } from "~/modules/shared";
 import List from "./_components/list";
 import PageLayout from "~/modules/layout/page-layout";
+import type { SwapDetailsProps } from "~/types/base";
 
 export const Listing: React.FC = () => {
   return (
@@ -22,15 +23,8 @@ export const Listing: React.FC = () => {
           </Tabs.List>
         </Tabs.Root>
         <Flex direction="column" gap={6} mt={6}>
-          {mockListings.map((notify, idx) => (
-            <List
-              key={idx}
-              title={notify.title}
-              date={notify.date}
-              gadget={notify.gadget}
-              owner={notify.owner}
-              status={notify.status}
-            />
+          {mockListings.map((list: SwapDetailsProps, idx) => (
+            <List key={idx} item={list} />
           ))}
         </Flex>
       </Box>

@@ -66,3 +66,24 @@ export interface IPaginationProps {
   totalPages: number;
   onPageChange: (page: number) => void;
 }
+
+export interface SwapDetailsProps {
+  name: string;
+  condition: string;
+  price: number | string;
+  itemUrl: string;
+  category: string;
+  status: string;
+  description: string;
+  location: string;
+  dateListed: string;
+  datePosted: string;
+  edited: string;
+  requestedInExchange: any;
+  owner: string;
+  ownerAvatar: string;
+  rating: number | string;
+  swap: {
+    total: number | string;
+  };
+}

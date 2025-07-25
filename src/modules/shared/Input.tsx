@@ -8,7 +8,7 @@ import {
 import type { FC } from "react";
 
 type InputProps = {
-  label: string;
+  label?: string;
   placeholder: string;
   name: string;
   value: string;

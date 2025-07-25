@@ -1,10 +1,12 @@
 "use client";
 
 import { Text, Flex, Box } from "@chakra-ui/react";
-import { HorizontalDots, Star } from "~/assets/images";
+import { Caution, Star } from "~/assets/images";
 import { TableComponent } from "~/modules/shared/table";
 import type { UsersData } from "~/types/base";
 import { getStatusStyles } from "~/modules/util";
+import { Flag, UserRound } from "lucide-react";
+import { MenuItem, Menu } from "~/modules/shared";
 
 interface iProps {
   data?: any;
@@ -78,9 +80,31 @@ const UsersTable: React.FC<iProps> = ({
     ),
 
     action: () => (
-      <Box>
-        <HorizontalDots />
-      </Box>
+      <Menu>
+        <Box>
+          <MenuItem
+            label="View profile"
+            icon={<UserRound size={20} />}
+            onClick={() => console.log("Message")}
+            value="view"
+            styleProps={{ color: "#222222" }}
+          />
+          <MenuItem
+            label="Suspend"
+            icon={<Caution />}
+            onClick={() => console.log("View")}
+            value="suspend"
+            styleProps={{ color: "#007AFF" }}
+          />
+          <MenuItem
+            label="Flag User"
+            icon={<Flag size={20} />}
+            onClick={() => console.log("Flag")}
+            value="flag"
+            styleProps={{ color: "#E42222" }}
+          />
+        </Box>
+      </Menu>
     ),
   };
 

@@ -10,6 +10,9 @@ import { Header, Select } from "~/modules/shared";
 import { Box, Flex, Text } from "@chakra-ui/react";
 import { Link } from "react-router";
 import InfoCard from "~/modules/shared/widgets/info_card";
+import { ChevronRight } from "lucide-react";
+import Routes from "~/modules/routes";
+import { PATHS } from "~/modules/_constants/paths";
 
 export const Dashboard = () => {
   const INFOLIST = [
@@ -85,9 +88,16 @@ export const Dashboard = () => {
             <Text fontSize="20px" color="#222222" fontWeight={500}>
               Recent Activity
             </Text>
-            <Link to="/activity">
-              <Text fontSize="13px" color="#007AFF">
+            <Link to={PATHS.SWAPACTIVITY}>
+              <Text
+                fontSize="13px"
+                color="#007AFF"
+                display="flex"
+                alignItems="center"
+                gap={1}
+              >
                 View all
+                <ChevronRight size={14} color="#007AFF" />
               </Text>
             </Link>
           </Box>
