@@ -4,14 +4,18 @@ import { ProgressUp, ProgressDown } from "~/assets/images";
 interface iInfoCardProps {
   icon: React.ReactNode;
   title: string;
-  count: number;
-  progress: boolean;
+  count?: number;
+  progress?: boolean;
+  showFooter?: boolean;
+  description?: string;
 }
 const InfoCard: React.FC<iInfoCardProps> = ({
   icon,
   title,
   count,
   progress,
+  showFooter = true,
+  description,
 }) => {
   return (
     <Box
@@ -23,37 +27,46 @@ const InfoCard: React.FC<iInfoCardProps> = ({
     >
       <Box display="flex" alignItems="center" gap="12px" mb="16px">
         <Box>{icon}</Box>
-        <Text fontSize="14px" color="#222222" fontWeight="500">
+        <Text fontSize="14px" color="#737373" fontWeight="500">
           {title}
         </Text>
       </Box>
-      <Text fontSize="24px" color="#222222" fontWeight="600" mb="16px">
-        {count}
-      </Text>
-      <Box
-        width="100%"
-        borderTop="1px solid #EAEAEA"
-        p="10px"
-        pb="0px"
-        display="flex"
-        alignItems="center"
-        gap="9px"
-      >
+      {count && (
+        <Text fontSize="20px" color="#222222" fontWeight="600" mb="16px">
+          {count}
+        </Text>
+      )}
+      {description && (
+        <Text fontSize="20px" color="#222222" fontWeight="600" mb="16px">
+          {description}
+        </Text>
+      )}
+      {showFooter && (
         <Box
-          bg={progress ? "#DFFFDF" : "#FFE7E7"}
-          borderRadius="3px"
-          h="20px"
-          w="20px"
+          width="100%"
+          borderTop="1px solid #EAEAEA"
+          p="10px"
+          pb="0px"
           display="flex"
           alignItems="center"
-          justifyContent="center"
+          gap="9px"
         >
-          {progress ? <ProgressUp /> : <ProgressDown />}
+          <Box
+            bg={progress ? "#DFFFDF" : "#FFE7E7"}
+            borderRadius="3px"
+            h="20px"
+            w="20px"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            {progress ? <ProgressUp /> : <ProgressDown />}
+          </Box>
+          <Text fontSize="12px" color="#737373">
+            {progress ? "+" : "-"}12% from last month
+          </Text>
         </Box>
-        <Text fontSize="12px" color="#737373">
-          {progress ? "+" : "-"}12% from last month
-        </Text>
-      </Box>
+      )}
     </Box>
   );
 };

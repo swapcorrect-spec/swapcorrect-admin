@@ -9,88 +9,31 @@ interface StatusStyles {
 export const getStatusStyles = (status: string): StatusStyles => {
   switch (status) {
     case "pending":
-      return {
-        borderColor: "#FFE1A5",
-        bg: "#FFF9EC",
-        textColor: "#BB7E05",
-      };
-    case "completed":
-      return {
-        borderColor: "#007AFF1A",
-        bg: "#007AFF1A",
-        textColor: "#007AFF",
-      };
-    case "active":
-      return {
-        borderColor: "#C5FFBC",
-        bg: "#EDFFEA",
-        textColor: "#106104",
-      };
-    case "flagged":
-      return {
-        borderColor: "#FFC4C4",
-        bg: "#FFE5E58F",
-        textColor: "#E42222",
-      };
-    default:
-      return {
-        borderColor: "#FFE1A5",
-        bg: "#FFF9EC",
-        textColor: "#BB7E05",
-      };
-  }
-};
-
-export const getSwapStyles = (status: string): StatusStyles => {
-  switch (status) {
+    case "under review":
     case "negotiating":
       return {
         borderColor: "#FFE1A5",
         bg: "#FFF9EC",
         textColor: "#BB7E05",
       };
+    case "new":
+    case "suspended":
+      return {
+        borderColor: "#007AFF1A",
+        bg: "#007AFF1A",
+        textColor: "#007AFF",
+      };
+    case "active":
+    case "resolved":
     case "completed":
       return {
         borderColor: "#C5FFBC",
         bg: "#EDFFEA",
         textColor: "#106104",
       };
-    case "cancelled":
-      return {
-        borderColor: "#FFC4C4",
-        bg: "#FFE5E58F",
-        textColor: "#E42222",
-      };
-    default:
-      return {
-        borderColor: "#FFE1A5",
-        bg: "#FFF9EC",
-        textColor: "#BB7E05",
-      };
-  }
-};
-
-export const getFlagStyles = (status: string): StatusStyles => {
-  switch (status) {
-    case "under review":
-      return {
-        borderColor: "#FFE1A5",
-        bg: "#FFF9EC",
-        textColor: "#BB7E05",
-      };
-    case "new":
-      return {
-        borderColor: "#007AFF1A",
-        bg: "#007AFF1A",
-        textColor: "#007AFF",
-      };
-    case "resolved":
-      return {
-        borderColor: "#C5FFBC",
-        bg: "#EDFFEA",
-        textColor: "#106104",
-      };
+    case "flagged":
     case "dismissed":
+    case "cancelled":
       return {
         borderColor: "#FFC4C4",
         bg: "#FFE5E58F",

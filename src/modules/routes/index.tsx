@@ -11,6 +11,7 @@ import { UserManagement } from "../app/user-management";
 import { Settings } from "../app/settings";
 import { SwapActivity } from "../app/swap-activity";
 import { FlagsAndReports } from "../app/flags-reports";
+import { Profile } from "../app/profile";
 
 const Routes: FunctionComponent<Record<string, never>> = () => {
   return (
@@ -25,6 +26,7 @@ const Routes: FunctionComponent<Record<string, never>> = () => {
             <Route path={PATHS.SETTINGS} element={<Settings />} />
             <Route path={PATHS.SWAPACTIVITY} element={<SwapActivity />} />
             <Route path={PATHS.FLAGSANDREPORTS} element={<FlagsAndReports />} />
+            <Route path={PATHS.PROFILE} element={<Profile />} />
           </Route>
 
           <Route path="*" element={<div>Page not found</div>}></Route>

@@ -1,6 +1,6 @@
 import { Box, Text, Image } from "@chakra-ui/react";
 import { BadgeInfo, Flag, MessageCircleMore, UserRound, X } from "lucide-react";
-import { Approve, Reject } from "~/assets/images";
+import { Approve } from "~/assets/images";
 import MomentAgo from "~/components/moment-ago";
 import { Dialog, Menu, MenuItem } from "~/modules/shared";
 import { getStatusStyles } from "~/modules/util";

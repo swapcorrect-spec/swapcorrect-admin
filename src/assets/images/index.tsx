@@ -29,11 +29,17 @@ import Approve from "../images/svgs/approve.svg?react";
 import Reject from "../images/svgs/reject.svg?react";
 import Star from "../images/svgs/star.svg?react";
 import Caution from "../images/svgs/caution.svg?react";
+import Counter from "../images/svgs/counter.svg?react";
+import Refresh from "../images/svgs/refresh.svg?react";
+import StarOutline from "../images/svgs/star_outline.svg?react";
 import TotalSwapper from "../images/svgs/total_swapper.svg?react";
 import TotalVisitor from "../images/svgs/total_visitor.svg?react";
 import HorizontalDots from "../images/svgs/horizontal_dots.svg?react";
 
 export {
+  Counter,
+  Refresh,
+  StarOutline,
   Star,
   Caution,
   TotalSwapper,

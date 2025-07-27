@@ -136,13 +136,7 @@ const SwapDetails: React.FC<iSwapDetails> = ({ detail }) => {
         alignItems="center"
         gap={4}
       >
-        <Box
-          w="fit-content"
-          display="flex"
-          height="62px"
-          width="62px"
-          borderRadius="full"
-        >
+        <Box display="flex" height="62px" width="62px" borderRadius="full">
           <Image
             src={user}
             alt="Owner Avatar"

@@ -12,7 +12,7 @@ import {
 
 // SVGs
 
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { PATHS } from "../_constants/paths";
 import { mockNotifications, notifyType } from "../_constants";
 import { Bell } from "~/assets/images";
@@ -34,6 +34,7 @@ export const Navbar: React.FC = () => {
     if (pathname === "/flags-reports") return "Flags & Reports";
     if (pathname === "/user-roles") return "User Roles";
     if (pathname === "/settings") return "Settings";
+    if (pathname === "/profile") return "Profile";
     return "Page";
   }
 
@@ -59,7 +60,6 @@ export const Navbar: React.FC = () => {
       </Text>
 
       <Flex align="center" gap={5}>
-        {/* Notifications Menu */}
         <Menu.Root>
           <Menu.Trigger as={Box} position="relative" cursor="pointer">
             <Bell />
@@ -81,7 +81,6 @@ export const Navbar: React.FC = () => {
           </Menu.Trigger>
           <Menu.Positioner>
             <Menu.Content p={4} maxH="75vh" overflowY="auto" w="500px">
-              {/* Tabs for Notification Types */}
               <Tabs.Root
                 variant="enclosed"
                 display={"flex"}
@@ -111,25 +110,34 @@ export const Navbar: React.FC = () => {
           </Menu.Positioner>
         </Menu.Root>
 
-        {/* Profile Menu */}
         <Menu.Root>
-          <Flex align="center" gap={3} cursor="pointer" fontWeight={500}>
-            <Box>
-              <img
-                src={profyle}
-                alt="Profile icon"
-                style={{ width: "32px", height: "32px", borderRadius: "50%" }}
-              />
-            </Box>
-            Wisdom Apavie
-          </Flex>
+          <Menu.Trigger>
+            <Flex align="center" gap={3} cursor="pointer" fontWeight={500}>
+              <Box>
+                <img
+                  src={profyle}
+                  alt="Profile icon"
+                  style={{ width: "32px", height: "32px", borderRadius: "50%" }}
+                />
+              </Box>
+              Wisdom Apavie
+            </Flex>
+          </Menu.Trigger>
           <Menu.Positioner>
-            <Menu.Content>
-              <Menu.Trigger>Profile</Menu.Trigger>
-              {/* <MenuItem as={Link} href="/settings">
-              Settings
-            </MenuItem> */}
-              <Menu.Item onClick={handleLogout} value="">
+            <Menu.Content width="200px">
+              <Link to={PATHS.PROFILE}>
+                <Menu.Item value="profile" cursor="pointer">
+                  Profile
+                </Menu.Item>
+              </Link>
+
+              <Link to={PATHS.SETTINGS}>
+                <Menu.Item value="settings" cursor="pointer">
+                  Settings
+                </Menu.Item>
+              </Link>
+
+              <Menu.Item onClick={handleLogout} value="logout" cursor="pointer">
                 Logout
               </Menu.Item>
             </Menu.Content>

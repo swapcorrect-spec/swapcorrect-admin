@@ -4,7 +4,7 @@ import { Text, Flex, Box } from "@chakra-ui/react";
 import { HorizontalDots } from "~/assets/images";
 import { TableComponent } from "~/modules/shared/table";
 import type { FlagData } from "~/types/base";
-import { formatDateTime, getFlagStyles } from "~/modules/util";
+import { formatDateTime, getStatusStyles } from "~/modules/util";
 
 interface iProps {
   data?: any;
@@ -51,7 +51,7 @@ const FlagsAndReportTable: React.FC<iProps> = ({
       <Text {...textProps}>{formatDateTime(item?.createdAt)}</Text>
     ),
     status: (item: FlagData) => {
-      const { borderColor, bg, textColor } = getFlagStyles(
+      const { borderColor, bg, textColor } = getStatusStyles(
         item?.status?.toLowerCase()
       );
       return (

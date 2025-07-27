@@ -1,11 +1,12 @@
 "use client";
 
-import { Text, Flex, Box } from "@chakra-ui/react";
+import { Text, Flex, Box, Image } from "@chakra-ui/react";
 import { HorizontalDots } from "~/assets/images";
 import { TableComponent } from "~/modules/shared/table";
 import type { SwapActivityData } from "~/types/base";
-import { formatDateTime, getSwapStyles } from "~/modules/util";
+import { formatDateTime, getStatusStyles } from "~/modules/util";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import user from "~/assets/images/user.png";
 
 interface iProps {
   data?: any;
@@ -19,7 +20,6 @@ const SwapActivityTable: React.FC<iProps> = ({
   data,
   currentPage,
   onPageChange,
-
   totalPages,
   loading,
 }) => {
@@ -32,13 +32,19 @@ const SwapActivityTable: React.FC<iProps> = ({
   const cellRenderers = {
     swappers: (item: SwapActivityData) => (
       <Flex gap="4px" alignItems="center">
-        <Box borderRadius={"full"} h={8} w={8}></Box>
+        <Box borderRadius={"full"} h={8} w={8}>
+          {" "}
+          <Image src={user} alt="Owner Avatar" height="100%" width="100%" />
+        </Box>
         <Text {...textProps} color={"#222222"}>
           {item.swapperOne}
         </Text>
         <ArrowLeft size={16} color="#737373" />
         <ArrowRight size={16} color="#737373" />
-        <Box borderRadius={"full"} h={8} w={8}></Box>
+        <Box borderRadius={"full"} h={8} w={8}>
+          {" "}
+          <Image src={user} alt="Owner Avatar" height="100%" width="100%" />
+        </Box>
         <Text {...textProps} color={"#222222"}>
           {item.swapperTwo}
         </Text>
@@ -57,7 +63,7 @@ const SwapActivityTable: React.FC<iProps> = ({
       </Flex>
     ),
     status: (item: SwapActivityData) => {
-      const { borderColor, bg, textColor } = getSwapStyles(
+      const { borderColor, bg, textColor } = getStatusStyles(
         item?.status?.toLowerCase()
       );
       return (

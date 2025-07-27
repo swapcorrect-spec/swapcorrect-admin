@@ -6,4 +6,5 @@ export const PATHS = {
   FLAGSANDREPORTS: "/flags-reports",
   ROLES: "/user-roles",
   SETTINGS: "/settings",
+  PROFILE: "/profile",
 };

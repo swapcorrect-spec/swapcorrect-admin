@@ -87,3 +87,10 @@ export interface SwapDetailsProps {
     total: number | string;
   };
 }
+
+export interface ActivityData extends DataItem {
+  user: string;
+  action: string;
+  date: string;
+  role: string;
+}

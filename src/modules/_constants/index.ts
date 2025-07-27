@@ -82,29 +82,6 @@ export const notifyType = [
   },
 ];
 
-export const listingStatus = [
-  {
-    title: "All",
-    value: "all",
-  },
-  {
-    title: "Active",
-    value: "active",
-  },
-  {
-    title: "Pending",
-    value: "pending",
-  },
-  {
-    title: "Flagged",
-    value: "flagged",
-  },
-  {
-    title: "Completed",
-    value: "completed",
-  },
-];
-
 export const mockListings = [
   {
     date: "2025-07-21T10:30:00Z",

@@ -6,7 +6,9 @@ import { TableComponent } from "~/modules/shared/table";
 import type { UsersData } from "~/types/base";
 import { getStatusStyles } from "~/modules/util";
 import { Flag, UserRound } from "lucide-react";
-import { MenuItem, Menu } from "~/modules/shared";
+import { MenuItem, Menu, Dialog } from "~/modules/shared";
+import UserDetails from "./user-details";
+import { useState } from "react";
 
 interface iProps {
   data?: any;
@@ -24,6 +26,12 @@ const UsersTable: React.FC<iProps> = ({
   totalPages,
   loading,
 }) => {
+  const [open, setOpen] = useState<boolean>(false);
+
+  const onOpenChange = () => {
+    setOpen((prev) => !prev);
+  };
+
   const textProps = {
     color: "#737373",
     fontWeight: 500,
@@ -85,7 +93,7 @@ const UsersTable: React.FC<iProps> = ({
           <MenuItem
             label="View profile"
             icon={<UserRound size={20} />}
-            onClick={() => console.log("Message")}
+            onClick={() => onOpenChange()}
             value="view"
             styleProps={{ color: "#222222" }}
           />
@@ -140,6 +148,26 @@ const UsersTable: React.FC<iProps> = ({
         columnLabels={columnLabels}
         isLoading={loading}
       />
+      <Dialog
+        open={open}
+        onOpenChange={onOpenChange}
+        size="lg"
+        style={{
+          right: 0,
+          left: "auto",
+          top: 0,
+          bottom: 0,
+          position: "fixed",
+          height: "100vh",
+
+          margin: 0,
+          display: "flex",
+          alignItems: "stretch",
+          justifyContent: "flex-end",
+        }}
+      >
+        <UserDetails userId="1" />
+      </Dialog>
     </>
   );
 };

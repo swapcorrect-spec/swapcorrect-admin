@@ -15,6 +15,8 @@ type ButtonProps = {
   rounded?: "sm" | "md" | "lg" | "xl" | "2xl" | "full";
   width?: string | number;
   bg?: string;
+  m?: string;
+  border?: string;
 };
 
 export const Button: FC<ButtonProps> = ({
