@@ -12,6 +12,8 @@ import { Settings } from "../app/settings";
 import { SwapActivity } from "../app/swap-activity";
 import { FlagsAndReports } from "../app/flags-reports";
 import { Profile } from "../app/profile";
+import { SwapActivityInfo } from "../app/swap-activity/info";
+import { FlagReportDetails } from "../app/flags-reports/details";
 
 const Routes: FunctionComponent<Record<string, never>> = () => {
   return (
@@ -25,7 +27,15 @@ const Routes: FunctionComponent<Record<string, never>> = () => {
             <Route path={PATHS.USERMANAGEMENT} element={<UserManagement />} />
             <Route path={PATHS.SETTINGS} element={<Settings />} />
             <Route path={PATHS.SWAPACTIVITY} element={<SwapActivity />} />
+            <Route
+              path={`${PATHS.SWAPACTIVITY}/:swapId`}
+              element={<SwapActivityInfo />}
+            />
             <Route path={PATHS.FLAGSANDREPORTS} element={<FlagsAndReports />} />
+            <Route
+              path={`${PATHS.FLAGSANDREPORTS}/:reportId`}
+              element={<FlagReportDetails />}
+            />
             <Route path={PATHS.PROFILE} element={<Profile />} />
           </Route>
 

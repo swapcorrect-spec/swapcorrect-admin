@@ -1,6 +1,6 @@
 import { Flex } from "@chakra-ui/react";
 import PageLayout from "~/modules/layout/page-layout";
-import { Header, Select } from "~/modules/shared";
+import { Header } from "~/modules/shared";
 import { useState } from "react";
 import SwapActivityTable from "./_components/data-table";
 

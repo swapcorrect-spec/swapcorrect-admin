@@ -2,6 +2,7 @@ import { Menu as ChakraMenu, Box } from "@chakra-ui/react";
 import { HorizontalDots } from "~/assets/images";
 interface iMenu {
   children: React.ReactNode;
+  trigger?: React.ReactNode;
 }
 interface iMenuItem {
   onClick: () => void;
@@ -10,11 +11,14 @@ interface iMenuItem {
   value: string;
   styleProps: Record<string | number, string | number>;
 }
-export const Menu: React.FC<iMenu> = ({ children }) => {
+export const Menu: React.FC<iMenu> = ({
+  children,
+  trigger = <HorizontalDots />,
+}) => {
   return (
     <ChakraMenu.Root>
       <ChakraMenu.Trigger as={Box} position="relative" cursor="pointer">
-        <HorizontalDots />
+        {trigger}
       </ChakraMenu.Trigger>
       <ChakraMenu.Positioner>
         <ChakraMenu.Content p={4} minH="100px" minW="210px" h="full">

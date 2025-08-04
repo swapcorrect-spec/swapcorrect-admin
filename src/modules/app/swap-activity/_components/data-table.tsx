@@ -1,12 +1,14 @@
 "use client";
 
 import { Text, Flex, Box, Image } from "@chakra-ui/react";
-import { HorizontalDots } from "~/assets/images";
 import { TableComponent } from "~/modules/shared/table";
 import type { SwapActivityData } from "~/types/base";
 import { formatDateTime, getStatusStyles } from "~/modules/util";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Flag, OctagonAlert, Book } from "lucide-react";
 import user from "~/assets/images/user.png";
+import { MenuItem, Menu } from "~/modules/shared";
+import { useNavigate } from "react-router";
+import { PATHS } from "~/modules/_constants/paths";
 
 interface iProps {
   data?: any;
@@ -23,6 +25,7 @@ const SwapActivityTable: React.FC<iProps> = ({
   totalPages,
   loading,
 }) => {
+  const navigate = useNavigate();
   const textProps = {
     color: "#737373",
     fontWeight: 500,
@@ -33,7 +36,6 @@ const SwapActivityTable: React.FC<iProps> = ({
     swappers: (item: SwapActivityData) => (
       <Flex gap="4px" alignItems="center">
         <Box borderRadius={"full"} h={8} w={8}>
-          {" "}
           <Image src={user} alt="Owner Avatar" height="100%" width="100%" />
         </Box>
         <Text {...textProps} color={"#222222"}>
@@ -42,7 +44,6 @@ const SwapActivityTable: React.FC<iProps> = ({
         <ArrowLeft size={16} color="#737373" />
         <ArrowRight size={16} color="#737373" />
         <Box borderRadius={"full"} h={8} w={8}>
-          {" "}
           <Image src={user} alt="Owner Avatar" height="100%" width="100%" />
         </Box>
         <Text {...textProps} color={"#222222"}>
@@ -87,9 +88,31 @@ const SwapActivityTable: React.FC<iProps> = ({
       <Text {...textProps}>{formatDateTime(item?.updatedAt)}</Text>
     ),
     action: () => (
-      <Box>
-        <HorizontalDots />
-      </Box>
+      <Menu>
+        <Box>
+          <MenuItem
+            label="View details"
+            icon={<Book size={20} />}
+            onClick={() => navigate(`${PATHS.SWAPACTIVITY}/1`)}
+            value="view"
+            styleProps={{ color: "#222222" }}
+          />
+          <MenuItem
+            label="Warn users"
+            icon={<OctagonAlert size={20} />}
+            onClick={() => console.log("View")}
+            value="warn"
+            styleProps={{ color: "#222222" }}
+          />
+          <MenuItem
+            label="Flag Swap"
+            icon={<Flag size={20} />}
+            onClick={() => console.log("Flag")}
+            value="flag"
+            styleProps={{ color: "#E42222" }}
+          />
+        </Box>
+      </Menu>
     ),
   };
 
