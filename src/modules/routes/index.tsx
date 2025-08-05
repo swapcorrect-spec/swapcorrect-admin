@@ -8,7 +8,7 @@ import { PATHS } from "../_constants/paths";
 import { Dashboard } from "../app";
 import { Listing } from "../app/listing";
 import { UserManagement } from "../app/user-management";
-import { Settings } from "../app/settings";
+import { UserSettings } from "../app/settings";
 import { SwapActivity } from "../app/swap-activity";
 import { FlagsAndReports } from "../app/flags-reports";
 import { Profile } from "../app/profile";
@@ -25,7 +25,7 @@ const Routes: FunctionComponent<Record<string, never>> = () => {
             <Route path={PATHS.DASHBOARD} element={<Dashboard />} />
             <Route path={PATHS.LISTING} element={<Listing />} />
             <Route path={PATHS.USERMANAGEMENT} element={<UserManagement />} />
-            <Route path={PATHS.SETTINGS} element={<Settings />} />
+            <Route path={PATHS.SETTINGS} element={<UserSettings />} />
             <Route path={PATHS.SWAPACTIVITY} element={<SwapActivity />} />
             <Route
               path={`${PATHS.SWAPACTIVITY}/:swapId`}

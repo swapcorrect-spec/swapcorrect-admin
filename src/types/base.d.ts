@@ -94,3 +94,16 @@ export interface ActivityData extends DataItem {
   date: string;
   role: string;
 }
+
+export interface RoleData extends DataItem {
+  roleName: string;
+  description: string;
+  userCount: number;
+}
+
+export interface AuditData extends DataItem {
+  action: string;
+  user: string;
+  performedBy: string;
+  timeStamp: string;
+}

@@ -5,4 +5,5 @@ import { Header } from "./Header";
 import { Menu, MenuItem } from "./Menu";
 import { Dialog } from "./Dialog";
 import { Tab } from "./Tab";
-export { Input, Button, Header, Select, Menu, Dialog, MenuItem, Tab };
+import { Switch } from "./Switch";
+export { Input, Button, Header, Select, Menu, Dialog, MenuItem, Tab, Switch };

@@ -4,7 +4,6 @@ export const PATHS = {
   USERMANAGEMENT: "/user-management",
   SWAPACTIVITY: "/swap-activity",
   FLAGSANDREPORTS: "/flags-reports",
-  ROLES: "/user-roles",
   SETTINGS: "/settings",
   PROFILE: "/profile",
 };

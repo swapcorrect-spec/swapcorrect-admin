@@ -52,12 +52,6 @@ export const Sidebar = () => {
       iconOutline: <Flag />,
       link: PATHS.FLAGSANDREPORTS,
     },
-    {
-      title: "User Roles",
-      iconFilled: <Listing />,
-      iconOutline: <UserRole />,
-      link: PATHS.ROLES,
-    },
   ];
 
   const SIDEBAR_LIST_ONE = [
