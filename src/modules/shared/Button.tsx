@@ -17,6 +17,7 @@ type ButtonProps = {
   bg?: string;
   m?: string;
   border?: string;
+  type?: "button" | "submit" | "reset";
 };
 
 export const Button: FC<ButtonProps> = ({

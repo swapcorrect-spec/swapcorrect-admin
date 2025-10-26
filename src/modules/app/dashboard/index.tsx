@@ -11,7 +11,6 @@ import { Box, Flex, Text } from "@chakra-ui/react";
 import { Link } from "react-router";
 import InfoCard from "~/modules/shared/widgets/info_card";
 import { ChevronRight } from "lucide-react";
-import Routes from "~/modules/routes";
 import { PATHS } from "~/modules/_constants/paths";
 
 export const Dashboard = () => {

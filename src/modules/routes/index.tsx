@@ -14,6 +14,8 @@ import { FlagsAndReports } from "../app/flags-reports";
 import { Profile } from "../app/profile";
 import { SwapActivityInfo } from "../app/swap-activity/info";
 import { FlagReportDetails } from "../app/flags-reports/details";
+import Login from "../app/login";
+import ForgotPassword from "../app/forgot-password";
 
 const Routes: FunctionComponent<Record<string, never>> = () => {
   return (
@@ -21,7 +23,8 @@ const Routes: FunctionComponent<Record<string, never>> = () => {
       <BrowserRouter>
         <BrowserRoutes>
           <Route>
-            <Route path="/" element={<p>welcome</p>} />
+            <Route path="/" element={<Login />} />
+            <Route path={"/forgot-password"} element={<ForgotPassword />} />
             <Route path={PATHS.DASHBOARD} element={<Dashboard />} />
             <Route path={PATHS.LISTING} element={<Listing />} />
             <Route path={PATHS.USERMANAGEMENT} element={<UserManagement />} />
