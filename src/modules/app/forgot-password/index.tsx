@@ -34,7 +34,7 @@ const ForgotPassword: React.FC = () => {
     onSuccess(_val: { result: string }) {
       toast.success(_val.result, {
         onAutoClose: () => {
-          navigate(`${PATHS.LOGIN}`);
+          navigate(PATHS.LOGIN);
         },
       });
       setFormStep("email");
