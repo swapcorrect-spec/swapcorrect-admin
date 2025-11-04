@@ -1,26 +1,42 @@
-import { Suspense, type FunctionComponent } from "react";
+import { Suspense, lazy, type FunctionComponent } from "react";
 import {
   BrowserRouter,
   Routes as BrowserRoutes,
   Route,
 } from "react-router-dom";
+import { Box, Spinner } from "@chakra-ui/react";
 import { PATHS } from "../_constants/paths";
-import { Dashboard } from "../app";
-import { Listing } from "../app/listing";
-import { UserManagement } from "../app/user-management";
-import { UserSettings } from "../app/settings";
-import { SwapActivity } from "../app/swap-activity";
-import { FlagsAndReports } from "../app/flags-reports";
-import { Profile } from "../app/profile";
-import { SwapActivityInfo } from "../app/swap-activity/info";
-import { FlagReportDetails } from "../app/flags-reports/details";
-import Login from "../app/login";
-import ForgotPassword from "../app/forgot-password";
+
+// Lazy load all route components for code splitting
+const Login = lazy(() => import("../app/login"));
+const ForgotPassword = lazy(() => import("../app/forgot-password"));
+const Dashboard = lazy(() => import("../app/dashboard").then(module => ({ default: module.Dashboard })));
+const Listing = lazy(() => import("../app/listing").then(module => ({ default: module.Listing })));
+const UserManagement = lazy(() => import("../app/user-management").then(module => ({ default: module.UserManagement })));
+const UserSettings = lazy(() => import("../app/settings").then(module => ({ default: module.UserSettings })));
+const SwapActivity = lazy(() => import("../app/swap-activity").then(module => ({ default: module.SwapActivity })));
+const SwapActivityInfo = lazy(() => import("../app/swap-activity/info").then(module => ({ default: module.SwapActivityInfo })));
+const FlagsAndReports = lazy(() => import("../app/flags-reports").then(module => ({ default: module.FlagsAndReports })));
+const FlagReportDetails = lazy(() => import("../app/flags-reports/details").then(module => ({ default: module.FlagReportDetails })));
+const Profile = lazy(() => import("../app/profile").then(module => ({ default: module.Profile })));
+
+// Loading fallback component
+const LoadingFallback = () => (
+  <Box
+    display="flex"
+    alignItems="center"
+    justifyContent="center"
+    minH="100vh"
+    w="100%"
+  >
+    <Spinner size="xl" color="#007AFF" />
+  </Box>
+);
 
 const Routes: FunctionComponent<Record<string, never>> = () => {
   return (
-    <Suspense>
-      <BrowserRouter>
+    <BrowserRouter>
+      <Suspense fallback={<LoadingFallback />}>
         <BrowserRoutes>
           <Route path="/" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -41,8 +57,8 @@ const Routes: FunctionComponent<Record<string, never>> = () => {
           <Route path={PATHS.PROFILE} element={<Profile />} />
           <Route path="*" element={<div>Page not found</div>} />
         </BrowserRoutes>
-      </BrowserRouter>
-    </Suspense>
+      </Suspense>
+    </BrowserRouter>
   );
 };
 
