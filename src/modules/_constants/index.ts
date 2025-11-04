@@ -183,3 +183,5 @@ export const mockListings = [
     swap: { total: 6 },
   },
 ];
+
+export const DASHBOARD_SUMMARY = "DASHBOARD_SUMMARY";

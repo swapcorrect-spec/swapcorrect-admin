@@ -4,7 +4,7 @@ import { Text, Flex, Box } from "@chakra-ui/react";
 import { Caution, Star } from "~/assets/images";
 import { TableComponent } from "~/modules/shared/table";
 import type { UsersData } from "~/types/base";
-import { getStatusStyles } from "~/modules/util";
+import { getStatusStyles, formatDateTime } from "~/modules/util";
 import { Flag, UserRound } from "lucide-react";
 import { MenuItem, Menu, Dialog } from "~/modules/shared";
 import UserDetails from "./user-details";
@@ -22,7 +22,6 @@ const UsersTable: React.FC<iProps> = ({
   data,
   currentPage,
   onPageChange,
-
   totalPages,
   loading,
 }) => {
@@ -70,7 +69,7 @@ const UsersTable: React.FC<iProps> = ({
     },
 
     dateJoined: (item: UsersData) => (
-      <Text {...textProps}>{item?.dateJoined}</Text>
+      <Text {...textProps}>{formatDateTime(item?.dateJoined)}</Text>
     ),
 
     role: (item: UsersData) => (
@@ -129,7 +128,7 @@ const UsersTable: React.FC<iProps> = ({
   const columnLabels = {
     profile: "Profile",
     trustScore: "Trust Score",
-    swaps: "Swaps",
+    swaps: "Swap Completed",
     status: "Status",
     dateJoined: "Date Joined",
     role: "User Role",
@@ -142,7 +141,7 @@ const UsersTable: React.FC<iProps> = ({
         tableData={data}
         currentPage={currentPage}
         onPageChange={onPageChange}
-        totalPages={Math.ceil(totalPages / 10)}
+        totalPages={totalPages}
         cellRenderers={cellRenderers}
         columnOrder={columnOrder}
         columnLabels={columnLabels}

@@ -8,6 +8,7 @@ interface iInfoCardProps {
   progress?: boolean;
   showFooter?: boolean;
   description?: string;
+  percentageChange?: number;
 }
 const InfoCard: React.FC<iInfoCardProps> = ({
   icon,
@@ -16,6 +17,7 @@ const InfoCard: React.FC<iInfoCardProps> = ({
   progress,
   showFooter = true,
   description,
+  percentageChange,
 }) => {
   return (
     <Box
@@ -31,7 +33,7 @@ const InfoCard: React.FC<iInfoCardProps> = ({
           {title}
         </Text>
       </Box>
-      {count && (
+      {count !== undefined && count !== null && (
         <Text fontSize="20px" color="#222222" fontWeight="600" mb="16px">
           {count}
         </Text>
@@ -63,7 +65,8 @@ const InfoCard: React.FC<iInfoCardProps> = ({
             {progress ? <ProgressUp /> : <ProgressDown />}
           </Box>
           <Text fontSize="12px" color="#737373">
-            {progress ? "+" : "-"}12% from last month
+            {progress ? "+" : "-"}
+            {percentageChange !== undefined ? percentageChange : 12}% from last month
           </Text>
         </Box>
       )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { Table, Spinner, Flex, Box, Text } from "@chakra-ui/react";
+import { Table, Skeleton, Flex, Box, Text } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 import type { DataItem, ITableProps } from "~/types/base";
 import { Pagination } from "./pagination";
@@ -29,6 +29,9 @@ export function TableComponent<T extends DataItem>({
     columnOrder ||
     (tableData.length ? (Object.keys(tableData[0]) as (keyof T)[]) : []);
   const safeOnPageChange = onPageChange ?? (() => {});
+  
+  // Use columns for skeleton if available, otherwise use columnOrder or default
+  const skeletonColumns = columnOrder || columns || [];
 
   const formatColumnName = (name: string) => {
     return (
@@ -46,9 +49,55 @@ export function TableComponent<T extends DataItem>({
 
   if (isLoading) {
     return (
-      <Flex align="center" justify="center" h="50vh">
-        <Spinner size="lg" />
-      </Flex>
+      <Box w="full">
+        <Box
+          borderWidth="1px"
+          borderColor="gray.100"
+          rounded="md"
+          overflow="hidden"
+          mb={6}
+        >
+          <Table.Root size="md" variant="outline">
+            {/* Table Header */}
+            <Table.Header bg="#FAFAFA">
+              <Table.Row>
+                {skeletonColumns.map((column, index) => (
+                  <Table.ColumnHeader
+                    key={String(column)}
+                    px={index === 0 ? "16px" : "8px"}
+                    py="12px"
+                    fontWeight={500}
+                    fontSize="sm"
+                    color="#737373"
+                  >
+                    {formatColumnName(String(column))}
+                  </Table.ColumnHeader>
+                ))}
+              </Table.Row>
+            </Table.Header>
+
+            {/* Table Body Skeleton */}
+            <Table.Body>
+              {Array.from({ length: 5 }).map((_, rowIndex) => (
+                <Table.Row key={rowIndex} borderBottom="1px solid #EAEAEA">
+                  {skeletonColumns.map((column, colIndex) => (
+                    <Table.Cell
+                      key={String(column)}
+                      px={colIndex === 0 ? "16px" : "8px"}
+                      py="12px"
+                    >
+                      <Skeleton height="20px" width="80%" />
+                    </Table.Cell>
+                  ))}
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table.Root>
+        </Box>
+        <Box mb={6}>
+          <Skeleton height="40px" width="100%" />
+        </Box>
+      </Box>
     );
   }
 

@@ -5,12 +5,32 @@ import { Header, Select } from "~/modules/shared";
 import InfoCard from "~/modules/shared/widgets/info_card";
 import UsersTable from "./_components/data-table";
 import { useState } from "react";
+import { useGetUsers } from "~/hooks/queries/user/user";
 
 export const UserManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const onPageChange = (page: number) => {
     setCurrentPage(page);
   };
+
+  const { data: usersData, isLoading } = useGetUsers({
+    enabler: true,
+    pageNumber: currentPage,
+    pageSize: 20,
+    filterType: "All",
+  });
+
+  console.log("Users Data:", usersData);
+
+  // Transform API data to match table structure
+  const tableData = usersData?.items?.map((user) => ({
+    profile: user.name,
+    trustScore: user.ratingScore,
+    swaps: user.swapCompleted,
+    status: user.status,
+    dateJoined: user.dateJoined,
+    role: user.userRole,
+  })) || [];
 
   const INFOLIST = [
     {
@@ -24,49 +44,6 @@ export const UserManagement = () => {
       value: 300,
       icon: <TotalVisitor />,
       progress: true,
-    },
-  ];
-
-  const tableData = [
-    {
-      profile: "John Doe",
-      trustScore: 82,
-      swaps: 15,
-      status: "Active",
-      dateJoined: "2024-06-10",
-      role: "Merchant",
-    },
-    {
-      profile: "Jane Smith",
-      trustScore: 95,
-      swaps: 42,
-      status: "Pending",
-      dateJoined: "2024-07-01",
-      role: "Admin",
-    },
-    {
-      profile: "Michael Johnson",
-      trustScore: 67,
-      swaps: 8,
-      status: "Flagged",
-      dateJoined: "2024-05-18",
-      role: "User",
-    },
-    {
-      profile: "Sophia Lee",
-      trustScore: 73,
-      swaps: 22,
-      status: "Suspended",
-      dateJoined: "2024-08-25",
-      role: "Merchant",
-    },
-    {
-      profile: "Daniel Brown",
-      trustScore: 90,
-      swaps: 35,
-      status: "Active",
-      dateJoined: "2024-09-15",
-      role: "Super Admin",
     },
   ];
 
@@ -107,8 +84,8 @@ export const UserManagement = () => {
         data={tableData}
         currentPage={currentPage}
         onPageChange={onPageChange}
-        totalPages={30}
-        loading={false}
+        totalPages={usersData?.totalPages || 0}
+        loading={isLoading}
       />
     </PageLayout>
   );
