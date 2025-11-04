@@ -7,7 +7,6 @@ import {
 import { Box, Spinner } from "@chakra-ui/react";
 import { PATHS } from "../_constants/paths";
 
-// Lazy load all route components for code splitting
 const Login = lazy(() => import("../app/login"));
 const ForgotPassword = lazy(() => import("../app/forgot-password"));
 const Dashboard = lazy(() => import("../app/dashboard").then(module => ({ default: module.Dashboard })));
@@ -20,7 +19,6 @@ const FlagsAndReports = lazy(() => import("../app/flags-reports").then(module =>
 const FlagReportDetails = lazy(() => import("../app/flags-reports/details").then(module => ({ default: module.FlagReportDetails })));
 const Profile = lazy(() => import("../app/profile").then(module => ({ default: module.Profile })));
 
-// Loading fallback component
 const LoadingFallback = () => (
   <Box
     display="flex"
