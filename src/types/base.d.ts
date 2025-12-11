@@ -47,6 +47,8 @@ export interface SwapActivityData extends DataItem {
   itemTwo: string;
   swapperOne: string;
   swapperTwo: string;
+  swapperOneInitials?: string;
+  swapperTwoInitials?: string;
   status: string;
   createdAt: string;
   updatedAt: string;
@@ -72,6 +74,8 @@ export interface SwapDetailsProps {
   condition: string;
   price: number | string;
   itemUrl: string;
+  isVideo?: boolean;
+  mediaType?: "Image" | "Video" | "Document";
   category: string;
   status: string;
   description: string;
@@ -82,6 +86,8 @@ export interface SwapDetailsProps {
   requestedInExchange: any;
   owner: string;
   ownerAvatar: string;
+  ownerId?: string;
+  listingId?: string;
   rating: number | string;
   swap: {
     total: number | string;

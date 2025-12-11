@@ -5,11 +5,18 @@ interface iTabProps {
     title: string;
     children?: React.ReactNode;
   }[];
-  defaultValue: string;
+  defaultValue?: string;
+  value?: string;
+  onValueChange?: (value: string) => void;
 }
-export const Tab: React.FC<iTabProps> = ({ options, defaultValue }) => {
+export const Tab: React.FC<iTabProps> = ({ options, defaultValue, value, onValueChange }) => {
   return (
-    <Tabs.Root variant="enclosed" defaultValue={defaultValue} width="100%">
+    <Tabs.Root
+      variant="enclosed"
+      {...(value !== undefined ? { value } : { defaultValue })}
+      onValueChange={(e) => onValueChange?.(e.value)}
+      width="100%"
+    >
       <Tabs.List width={"100%"}>
         {options.map((tab, index) => (
           <Tabs.Trigger key={index} value={tab.value} width={"100%"}>

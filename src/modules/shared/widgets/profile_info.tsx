@@ -3,12 +3,17 @@ import { CircleArrowRight, Dot } from "lucide-react";
 import { Link } from "react-router";
 import { Star } from "~/assets/images";
 import user from "~/assets/images/user.png";
+import { createImageErrorHandler, getImageSrcWithFallback } from "~/modules/util";
 import type { SwapDetailsProps } from "~/types/base";
+import { useState } from "react";
+
 interface iSwapDetails {
   detail: SwapDetailsProps;
 }
 
 const ProfileInfo: React.FC<iSwapDetails> = ({ detail }) => {
+  const [imageError, setImageError] = useState(false);
+
   return (
     <Flex
       border="1px solid #E9E9E9"
@@ -20,13 +25,14 @@ const ProfileInfo: React.FC<iSwapDetails> = ({ detail }) => {
       gap={4}
       bg="#fff"
     >
-      <Box display="flex" height="62px" width="62px" borderRadius="full">
+      <Box display="flex" height="62px" width="62px" borderRadius="full" overflow="hidden">
         <Image
-          src={user}
+          src={getImageSrcWithFallback(detail.ownerAvatar || "", imageError, user)}
           alt="Owner Avatar"
           borderRadius="full"
           height="100%"
           width="100%"
+          onError={createImageErrorHandler(setImageError)}
         />
       </Box>
       <Box width="full">

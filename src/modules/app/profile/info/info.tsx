@@ -33,13 +33,13 @@ const Contact: React.FC<{ userData?: any }> = ({ userData }) => {
   );
 };
 
-const TrustScore: React.FC<{ userData?: any }> = ({ userData }) => {
+const Ratings: React.FC<{ userData?: any }> = ({ userData }) => {
   return (
     <Box display="flex" flexDirection={"column"} gap={5}>
       <Flex gap={3} alignItems={"center"} color="#737373">
         <StarOutline />
         <Text fontWeight={500} fontSize="14px">
-          Trust Score
+          Ratings
         </Text>
         <Text fontWeight={500} fontSize="14px" color="#222222" ml="auto">
           {userData?.rating || 0}
@@ -54,18 +54,8 @@ const TrustScore: React.FC<{ userData?: any }> = ({ userData }) => {
           {userData?.isEmailConfirmed ? "Yes" : "No"}
         </Text>
       </Flex>
-
-      <Flex gap={3} alignItems={"center"} color="#737373">
-        <BadgeCheck size={16} color="#007AFF" />
-        <Text fontWeight={500} fontSize="14px">
-          Phone Verification
-        </Text>
-        <Text fontWeight={500} fontSize="14px" color="#222222" ml="auto">
-          {userData?.phoneNumber ? "Yes" : "No"}
-        </Text>
-      </Flex>
       <Button bg="transparent" variant="outline">
-        Reset Trust Score
+        Reset Ratings
       </Button>
     </Box>
   );
@@ -116,9 +106,9 @@ const UserInfo: React.FC<UserInfoProps> = ({ userData }) => {
       children: <Contact userData={userData} />,
     },
     {
-      value: "trust_scores",
-      title: "Trust & Verification",
-      children: <TrustScore userData={userData} />,
+      value: "ratings",
+      title: "Ratings & Verification",
+      children: <Ratings userData={userData} />,
     },
     { value: "admin_notes", title: "Admin Notes", children: <AdminNotes /> },
   ];

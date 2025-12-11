@@ -1,5 +1,5 @@
-import { Box, Flex, Image, Text } from "@chakra-ui/react";
-import { getStatusStyles } from "~/modules/util";
+import { Box, Flex, Image, Text, Spinner } from "@chakra-ui/react";
+import { getStatusStyles, createImageErrorHandler, getImageSrcWithFallback } from "~/modules/util";
 import user from "~/assets/images/user.png";
 import { Button, Tab } from "~/modules/shared";
 import { Counter, Refresh, StarOutline } from "~/assets/images";
@@ -9,17 +9,35 @@ import UserListings from "./listings";
 import UserActivity from "./activity";
 import UserReports from "./reports";
 import { Flag, OctagonAlert, TriangleAlert } from "lucide-react";
+import { useGetGeneralUserInfo } from "~/hooks/queries/auth/auth";
+import { useState } from "react";
+
 interface iSwapDetails {
   userId: any;
+  isOpen?: boolean;
 }
 
-const UserDetails: React.FC<iSwapDetails> = ({ userId }) => {
+const UserDetails: React.FC<iSwapDetails> = ({ userId, isOpen = true }) => {
+  const [imageError, setImageError] = useState(false);
+  
+  const { data, isLoading, isFetching, error } = useGetGeneralUserInfo({
+    userId: userId?.toString() || "",
+    enabler: isOpen && !!userId,
+  });
+
+  const userData = data?.result;
+  
   const userInfo: any = {
-    name: "Sandra Nwakwo",
-    userType: "Swapper",
-    status: "Active",
-    totalSwaps: 24,
-    trustScore: 4.8,
+    name: userData ? `${userData.firstName} ${userData.lastName}` : "",
+    userType: userData?.userRole?.[0] || "",
+    status: userData?.isSuspendUser ? "Suspended" : "Active",
+    totalSwaps: userData?.swapCount || 0,
+    trustScore: userData?.rating || 0,
+    email: userData?.email || "",
+    phoneNumber: userData?.phoneNumber || "",
+    username: userData?.userName || "",
+    createdAt: userData?.created || "",
+    lastLoginTime: userData?.lastLoginTime || "",
   };
   const { borderColor, bg, textColor } = getStatusStyles(
     userInfo?.status?.toLowerCase()
@@ -37,7 +55,7 @@ const UserDetails: React.FC<iSwapDetails> = ({ userId }) => {
     },
     {
       title: "Last Active",
-      description: "5h ago Ago",
+      description: userData?.lastLoginTime ? new Date(userData.lastLoginTime).toLocaleDateString() : "Never",
       icon: <Counter />,
     },
   ];
@@ -45,7 +63,7 @@ const UserDetails: React.FC<iSwapDetails> = ({ userId }) => {
     {
       title: "Info",
       value: "info",
-      children: <UserInfo />,
+      children: <UserInfo userData={userData} />,
     },
     {
       title: "Activity",
@@ -55,7 +73,7 @@ const UserDetails: React.FC<iSwapDetails> = ({ userId }) => {
     {
       title: "Listing",
       value: "listing",
-      children: <UserListings />,
+      children: <UserListings userId={userId} />,
     },
     {
       title: "Reports",
@@ -64,6 +82,21 @@ const UserDetails: React.FC<iSwapDetails> = ({ userId }) => {
     },
   ];
 
+  // Show loader when fetching
+  if (isLoading || isFetching) {
+    return (
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        minH="400px"
+        w="100%"
+      >
+        <Spinner size="xl" color="#007AFF" />
+      </Box>
+    );
+  }
+
   return (
     <Box>
       <Text fontSize="xl" fontWeight="medium" color="#222222" mb={6}>
@@ -71,15 +104,21 @@ const UserDetails: React.FC<iSwapDetails> = ({ userId }) => {
       </Text>
       <Box border="1px solid #E9E9E9" py={2.5} px={3} borderRadius={3} mb={6}>
         <Flex mb={4} alignItems="center" gap={4}>
-          <Box display="flex" height="83px" width="63px" borderRadius="full">
-            <Image src={user} alt="Owner Avatar" height="100%" width="100%" />
+          <Box display="flex" height="83px" width="63px" borderRadius="full" overflow="hidden">
+            <Image 
+              src={getImageSrcWithFallback(userData?.profilePicture || "", imageError, user)} 
+              alt="Owner Avatar" 
+              height="100%" 
+              width="100%" 
+              onError={createImageErrorHandler(setImageError)}
+            />
           </Box>
           <Box width="full">
             <Text fontSize="20px" color="#222222" fontWeight="700" mb={2}>
               {userInfo?.name}
             </Text>
             <Text fontSize="14px" color="#737373">
-              Joined Mar 2024
+              {userData?.created ? `Joined ${new Date(userData.created).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}` : ""}
             </Text>
           </Box>
         </Flex>
@@ -134,10 +173,10 @@ const UserDetails: React.FC<iSwapDetails> = ({ userId }) => {
           <OctagonAlert size={20} />
           Suspend
         </Button>
-        <Button bg="#FFF0EF" width={"fit-content"}>
+        {/* <Button bg="#FFF0EF" width={"fit-content"}>
           <Flag size={20} color="#E42222" />
           Flag
-        </Button>
+        </Button> */}
       </Flex>
     </Box>
   );

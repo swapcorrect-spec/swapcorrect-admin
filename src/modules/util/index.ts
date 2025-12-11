@@ -51,8 +51,28 @@ export const getStatusStyles = (status: string): StatusStyles => {
 /**
  * Formats a date string to "MMM dd, yyyy, hh:mm a" (e.g. May 17, 2025, 09:45 AM)
  * @param dateString ISO date string or Date object
- * @returns formatted date string
+ * @returns formatted date string or "N/A" if invalid
  */
-export function formatDateTime(dateString: string): string {
-  return format(new Date(dateString), "MMM dd, yyyy, hh:mm a");
+export function formatDateTime(dateString: string | undefined | null): string {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return "N/A";
+  return format(date, "MMM dd, yyyy, hh:mm a");
 }
+
+export const createImageErrorHandler = (
+  setErrorState: (error: boolean) => void,
+  fallbackUrl: string = "https://plus.unsplash.com/premium_photo-1664537979073-a467fa628555?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2371"
+) => {
+  return () => {
+    setErrorState(true);
+  };
+};
+
+export const getImageSrcWithFallback = (
+  originalSrc: string,
+  hasError: boolean,
+  fallbackUrl: string = "https://plus.unsplash.com/premium_photo-1664537979073-a467fa628555?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2371"
+): string => {
+  return hasError ? fallbackUrl : originalSrc;
+};

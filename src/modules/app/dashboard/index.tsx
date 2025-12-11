@@ -100,7 +100,7 @@ export const Dashboard = () => {
         <Flex justifyContent="space-between" alignItems="center">
           <Header
             title="Welcome, Kathleen"
-            description="Lorem ipsum dolor sit amet, consectetuer adipiscing elit,euismod tincidunt ut l"
+            description="Overview of your dashboard"
           />
           <Box w={"180px"}>
             <Select

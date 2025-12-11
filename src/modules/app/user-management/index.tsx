@@ -19,11 +19,9 @@ export const UserManagement = () => {
     pageSize: 20,
     filterType: "All",
   });
-
-  console.log("Users Data:", usersData);
-
-  // Transform API data to match table structure
+  
   const tableData = usersData?.items?.map((user) => ({
+    id: user.id,
     profile: user.name,
     trustScore: user.ratingScore,
     swaps: user.swapCompleted,
@@ -52,7 +50,7 @@ export const UserManagement = () => {
       <Flex justifyContent="space-between" alignItems="center">
         <Header
           title="User Overview"
-          description="Lorem ipsum dolor sit amet, consectetuer adipiscing elit,euismod tincidunt ut l"
+          description="Manage your users and track their activity"
         />
         <Box>
           <Select

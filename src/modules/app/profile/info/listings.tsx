@@ -34,12 +34,12 @@ export const List: React.FC<iList> = ({ item }) => {
     <Box
       borderRadius="12px"
       width="100%"
-      py="10px"
-      px="10px"
+      py="12px"
+      px="16px"
       border="1px solid #EAEAEA"
     >
-      <Box display="flex" gap="24px">
-        <Box h="100px" w="100px" borderRadius="8px" overflow="hidden">
+      <Box display="flex" gap="24px" mb="16px">
+        <Box h="100px" w="100px" borderRadius="8px" overflow="hidden" flexShrink={0}>
           {isVideo ? (
             <Box
               as="video"
@@ -73,11 +73,16 @@ export const List: React.FC<iList> = ({ item }) => {
             />
           )}
         </Box>
-        <Box>
-          <Text fontSize="16px" color="#222222" fontWeight="500" mb="14px">
-            {item.itemName}
-          </Text>
-          <Box mb="8px" display="flex" gap={4}>
+        <Box flex={1}>
+          <Flex justifyContent="space-between" alignItems="flex-start" mb="8px">
+            <Text fontSize="16px" color="#222222" fontWeight="500">
+              {item.itemName}
+            </Text>
+            <Text fontSize="16px" color="#007AFF" fontWeight="600">
+              {item.estimatedCurrency} {item.estimatedAmount}
+            </Text>
+          </Flex>
+          <Box mb="8px" display="flex" gap={4} flexWrap="wrap">
             <Text
               fontSize="13px"
               color="#222222"
@@ -98,7 +103,50 @@ export const List: React.FC<iList> = ({ item }) => {
             >
               {item.reviewStage}
             </Text>
+            {item.itemCondition && (
+              <Text
+                fontSize="13px"
+                color="#737373"
+                border="1px solid #E9E9E9"
+                p="7.5px 9px"
+                borderRadius="37.74px"
+              >
+                {item.itemCondition}
+              </Text>
+            )}
           </Box>
+          {item.itemDescription && (
+            <Text fontSize="14px" color="#737373" mb="8px" >
+              {item.itemDescription}
+            </Text>
+          )}
+          {item.swapListRequest && item.swapListRequest.length > 0 && (
+            <Box>
+              <Text fontSize="12px" color="#737373" mb="4px">
+                Requested in Exchange:
+              </Text>
+              <Flex gap={2} flexWrap="wrap">
+                {item.swapListRequest.slice(0, 3).map((request: string, idx: number) => (
+                  <Text
+                    key={idx}
+                    fontSize="12px"
+                    color="#222222"
+                    bg="#F7F7F7"
+                    px="8px"
+                    py="4px"
+                    borderRadius="4px"
+                  >
+                    {request}
+                  </Text>
+                ))}
+                {item.swapListRequest.length > 3 && (
+                  <Text fontSize="12px" color="#737373" px="8px" py="4px">
+                    +{item.swapListRequest.length - 3} more
+                  </Text>
+                )}
+              </Flex>
+            </Box>
+          )}
         </Box>
       </Box>
     </Box>

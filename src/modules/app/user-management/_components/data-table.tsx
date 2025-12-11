@@ -6,9 +6,8 @@ import { TableComponent } from "~/modules/shared/table";
 import type { UsersData } from "~/types/base";
 import { getStatusStyles, formatDateTime } from "~/modules/util";
 import { Flag, UserRound } from "lucide-react";
-import { MenuItem, Menu, Dialog } from "~/modules/shared";
-import UserDetails from "./user-details";
-import { useState } from "react";
+import { MenuItem, Menu } from "~/modules/shared";
+import { useNavigate } from "react-router";
 
 interface iProps {
   data?: any;
@@ -25,10 +24,12 @@ const UsersTable: React.FC<iProps> = ({
   totalPages,
   loading,
 }) => {
-  const [open, setOpen] = useState<boolean>(false);
+  const navigate = useNavigate();
 
-  const onOpenChange = () => {
-    setOpen((prev) => !prev);
+  const handleViewProfile = (item: UsersData) => {
+    if (item?.id) {
+      navigate(`/profile/${item.id}`);
+    }
   };
 
   const textProps = {
@@ -86,13 +87,13 @@ const UsersTable: React.FC<iProps> = ({
       </Text>
     ),
 
-    action: () => (
+    action: (item: UsersData) => (
       <Menu>
         <Box>
           <MenuItem
             label="View profile"
             icon={<UserRound size={20} />}
-            onClick={() => onOpenChange()}
+            onClick={() => handleViewProfile(item)}
             value="view"
             styleProps={{ color: "#222222" }}
           />
@@ -103,13 +104,13 @@ const UsersTable: React.FC<iProps> = ({
             value="suspend"
             styleProps={{ color: "#007AFF" }}
           />
-          <MenuItem
+          {/* <MenuItem
             label="Flag User"
             icon={<Flag size={20} />}
             onClick={() => console.log("Flag")}
             value="flag"
             styleProps={{ color: "#E42222" }}
-          />
+          /> */}
         </Box>
       </Menu>
     ),
@@ -147,26 +148,6 @@ const UsersTable: React.FC<iProps> = ({
         columnLabels={columnLabels}
         isLoading={loading}
       />
-      <Dialog
-        open={open}
-        onOpenChange={onOpenChange}
-        size="lg"
-        style={{
-          right: 0,
-          left: "auto",
-          top: 0,
-          bottom: 0,
-          position: "fixed",
-          height: "100vh",
-
-          margin: 0,
-          display: "flex",
-          alignItems: "stretch",
-          justifyContent: "flex-end",
-        }}
-      >
-        <UserDetails userId="1" />
-      </Dialog>
     </>
   );
 };

@@ -18,6 +18,7 @@ const SwapActivityInfo = lazy(() => import("../app/swap-activity/info").then(mod
 const FlagsAndReports = lazy(() => import("../app/flags-reports").then(module => ({ default: module.FlagsAndReports })));
 const FlagReportDetails = lazy(() => import("../app/flags-reports/details").then(module => ({ default: module.FlagReportDetails })));
 const Profile = lazy(() => import("../app/profile").then(module => ({ default: module.Profile })));
+const ProfileInfo = lazy(() => import("../app/profile/info").then(module => ({ default: module.default })));
 
 const LoadingFallback = () => (
   <Box
@@ -53,6 +54,7 @@ const Routes: FunctionComponent<Record<string, never>> = () => {
             element={<FlagReportDetails />}
           />
           <Route path={PATHS.PROFILE} element={<Profile />} />
+          <Route path={`${PATHS.PROFILE}/:userId`} element={<ProfileInfo />} />
           <Route path="*" element={<div>Page not found</div>} />
         </BrowserRoutes>
       </Suspense>
