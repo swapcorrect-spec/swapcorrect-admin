@@ -17,6 +17,7 @@ import {
 
 export const FlagReportDetails = () => {
   const sampleDetail = {
+    listingId: "12-edsefffgg-90",
     name: "iPhone 14 Pro",
     condition: "Like New",
     price: 850,
