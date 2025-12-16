@@ -21,13 +21,14 @@ export const UserManagement = () => {
   });
   
   const tableData = usersData?.items?.map((user) => ({
-    id: user.id,
+    id: user.userId,
     profile: user.name,
     trustScore: user.ratingScore,
     swaps: user.swapCompleted,
     status: user.status,
     dateJoined: user.dateJoined,
     role: user.userRole,
+    profilePicture: user.profilePicture || "",
   })) || [];
 
   const INFOLIST = [

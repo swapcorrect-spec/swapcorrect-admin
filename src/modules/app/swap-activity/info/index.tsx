@@ -1,4 +1,4 @@
-import { Box, Text, Flex, Image } from "@chakra-ui/react";
+import { Box, Text, Flex, Image, Spinner } from "@chakra-ui/react";
 import PageLayout from "~/modules/layout/page-layout";
 import { Button, Header } from "~/modules/shared";
 import ProfileInfo from "~/modules/shared/widgets/profile_info";
@@ -6,11 +6,17 @@ import swapitem from "~/assets/images/swap_item.png";
 import { ArrowLeft, ArrowRight, Flag, X } from "lucide-react";
 import { getStatusStyles } from "~/modules/util";
 import { useParams } from "react-router";
+import { useGetSwapInfo } from "~/hooks/queries/swap-activity/swap-activity";
 
 export const SwapActivityInfo = () => {
   const { swapId } = useParams();
+  const { data, isLoading, isFetching } = useGetSwapInfo({
+    swapId: swapId || "",
+    enabler: !!swapId,
+  });
 
   const sampleDetail = {
+    listingId: "12-edsefffgg-90",
     name: "iPhone 14 Pro",
     condition: "Like New",
     price: 850,
@@ -31,6 +37,21 @@ export const SwapActivityInfo = () => {
     },
   };
   const { borderColor, bg, textColor } = getStatusStyles("negotiating");
+  if (isLoading || isFetching) {
+    return (
+      <PageLayout>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          minH="400px"
+          w="100%"
+        >
+          <Spinner size="xl" color="#007AFF" />
+        </Box>
+      </PageLayout>
+    );
+  }
 
   return (
     <PageLayout>

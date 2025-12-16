@@ -1,13 +1,16 @@
 "use client";
 
-import { Text, Flex, Box } from "@chakra-ui/react";
+import { Text, Flex, Box, Image } from "@chakra-ui/react";
 import { Caution, Star } from "~/assets/images";
 import { TableComponent } from "~/modules/shared/table";
 import type { UsersData } from "~/types/base";
-import { getStatusStyles, formatDateTime } from "~/modules/util";
+import { getStatusStyles, formatDateTime, getImageSrcWithFallback, createImageErrorHandler } from "~/modules/util";
 import { Flag, UserRound } from "lucide-react";
 import { MenuItem, Menu } from "~/modules/shared";
 import { useNavigate } from "react-router";
+import user from "~/assets/images/user.png";
+import { useState } from "react";
+
 
 interface iProps {
   data?: any;
@@ -25,6 +28,9 @@ const UsersTable: React.FC<iProps> = ({
   loading,
 }) => {
   const navigate = useNavigate();
+  const [profileImageError, setProfileImageError] = useState(false);
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
+
 
   const handleViewProfile = (item: UsersData) => {
     if (item?.id) {
@@ -39,8 +45,32 @@ const UsersTable: React.FC<iProps> = ({
   };
 
   const cellRenderers = {
-    profile: (item: UsersData) => <Text {...textProps}>{item.profile}</Text>,
+    profile: (item: UsersData) => 
+      <Flex gap="4px" alignItems="center">
 
+    <Box
+    w="fit-content"
+    display="flex"
+    height="32px"
+    width="32px"
+    borderRadius="full"
+    overflow="hidden"
+  >
+  <Image
+      src={getImageSrcWithFallback(
+        item.profilePicture || "",
+        profileImageError || !item.profilePicture,
+        user
+      )}
+      alt="Owner Avatar"
+      borderRadius="full"
+      height="100%"
+      width="100%"
+      onError={createImageErrorHandler(setProfileImageError)}
+    />
+  </Box><Text {...textProps}>{item.profile}</Text>
+  </Flex>
+  ,
     trustScore: (item: UsersData) => (
       <Flex alignItems="center" gap="4px">
         <Text {...textProps}>{item?.trustScore}</Text>

@@ -1,7 +1,7 @@
 // User Management API Response Types
 
 export interface User {
-  id?: string;
+  userId: string;
   name: string;
   ratingScore: number;
   status: string;

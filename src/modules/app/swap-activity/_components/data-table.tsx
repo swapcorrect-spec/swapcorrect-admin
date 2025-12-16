@@ -1,13 +1,16 @@
 "use client";
 
-import { Text, Flex, Box } from "@chakra-ui/react";
+import { Text, Flex, Box, Image } from "@chakra-ui/react";
 import { TableComponent } from "~/modules/shared/table";
 import type { SwapActivityData } from "~/types/base";
-import { formatDateTime, getStatusStyles } from "~/modules/util";
+import { createImageErrorHandler, formatDateTime, getImageSrcWithFallback, getStatusStyles } from "~/modules/util";
 import { ArrowLeft, ArrowRight, Flag, OctagonAlert, Book } from "lucide-react";
 import { MenuItem, Menu } from "~/modules/shared";
 import { useNavigate } from "react-router";
 import { PATHS } from "~/modules/_constants/paths";
+import { useState } from "react";
+import user from "~/assets/images/user.png";
+
 
 interface iProps {
   data?: any;
@@ -25,6 +28,7 @@ const SwapActivityTable: React.FC<iProps> = ({
   loading,
 }) => {
   const navigate = useNavigate();
+  const [profileImageError, setProfileImageError] = useState(false);
   const textProps = {
     color: "#737373",
     fontWeight: 500,
@@ -57,42 +61,62 @@ const SwapActivityTable: React.FC<iProps> = ({
     swappers: (item: SwapActivityData) => (
       <Flex gap="4px" alignItems="center">
         <Box
-          borderRadius={"full"}
-          h={8}
-          w={8}
+          w="fit-content"
           display="flex"
-          alignItems="center"
-          justifyContent="center"
-          bg={getAvatarColor(item?.swapperOne || "")}
-          color="white"
-          fontSize="12px"
-          fontWeight="600"
-          flexShrink={0}
+          height="32px"
+          width="32px"
+          borderRadius="full"
+          overflow="hidden"
         >
-          {item?.swapperOneInitials || "N/A"}
+        <Image
+            src={getImageSrcWithFallback(
+              item.swapperImage || "",
+              profileImageError || !item.swapperImage,
+              user
+            )}
+            alt="Owner Avatar"
+            borderRadius="full"
+            height="100%"
+            width="100%"
+            onError={createImageErrorHandler(setProfileImageError)}
+          />
         </Box>
         <Text {...textProps} color={"#222222"}>
           {item?.swapperOne || "N/A"}
         </Text>
+  
         <ArrowLeft size={16} color="#737373" />
         <ArrowRight size={16} color="#737373" />
         <Box
-          borderRadius={"full"}
-          h={8}
-          w={8}
+          w="fit-content"
           display="flex"
-          alignItems="center"
-          justifyContent="center"
-          bg={getAvatarColor(item?.swapperTwo || "")}
-          color="white"
-          fontSize="12px"
-          fontWeight="600"
-          flexShrink={0}
+          height="32px"
+          width="32px"
+          borderRadius="full"
+          overflow="hidden"
         >
-          {item?.swapperTwoInitials || "N/A"}
+        <Image
+            src={getImageSrcWithFallback(
+              item.visitorImage || "",
+              profileImageError || !item.visitorImage,
+              user
+            )}
+            alt="Owner Avatar"
+            borderRadius="full"
+            height="100%"
+            width="100%"
+            onError={createImageErrorHandler(setProfileImageError)}
+          />
         </Box>
         <Text {...textProps} color={"#222222"}>
           {item?.swapperTwo || "N/A"}
+        </Text>
+      </Flex>
+    ),
+    listedItems: (item: SwapActivityData) => (
+      <Flex alignItems="center" gap="4px">
+        <Text {...textProps} color={"#222222"}>
+          {item?.listedItem || "N/A"}
         </Text>
       </Flex>
     ),
@@ -136,13 +160,13 @@ const SwapActivityTable: React.FC<iProps> = ({
         {item?.updatedAt ? formatDateTime(item.updatedAt) : "N/A"}
       </Text>
     ),
-    action: () => (
+    action: (item: SwapActivityData) => (
       <Menu>
         <Box>
           <MenuItem
             label="View details"
             icon={<Book size={20} />}
-            onClick={() => navigate(`${PATHS.SWAPACTIVITY}/1`)}
+            onClick={() => navigate(`${PATHS.SWAPACTIVITY}/${item.swapProceedId}`)}
             value="view"
             styleProps={{ color: "#222222" }}
           />
@@ -167,6 +191,7 @@ const SwapActivityTable: React.FC<iProps> = ({
 
   const columnOrder: (keyof SwapActivityData)[] = [
     "swappers",
+    "listedItem",
     "items",
     "status",
     "createdAt",
@@ -176,6 +201,7 @@ const SwapActivityTable: React.FC<iProps> = ({
 
   const columnLabels = {
     swappers: "Swappers",
+    listedItem: "Listed Item(s)",
     items: "Items",
     status: "Status",
     createdAt: "Date Initiated",

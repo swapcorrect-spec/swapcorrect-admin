@@ -8,7 +8,7 @@ import UserInfo from "./info";
 import UserListings from "./listings";
 import UserActivity from "./activity";
 import UserReports from "./reports";
-import { Flag, OctagonAlert, TriangleAlert } from "lucide-react";
+import { OctagonAlert, TriangleAlert } from "lucide-react";
 import { useGetGeneralUserInfo } from "~/hooks/queries/auth/auth";
 import { useState } from "react";
 

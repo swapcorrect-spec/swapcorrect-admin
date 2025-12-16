@@ -32,9 +32,10 @@ export interface ITableProps<T extends DataItem> {
 }
 
 export interface UsersData extends DataItem {
+  profilePicture: string;
   profile: string;
   trustScore?: string;
-  id?: string | number;
+  id: string | number;
   swaps: number;
   productid?: string;
   status: string;
@@ -43,12 +44,14 @@ export interface UsersData extends DataItem {
   role: string;
 }
 export interface SwapActivityData extends DataItem {
+  swapProceedId: string;
+  listedItem: string;
   itemOne: string;
   itemTwo: string;
   swapperOne: string;
   swapperTwo: string;
-  swapperOneInitials?: string;
-  swapperTwoInitials?: string;
+  swapperImage: string;
+  visitorImage: string;
   status: string;
   createdAt: string;
   updatedAt: string;
@@ -70,6 +73,7 @@ export interface IPaginationProps {
 }
 
 export interface SwapDetailsProps {
+  listingId: string;
   name: string;
   condition: string;
   price: number | string;
@@ -87,7 +91,6 @@ export interface SwapDetailsProps {
   owner: string;
   ownerAvatar: string;
   ownerId?: string;
-  listingId?: string;
   rating: number | string;
   swap: {
     total: number | string;

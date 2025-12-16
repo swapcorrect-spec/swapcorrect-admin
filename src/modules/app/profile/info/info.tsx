@@ -110,7 +110,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ userData }) => {
       title: "Ratings & Verification",
       children: <Ratings userData={userData} />,
     },
-    { value: "admin_notes", title: "Admin Notes", children: <AdminNotes /> },
+    // { value: "admin_notes", title: "Admin Notes", children: <AdminNotes /> },
   ];
 
   return (

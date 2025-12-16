@@ -20,6 +20,11 @@ const AuthLocalStorageObject = {
 export class Auth {
   static setToken(token: string) {
     localStorage.setItem(AuthLocalStorageObject.access, token);
+    Cookies.set(access_token_key, token, {
+      expires: 1,
+      secure: true,
+      sameSite: "Strict",
+    });
   }
 
   static setRefreshToken(token: string) {
@@ -48,15 +53,17 @@ export class Auth {
     }
   }
 
+  // static getToken() {
+  //   const encryptedToken = Cookies.get(access_token_key);
+  //   if (encryptedToken) {
+  //     const decryptedToken = Auth.decryptValue(encryptedToken, access_token_key);
+
+  //     return decryptedToken;
+  //   }
+  // }
   static getToken() {
-    const encryptedToken = Cookies.get(access_token_key);
-    if (encryptedToken) {
-      const decryptedToken = Auth.decryptValue(encryptedToken, access_token_key);
-
-      return decryptedToken;
-    }
+    return localStorage.getItem(AuthLocalStorageObject.access);
   }
-
   static getRefreshToken() {
     return localStorage.getItem(AuthLocalStorageObject.refresh);
   }

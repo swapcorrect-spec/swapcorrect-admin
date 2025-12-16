@@ -10,6 +10,7 @@ import { PATHS } from "~/modules/_constants/paths";
 import  {  type loginPayload } from "./_validation";
 import AuthForm from "~/modules/shared/AuthForm";
 import { Button, Input } from "~/modules/shared";
+import Cookies from "js-cookie";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -21,6 +22,11 @@ const [showPassword, setShowPassword] = useState(false);
       toast.success(_val.displayMessage, {
         onAutoClose: () => {
           localStorage.setItem("access-token", _val.result.jwt);
+          Cookies.set("access_token_key", _val.result.jwt, {
+            expires: 1,
+            secure: true,
+            sameSite: "Strict",
+          });
           navigate(`${PATHS.DASHBOARD}`);
         },
       });
