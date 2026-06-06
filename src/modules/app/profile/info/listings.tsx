@@ -1,9 +1,13 @@
 import { Box, Text, Image, Flex, Skeleton, Spinner } from "@chakra-ui/react";
 import MomentAgo from "~/components/moment-ago";
 import { getStatusStyles, createImageErrorHandler, getImageSrcWithFallback } from "~/modules/util";
-import type { ListingItem } from "~/hooks/queries/listing/listing.type";
+import {
+  resolveListingSwapStatusLabel,
+  type ListingItem,
+} from "~/hooks/queries/listing/listing.type";
 import swapitem from "~/assets/images/swap_item.png";
 import { useGetListings } from "~/hooks/queries/listing/listing";
+import { EmptyState, ErrorState } from "~/modules/shared";
 import { useState } from "react";
 
 interface iList {
@@ -13,16 +17,10 @@ interface iList {
 export const List: React.FC<iList> = ({ item }) => {
   const [imageError, setImageError] = useState(false);
   
-  // Map reviewStage to status
-  const statusMap: Record<string, string> = {
-    Pending: "pending",
-    Published: "active",
-    Negotiation: "pending",
-    Swapped: "completed",
-  };
-  const status = statusMap[item.reviewStage] || item.reviewStage?.toLowerCase() || "pending";
-
-  const { borderColor, bg, textColor } = getStatusStyles(status);
+  const statusLabel = resolveListingSwapStatusLabel(item);
+  const { borderColor, bg, textColor } = getStatusStyles(
+    statusLabel.toLowerCase()
+  );
 
   // Get first media item
   const firstMedia = item.media?.[0];
@@ -101,7 +99,7 @@ export const List: React.FC<iList> = ({ item }) => {
               color={textColor}
               borderRadius="37.74px"
             >
-              {item.reviewStage}
+              {statusLabel}
             </Text>
             {item.itemCondition && (
               <Text
@@ -158,7 +156,8 @@ interface UserListingsProps {
 }
 
 const UserListings: React.FC<UserListingsProps> = ({ userId }) => {
-  const { data: listingsData, isLoading } = useGetListings({
+  const { data: listingsData, isLoading, isError, error, refetch } =
+    useGetListings({
     enabler: !!userId,
     listingUserId: userId?.toString(),
     pageNumber: 1,
@@ -186,16 +185,19 @@ const UserListings: React.FC<UserListingsProps> = ({ userId }) => {
             <List key={item.listingId} item={item} />
           ))}
         </Flex>
-      ) : (
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
+      ) : isError ? (
+        <ErrorState
           minH="200px"
-          color="#737373"
-        >
-          <Text fontSize="sm">No listings found</Text>
-        </Box>
+          title="Could not load listings"
+          error={error}
+          onRetry={() => refetch()}
+        />
+      ) : (
+        <EmptyState
+          minH="200px"
+          title="No listings"
+          description="This user has no active listings to show."
+        />
       )}
     </Box>
   );

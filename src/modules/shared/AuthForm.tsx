@@ -1,4 +1,5 @@
-import { Box, Heading, Text } from "@chakra-ui/react";
+import { Box, Flex, Heading, Text } from "@chakra-ui/react";
+import { Logo } from "~/assets/images";
 
 type Props = {
   title: string;
@@ -10,7 +11,10 @@ const AuthForm: React.FC<Props> = ({ title, subtitle, children }) => {
   return (
     <Box w="100%" h="100vh" mt={{ base: 10, md: 0 }}  mx="auto" flexDirection={"column"} alignItems={"center"} justifyContent={"center"} display={"flex"}>
         <Box border={"1px solid #D9D9D9"} borderRadius={"10px"} p={10} maxW="40%" w="100%">
-      
+      <Flex justify="center" mb={title || subtitle ? 8 : 6}>
+        <Logo />
+      </Flex>
+      {title ? (
       <Heading
         color="#000000"
         fontSize={{ base: "2xl", md: "4xl" }}
@@ -19,6 +23,8 @@ const AuthForm: React.FC<Props> = ({ title, subtitle, children }) => {
       >
         {title}
       </Heading>
+      ) : null}
+      {subtitle ? (
       <Text
         color="#737373"
         fontSize="base"
@@ -32,6 +38,7 @@ const AuthForm: React.FC<Props> = ({ title, subtitle, children }) => {
       >
         {subtitle}
       </Text>
+      ) : null}
       {children}
       </Box>
     </Box>

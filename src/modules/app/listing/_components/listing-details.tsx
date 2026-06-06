@@ -1,6 +1,7 @@
 import { Box, Flex, Image, Text, Skeleton } from "@chakra-ui/react";
+import { ListingMediaCarousel } from "./listing-media-carousel";
+import { FlaggedBadge } from "./flagged-badge";
 import {
-  ChevronLeft,
   CircleQuestionMark,
   Tag,
   Dot,
@@ -10,108 +11,160 @@ import {
 } from "lucide-react";
 import { Link } from "react-router";
 import { Star } from "~/assets/images";
-import { getStatusStyles, createImageErrorHandler, getImageSrcWithFallback } from "~/modules/util";
-import swapitem from "~/assets/images/swap_item.png";
+import {
+  formatCurrency,
+  getStatusStyles,
+  createImageErrorHandler,
+  getImageSrcWithFallback,
+  isReviewPending,
+} from "~/modules/util";
 import user from "~/assets/images/user.png";
-import { Button, Input } from "~/modules/shared";
+import { Button, EmptyState, ErrorState } from "~/modules/shared";
 import { useState } from "react";
 import { useGetListingDetails } from "~/hooks/queries/listing/listing";
 import { PATHS } from "~/modules/_constants/paths";
+import type { ListingReviewSummary } from "./listing-review-confirm";
 
 interface iListingDetails {
   listingId: string;
+  onClose?: () => void;
+  onReviewAction?: (
+    mode: "approve" | "reject",
+    summary?: ListingReviewSummary
+  ) => void;
 }
 
-const ListingDetails: React.FC<iListingDetails> = ({ listingId }) => {
-  const [imageError, setImageError] = useState(false);
+const MODAL_PADDING = { pt: 8, px: 6, pb: 8 };
+
+const CloseButton: React.FC<{ onClose?: () => void }> = ({ onClose }) => (
+  <Flex justify="flex-end" mb={6}>
+    <Box
+      as="button"
+      aria-label="Close listing details"
+      onClick={onClose}
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      w="36px"
+      h="36px"
+      borderRadius="full"
+      border="1px solid #EAEAEA"
+      cursor="pointer"
+      bg="white"
+      _hover={{ bg: "#F7F7F7" }}
+    >
+      <X size={18} color="#222222" />
+    </Box>
+  </Flex>
+);
+
+const ListingDetails: React.FC<iListingDetails> = ({
+  listingId,
+  onClose,
+  onReviewAction,
+}) => {
   const [profileImageError, setProfileImageError] = useState(false);
 
-  const { data: listingData, isLoading, isFetching } = useGetListingDetails({
+  const {
+    data: listingData,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    refetch,
+  } = useGetListingDetails({
     enabler: !!listingId,
     listingId,
   });
 
   if (isLoading || isFetching) {
     return (
-      <Box p={6}>
-        <Skeleton height="6" width="48" mb={6} />
-        <Skeleton height="412px" width="586px" borderRadius="lg" mb={8} />
-        <Skeleton height="20" width="full" mb={6} />
+      <Box {...MODAL_PADDING}>
+        <CloseButton onClose={onClose} />
+        <Skeleton
+          height="412px"
+          width="full"
+          maxW="586px"
+          borderRadius="lg"
+          mb={6}
+          border="1px solid #EAEAEA"
+        />
+        <Skeleton height="8" width="48" mb={4} />
+        <Skeleton height="6" width="32" />
       </Box>
+    );
+  }
+
+  if (isError) {
+    return (
+      <ErrorState
+        minH="400px"
+        title="Could not load listing"
+        error={error}
+        onRetry={() => refetch()}
+      />
     );
   }
 
   if (!listingData) {
     return (
-      <Box p={6} display="flex" alignItems="center" justifyContent="center" minH="400px">
-        <Text color="#737373">No listing details found</Text>
-      </Box>
+      <EmptyState
+        minH="400px"
+        title="Listing not found"
+        description="This listing may have been removed or is no longer available."
+      />
     );
   }
-
-  const firstMedia = listingData.media?.[0];
-  const isVideo = firstMedia?.mediaType === "Video";
-  const isDocument = firstMedia?.mediaType === "Document";
-  const mediaUrl = firstMedia?.url || "";
 
   const { borderColor, bg, textColor } = getStatusStyles(
     listingData.reviewStage?.toLowerCase() || "pending"
   );
 
-  const statusMap: Record<string, string> = {
-    Pending: "Pending",
-    Published: "Active",
-    Negotiation: "Pending",
-    Swapped: "Completed",
+  const reviewSummary: ListingReviewSummary = {
+    listingId: listingData.listingId,
+    itemName: listingData.itemName,
+    categoryName: listingData.categoryName,
+    listType: listingData.listType,
+    estimatedAmount: listingData.estimatedAmount,
+    estimatedCurrency: listingData.estimatedCurrency,
+    owner: listingData.fullName || listingData.username,
+    isFlagged: listingData.isFlagged ?? false,
   };
-  const status = statusMap[listingData.reviewStage] || listingData.reviewStage || "Pending";
 
   return (
-    <Box>
-      <Flex gap={1} alignItems="center" mb={6}>
-        <ChevronLeft size={14} color="#737373" />
-        <Text fontSize="xl" fontWeight="medium" color="#222222">
-          {listingData.itemName || "Item Name"}
-        </Text>
-        <Text fontSize="xl" fontWeight="medium" color="#007AFF" ml="auto">
-          {listingData.estimatedCurrency} {listingData.estimatedAmount || 0} Est.
+    <Box {...MODAL_PADDING}>
+      <CloseButton onClose={onClose} />
+      <ListingMediaCarousel
+        media={listingData.media ?? []}
+        itemName={listingData.itemName}
+      />
+      <Flex
+        justify="space-between"
+        align="flex-start"
+        gap={4}
+        mb={6}
+        flexWrap="wrap"
+      >
+        <Flex align="center" gap={2} flexWrap="wrap">
+          <Text fontSize="xl" fontWeight="medium" color="#222222">
+            {listingData.itemName || "Item Name"}
+          </Text>
+          {listingData.isFlagged && <FlaggedBadge />}
+        </Flex>
+        <Text
+          fontSize="xl"
+          fontWeight="medium"
+          color="#007AFF"
+          whiteSpace="nowrap"
+        >
+          {formatCurrency(
+            listingData.estimatedAmount,
+            listingData.estimatedCurrency
+          )}{" "}
+          Est.
         </Text>
       </Flex>
-      <Box height={412} width={586} borderRadius="lg" overflow="hidden" mb={4}>
-        {isVideo ? (
-          <Box
-            as="video"
-            width="100%"
-            height="100%"
-            style={{ objectFit: "cover" }}
-            {...({ src: mediaUrl || swapitem, controls: true, muted: false } as any)}
-          />
-        ) : isDocument ? (
-          <Flex
-            w="100%"
-            h="100%"
-            alignItems="center"
-            justifyContent="center"
-            bg="#F4F4F4"
-            border="1px solid #EAEAEA"
-            borderRadius="lg"
-          >
-            <Text fontSize="sm" color="#737373">
-              Document
-            </Text>
-          </Flex>
-        ) : (
-          <Image
-            height={412}
-            width={586}
-            borderRadius="lg"
-            src={getImageSrcWithFallback(mediaUrl, imageError || !mediaUrl, swapitem)}
-            alt={listingData.itemName}
-            onError={createImageErrorHandler(setImageError)}
-          />
-        )}
-      </Box>
-      <Box my={8} display="flex" gap={4} alignItems="center">
+      <Box my={8} display="flex" gap={4} alignItems="center" flexWrap="wrap">
         <Tag size={16} />
         <Text
           textAlign="center"
@@ -123,7 +176,19 @@ const ListingDetails: React.FC<iListingDetails> = ({ listingId }) => {
           px="17px"
           borderRadius="37.74px"
         >
-          {listingData.categoryName || "Category"}
+          {listingData.categoryName || "N/A"}
+        </Text>
+        <Text
+          textAlign="center"
+          fontWeight={500}
+          fontSize={"13px"}
+          border={"1px solid #E9E9E9"}
+          color={"#222222"}
+          py="5px"
+          px="17px"
+          borderRadius="37.74px"
+        >
+          {listingData.listType || "N/A"}
         </Text>
         <Text
           textAlign="center"
@@ -137,7 +202,7 @@ const ListingDetails: React.FC<iListingDetails> = ({ listingId }) => {
           px="17px"
           borderRadius="37.74px"
         >
-          {status}
+          {listingData.reviewStage || "N/A"}
         </Text>
       </Box>
       <Text fontSize="16px" color="#222222" fontWeight="500" mb="16px">
@@ -163,18 +228,18 @@ const ListingDetails: React.FC<iListingDetails> = ({ listingId }) => {
         </Box>
         <Box width="full">
           <Text fontSize="16px" color="#222222" fontWeight="500" mb="16px">
-            Location
+            Category
           </Text>
           <Text fontSize="14px" color="#737373">
-            N/A
+            {listingData.categoryName || "N/A"}
           </Text>
         </Box>
         <Box width="full">
           <Text fontSize="16px" color="#222222" fontWeight="500" mb="16px">
-            Date Listed
+            List Type
           </Text>
           <Text fontSize="14px" color="#737373">
-            N/A
+            {listingData.listType || "N/A"}
           </Text>
         </Box>
       </Flex>
@@ -274,36 +339,32 @@ const ListingDetails: React.FC<iListingDetails> = ({ listingId }) => {
           </Text>
         </Link>
       </Flex>
-      <Flex flexDirection="column" gap={6}>
-        <Box width="full" mb={5}>
-          <Text fontSize="16px" color="#222222" fontWeight="500" mb="16px">
-            Admin note (Optional)
-          </Text>
-          <Input
-            type="textarea"
-            name="note"
-            handleChange={() => console.log("Holla world!")}
-            placeholder="Additional note"
-            value="note"
-          />
-        </Box>
-        {listingData.reviewStage === "Pending" && (
-          <Box display="flex" alignItems="center" gap="24px" width="full">
-            <Button rounded="2xl" bg="#222222" width="50%">
-              <Check />
-              <Text fontSize="14px" color="#ffffff" ml={2}>
-                Approve
-              </Text>
-            </Button>
-            <Button rounded="2xl" bg="#FFF0EF" width="50%">
-              <X color="#E42222" size={16} />
-              <Text fontSize="14px" color="#E42222">
-                Reject
-              </Text>
-            </Button>
-          </Box>
-        )}
-      </Flex>
+      {isReviewPending(listingData.reviewStage) && onReviewAction && (
+        <Flex alignItems="center" gap="24px" width="full">
+          <Button
+            rounded="2xl"
+            bg="#222222"
+            width="50%"
+            handleClick={() => onReviewAction("approve", reviewSummary)}
+          >
+            <Check />
+            <Text fontSize="14px" color="#ffffff" ml={2}>
+              Approve
+            </Text>
+          </Button>
+          <Button
+            rounded="2xl"
+            bg="#FFF0EF"
+            width="50%"
+            handleClick={() => onReviewAction("reject", reviewSummary)}
+          >
+            <X color="#E42222" size={16} />
+            <Text fontSize="14px" color="#E42222">
+              Reject
+            </Text>
+          </Button>
+        </Flex>
+      )}
     </Box>
   );
 };

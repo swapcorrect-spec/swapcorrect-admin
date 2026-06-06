@@ -1,6 +1,6 @@
 import { Flex } from "@chakra-ui/react";
 import PageLayout from "~/modules/layout/page-layout";
-import { Header } from "~/modules/shared";
+import { Header, QueryState } from "~/modules/shared";
 import { useState } from "react";
 import SwapActivityTable from "./_components/data-table";
 import { useSearchSwaps } from "~/hooks/queries/swap-activity/swap-activity";
@@ -16,7 +16,14 @@ const [listingDate, setListingDate] = useState<"All" | "LastWeek" | "LastMonth">
     setCurrentPage(page);
   };
 
-  const { data: swapActivityData, isLoading, isFetching } = useSearchSwaps({
+  const {
+    data: swapActivityData,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    refetch,
+  } = useSearchSwaps({
     enabler: true,
     pageNumber: currentPage,
     perpageSize: 20,
@@ -25,23 +32,16 @@ const [listingDate, setListingDate] = useState<"All" | "LastWeek" | "LastMonth">
   });
 
   const swapActivityItems = (swapActivityData?.items || []).map((item: any) => {
-    const ownerItems = Array.isArray(item.swapperRequestItem) ? item.swapperRequestItem : [item.swapperRequestItem];
-    const swapperItems = Array.isArray(item.swapperItem) ? item.swapperItem : [item.swapperItem];
-    const listedItems = Array.isArray(item.listedItem) ? item.listedItem : [item.listedItem];
-    
-    const getInitials = (name: string) => {
-      if (!name) return "N/A";
-      const parts = name.trim().split(" ");
-      if (parts.length >= 2) {
-        return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
-      }
-      return name.substring(0, 2).toUpperCase();
-    };
+    const requestItems = Array.isArray(item.swapperRequestItem)
+      ? item.swapperRequestItem
+      : [item.swapperRequestItem];
+    const listedItems = Array.isArray(item.listedItem)
+      ? item.listedItem
+      : [item.listedItem];
 
     return {
-      itemOne: ownerItems.join(", "),
-      itemTwo: swapperItems.join(", "),
-      listedItem: listedItems.join(", "),
+      swapperRequestItem: requestItems.filter(Boolean).join(", ") || "",
+      listedItem: listedItems.filter(Boolean).join(", ") || "",
       swapperOne: item.swapperName || "",
       swapperTwo: item.visitorName || "",
       swapperImage: item.swapperImage || "",
@@ -62,13 +62,32 @@ const [listingDate, setListingDate] = useState<"All" | "LastWeek" | "LastMonth">
         />
       </Flex>
 
-      <SwapActivityTable
-        data={swapActivityItems}
-        currentPage={currentPage}
-        onPageChange={onPageChange}
-        totalPages={swapActivityData?.totalPages || 1}
-        loading={isLoading || isFetching}
-      />
+      <QueryState
+        isLoading={isLoading || isFetching}
+        isError={isError}
+        error={error}
+        onRetry={() => refetch()}
+        isEmpty={swapActivityItems.length === 0}
+        emptyProps={{
+          title: "No swap activity",
+          description:
+            "There are no swaps matching your filters. Try adjusting the status or date range.",
+        }}
+        errorProps={{
+          title: "Could not load swap activity",
+          description:
+            "We had trouble fetching swap activity. Please try again.",
+        }}
+      >
+        <SwapActivityTable
+          data={swapActivityItems}
+          currentPage={currentPage}
+          onPageChange={onPageChange}
+          totalPages={swapActivityData?.totalPages || 1}
+          loading={false}
+          emptyDescription="No swap activity matches your current filters."
+        />
+      </QueryState>
     </PageLayout>
   );
 };

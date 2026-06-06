@@ -121,6 +121,15 @@ export class Auth {
   }
 
   static removeToken() {
+    Auth.clearSession();
+  }
+
+  /** Clears all auth tokens from localStorage and cookies */
+  static clearSession() {
+    localStorage.removeItem(AuthLocalStorageObject.access);
+    localStorage.removeItem(AuthLocalStorageObject.refresh);
+    localStorage.removeItem(AuthLocalStorageObject.session_id);
     Cookies.remove(access_token_key, { path: "/" });
+    Cookies.remove("access_token_key", { path: "/" });
   }
 }

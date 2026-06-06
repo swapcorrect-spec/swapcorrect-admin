@@ -22,9 +22,19 @@ export interface DashboardSummaryResponse {
   errorMessages: string[] | null;
 }
 
-// Analytics API Response Types
+// Analytics API Types
+export type PeriodicFilter = "Today" | "ThisWeek" | "ThisMonth" | "AllTime";
+
+export type MetricFilter =
+  | "All"
+  | "ActiveUsers"
+  | "ApprovedListings"
+  | "ActiveSwaps"
+  | "CompletedSwaps";
+
 export interface Metric {
   name: string;
+  count: number;
   percentage: number;
 }
 

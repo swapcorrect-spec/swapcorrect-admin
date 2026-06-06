@@ -1,36 +1,52 @@
 import { Box, Flex, Image, Text, Spinner } from "@chakra-ui/react";
-import { getStatusStyles, createImageErrorHandler, getImageSrcWithFallback, formatDateTime } from "~/modules/util";
+import {
+  getStatusStyles,
+  createImageErrorHandler,
+  getImageSrcWithFallback,
+  formatDateTime,
+  isUserSuspended,
+} from "~/modules/util";
 import user from "~/assets/images/user.png";
-import { Button, Tab } from "~/modules/shared";
+import { ErrorState, Menu, MenuItem, PageHeaderWithBack, Tab } from "~/modules/shared";
 import { Counter, Refresh, StarOutline } from "~/assets/images";
-import { BoxIcon } from "lucide-react";
+import { BoxIcon, OctagonAlert, ShieldCheck } from "lucide-react";
 import InfoCard from "~/modules/shared/widgets/info_card";
 import UserInfo from "./info";
 import UserListings from "./listings";
 import UserActivity from "./activity";
 import UserReports from "./reports";
-import { OctagonAlert, TriangleAlert } from "lucide-react";
 import { useGetGeneralUserInfo } from "~/hooks/queries/auth/auth";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useParams } from "react-router";
 import PageLayout from "~/modules/layout/page-layout";
+import {
+  UserSuspendConfirm,
+  toUserSuspendSummaryFromGeneralUser,
+  type UserSuspendMode,
+} from "~/modules/app/user-management/_components/user-suspend-confirm";
 
 const UserProfile: React.FC = () => {
   const params = useParams();
   const userId = params.userId as string;
   const [imageError, setImageError] = useState(false);
-  
-  const { data, isLoading, isFetching } = useGetGeneralUserInfo({
-    userId: userId || "",
-    enabler: !!userId,
-  });
+  const [suspendMode, setSuspendMode] = useState<UserSuspendMode | null>(null);
+
+  const { data, isLoading, isFetching, isError, error, refetch } =
+    useGetGeneralUserInfo({
+      userId: userId || "",
+      enabler: !!userId,
+    });
 
   const userData = data?.result;
-  
+
+  const suspended =
+    userData?.isSuspended === true ||
+    isUserSuspended({ isSuspendUser: userData?.isSuspendUser });
+
   const userInfo: any = {
     name: userData ? `${userData.firstName} ${userData.lastName}` : "",
     userType: userData?.userRole?.[0] || "",
-    status: userData?.isSuspendUser ? "Suspended" : "Active",
+    status: suspended ? "Suspended" : "Active",
     totalSwaps: userData?.swapCount || 0,
     trustScore: userData?.rating || 0,
     listingCount: userData?.listingCount || 0,
@@ -65,6 +81,24 @@ const UserProfile: React.FC = () => {
       icon: <Counter />,
     },
   ];
+  const actionMenu = useMemo(() => {
+    if (!userData) return [];
+
+    return [
+      {
+        label: suspended ? "Unsuspend" : "Suspend",
+        icon: suspended ? (
+          <ShieldCheck size={20} color="#007AFF" />
+        ) : (
+          <OctagonAlert size={20} color="#E42222" />
+        ),
+        onClick: () => setSuspendMode(suspended ? "unsuspend" : "suspend"),
+        value: suspended ? "unsuspend" : "suspend",
+        style: { color: suspended ? "#007AFF" : "#E42222" },
+      },
+    ];
+  }, [suspended, userData]);
+
   const tabOptions = [
     {
       title: "Info",
@@ -74,7 +108,7 @@ const UserProfile: React.FC = () => {
     {
       title: "Activity",
       value: "activity",
-      children: <UserActivity />,
+      children: <UserActivity userId={userId} />,
     },
     {
       title: "Listing",
@@ -88,10 +122,12 @@ const UserProfile: React.FC = () => {
     },
   ];
 
-  // Show loader when fetching
   if (isLoading || isFetching) {
     return (
       <PageLayout>
+        <Box p={6}>
+          <PageHeaderWithBack title="User Profile" />
+        </Box>
         <Box
           display="flex"
           alignItems="center"
@@ -105,15 +141,29 @@ const UserProfile: React.FC = () => {
     );
   }
 
+  if (isError) {
+    return (
+      <PageLayout>
+        <Box p={6}>
+          <PageHeaderWithBack title="User Profile" />
+        </Box>
+        <ErrorState
+          minH="400px"
+          title="Could not load user profile"
+          error={error}
+          onRetry={() => refetch()}
+        />
+      </PageLayout>
+    );
+  }
+
   return (
     <PageLayout>
       <Box p={6}>
-        <Text fontSize="xl" fontWeight="medium" color="#222222" mb={6}>
-          User Profile
-        </Text>
+        <PageHeaderWithBack title="User Profile" />
         <Box border="1px solid #E9E9E9" py={2.5} px={3} borderRadius={3} mb={6}>
-          <Flex mb={4} alignItems="center" gap={4}>
-            <Box display="flex" height="83px" width="63px" borderRadius="full" overflow="hidden">
+          <Flex mb={4} alignItems="flex-start" gap={4}>
+            <Box display="flex" height="83px" width="63px" borderRadius="full" overflow="hidden" flexShrink={0}>
               <Image 
                 src={getImageSrcWithFallback(userData?.profilePicture ?? "", imageError || !userData?.profilePicture, user)} 
                 alt="Owner Avatar" 
@@ -122,7 +172,7 @@ const UserProfile: React.FC = () => {
                 onError={createImageErrorHandler(setImageError)}
               />
             </Box>
-            <Box width="full">
+            <Box width="full" minW={0}>
               <Text fontSize="20px" color="#222222" fontWeight="700" mb={2}>
                 {userInfo?.name}
               </Text>
@@ -132,6 +182,22 @@ const UserProfile: React.FC = () => {
               <Text fontSize="14px" color="#737373">
                 {userData?.created ? `Joined ${formatDateTime(userData.created)}` : ""}
               </Text>
+            </Box>
+            <Box ml="auto" alignSelf="flex-start">
+              <Menu>
+                <Box>
+                  {actionMenu.map((menuItem) => (
+                    <MenuItem
+                      key={menuItem.value}
+                      icon={menuItem.icon}
+                      onClick={menuItem.onClick}
+                      value={menuItem.value}
+                      label={menuItem.label}
+                      styleProps={menuItem.style}
+                    />
+                  ))}
+                </Box>
+              </Menu>
             </Box>
           </Flex>
           <Box mb={8} display="flex" gap={4} alignItems="center">
@@ -176,17 +242,15 @@ const UserProfile: React.FC = () => {
           </Flex>
         </Box>
         <Tab options={tabOptions} defaultValue="info" />
-        <Flex gap={4} justifyContent={"end"} mt={10}>
-          <Button variant="outline" bg="transparent" width={"fit-content"}>
-            <TriangleAlert size={20} />
-            Warn
-          </Button>
-          <Button variant="outline" bg="transparent" width={"fit-content"}>
-            <OctagonAlert size={20} />
-            Suspend
-          </Button>
-        </Flex>
       </Box>
+
+      <UserSuspendConfirm
+        open={!!suspendMode}
+        mode={suspendMode}
+        user={userData ? toUserSuspendSummaryFromGeneralUser(userData) : null}
+        onClose={() => setSuspendMode(null)}
+        onSuccess={() => refetch()}
+      />
     </PageLayout>
   );
 };

@@ -5,6 +5,8 @@ import handleApiError from "~/utils/handle-api-error";
 import { postRequest, getRequest, getRequestParams } from "~/config/request-methods";
 import type { MutationProps } from "~/types/mutation-prop-types";
 
+export const GENERAL_USER_INFO = "GENERAL_USER_INFO";
+
 export const useLogin = (props: MutationProps) => {
   const { onSuccess, onError } = props;
   const { mutate, isError, isSuccess, isPending } = useMutation({
@@ -87,33 +89,39 @@ export const useResetPassword = (props: MutationProps) => {
   };
 };
 
+export const USER_INFO = "USER_INFO";
+
 export const useGetUserInfo = (props: { enabler: boolean }) => {
   const { enabler } = props;
-  const { data, isError, isSuccess, isLoading, isFetching, error } = useQuery({
-    queryKey: ["useGetUserInfo"],
-    queryFn: () =>
-      getRequest<IGetUserInfoResponseData>({
-        url: "/auth/user/info",
-      }),
-    enabled: !!enabler,
-  });
+  const { data, isError, isSuccess, isLoading, isFetching, error, refetch } =
+    useQuery({
+      queryKey: [USER_INFO],
+      queryFn: () =>
+        getRequest<IGetUserInfoResponseData>({
+          url: "/auth/user/info",
+        }),
+      enabled: !!enabler,
+      staleTime: 5 * 60 * 1000,
+    });
 
   return {
-    data,
+    data: data?.result,
     isLoading,
     isFetching,
     isError,
     error,
     isSuccess,
+    refetch,
   };
 };
 
 export const useGetGeneralUserInfo = (props: { userId: string; enabler: boolean }) => {
   const { userId, enabler } = props;
-  const { data, isError, isSuccess, isLoading, isFetching, error } = useQuery({
-    queryKey: ["useGetGeneralUserInfo", userId],
+  const { data, isError, isSuccess, isLoading, isFetching, error, refetch } =
+    useQuery({
+    queryKey: [GENERAL_USER_INFO, userId],
     queryFn: () =>
-      getRequestParams<{}, IGetGeneralUserInfoResponseData>({
+      getRequestParams<{ userId: string }, IGetGeneralUserInfoResponseData>({
         url: "/auth/general/user/info",
         params: { userId },
       }),
@@ -127,5 +135,6 @@ export const useGetGeneralUserInfo = (props: { userId: string; enabler: boolean 
     isError,
     error,
     isSuccess,
+    refetch,
   };
 };

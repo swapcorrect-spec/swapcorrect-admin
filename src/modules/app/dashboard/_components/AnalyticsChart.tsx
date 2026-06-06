@@ -3,13 +3,17 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 interface AnalyticsChartProps {
   chartData: { month: string; value: number }[];
+  periodLabel?: string;
 }
 
-export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({ chartData }) => {
+export const AnalyticsChart: React.FC<AnalyticsChartProps> = ({
+  chartData,
+  periodLabel = "1 Week Avg.",
+}) => {
   return (
     <>
       <Text fontSize="14px" color="#737373" mb="16px" fontWeight={500}>
-        1 Week Avg.
+        {periodLabel}
       </Text>
       <Box height="250px" width="100%">
         <ResponsiveContainer width="100%" height="100%">

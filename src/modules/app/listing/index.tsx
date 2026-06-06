@@ -1,107 +1,115 @@
-import { Box, Flex, Spinner } from "@chakra-ui/react";
-import { Header, Tab } from "~/modules/shared";
+import { Box, Flex, Grid } from "@chakra-ui/react";
+import { Header, Input, QueryState, Select } from "~/modules/shared";
 import List from "./_components/list";
 import PageLayout from "~/modules/layout/page-layout";
 import type { SwapDetailsProps } from "~/types/base";
 import { useState } from "react";
 import { useGetListings } from "~/hooks/queries/listing/listing";
-import type { SwapListingStatus, ListingItem } from "~/hooks/queries/listing/listing.type";
+import {
+  resolveListingSwapStatusLabel,
+  SWAP_LISTING_STATUS_OPTIONS,
+  type ListingDate,
+  type ListingItem,
+  type ReviewStage,
+  type SwapListingStatus,
+} from "~/hooks/queries/listing/listing.type";
+import { useDebouncedValue } from "~/hooks/useDebouncedValue";
+import { Pagination } from "~/modules/shared/pagination";
+
+const REVIEW_STAGE_OPTIONS: { value: ReviewStage; label: string }[] = [
+  { value: "All", label: "All review stages" },
+  { value: "Pending", label: "Pending" },
+  { value: "Approved", label: "Approved" },
+  { value: "Rejected", label: "Rejected" },
+];
+
+const LISTING_DATE_OPTIONS: { value: ListingDate; label: string }[] = [
+  { value: "All", label: "All time" },
+  { value: "LastWeek", label: "Last week" },
+  { value: "LastMonth", label: "Last month" },
+];
+
+const mapListingItem = (item: ListingItem): SwapDetailsProps => {
+  const firstMedia = item.media?.[0];
+  const itemUrl = firstMedia?.url || "";
+  const isVideo = firstMedia?.mediaType === "Video";
+  const mediaType = firstMedia?.mediaType || "Image";
+
+  const status = resolveListingSwapStatusLabel(item);
+
+  return {
+    name: item.itemName || "",
+    condition: item.itemCondition || "",
+    price: item.estimatedAmount || 0,
+    estimatedCurrency: item.estimatedCurrency,
+    itemUrl,
+    isVideo,
+    mediaType,
+    category: item.categoryName || "",
+    listType: item.listType || "",
+    status,
+    reviewStage: item.reviewStage,
+    isFlagged: item.isFlagged ?? false,
+    description: item.itemDescription || "",
+    location: "",
+    dateListed: "",
+    datePosted: "",
+    edited: "",
+    requestedInExchange: item.swapListRequest || [],
+    owner: item.fullName || "",
+    ownerAvatar: item.profilePicture || "",
+    ownerId: item.userId || "",
+    listingId: item.listingId || "",
+    rating: item.rating || 0,
+    swap: {
+      total: item.swapCount || 0,
+    },
+  };
+};
 
 export const Listing: React.FC = () => {
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
+  const [searchInput, setSearchInput] = useState("");
+  const [swapListingStatus, setSwapListingStatus] =
+    useState<SwapListingStatus>("All");
+  const [reviewStage, setReviewStage] = useState<ReviewStage>("All");
+  const [listingDate, setListingDate] = useState<ListingDate>("All");
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Map tab values to API status values
-  const getApiStatus = (status: string): SwapListingStatus => {
-    const statusMap: Record<string, SwapListingStatus> = {
-      all: "All",
-      active: "Published",
-      pending: "Negotiation",
-      completed: "Swapped",
-    };
-    return statusMap[status] || "All";
-  };
+  const debouncedSearch = useDebouncedValue(searchInput, 400);
 
-  const { data: listingsData, isLoading, isError, error } = useGetListings({
-    enabler: true,
-    swapListingStatus: getApiStatus(selectedStatus),
-    pageNumber: currentPage,
-    pageSize: 20,
-  });
+  const {
+    data: listingsData,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    refetch,
+  } = useGetListings({
+      enabler: true,
+      searchParam: debouncedSearch,
+      swapListingStatus,
+      reviewStage,
+      listingDate,
+      pageNumber: currentPage,
+      pageSize: 20,
+    });
 
-  const listingStatus = [
-    {
-      title: "All",
-      value: "all",
-    },
-    {
-      title: "Active",
-      value: "active",
-    },
-    {
-      title: "Pending",
-      value: "pending",
-    },
-    {
-      title: "Completed",
-      value: "completed",
-    },
-  ];
+  const resetPage = () => setCurrentPage(1);
 
-  const handleTabChange = (value: string) => {
-    setSelectedStatus(value);
-    setCurrentPage(1);
-  };
-
-  // Handle different possible response structures
   const rawListings: ListingItem[] = Array.isArray(listingsData)
     ? listingsData
-    : listingsData?.items
-    ? listingsData.items
-    : [];
+    : listingsData?.items ?? [];
 
-  // Map API response to SwapDetailsProps structure
-  const listings: SwapDetailsProps[] = rawListings.map((item: ListingItem) => {
-    // Get first media item (image, video, or document)
-    const firstMedia = item.media?.[0];
-    const itemUrl = firstMedia?.url || "";
-    const isVideo = firstMedia?.mediaType === "Video";
-    const mediaType = firstMedia?.mediaType || "Image";
+  const listings = rawListings.map(mapListingItem);
 
-    // Map reviewStage to status
-    const statusMap: Record<string, string> = {
-      Pending: "Pending",
-      Published: "Active",
-      Negotiation: "Pending",
-      Swapped: "Completed",
-    };
-    const status = statusMap[item.reviewStage] || item.reviewStage || "Pending";
-
-    return {
-      name: item.itemName || "",
-      condition: item.itemCondition || "",
-      price: item.estimatedAmount || 0,
-      itemUrl,
-      isVideo,
-      mediaType,
-      category: item.categoryName || "",
-      status,
-      description: item.itemDescription || "",
-      location: "", // Not in API response
-      dateListed: "", // Not in API response
-      datePosted: "", // Not in API response
-      edited: "", // Not in API response
-      requestedInExchange: item.swapListRequest || [],
-      owner: item.fullName || "",
-      ownerAvatar: item.profilePicture || "",
-      ownerId: item.userId || "", // Add userId for owner profile modal
-      listingId: item.listingId || "", // Add listingId for details API call
-      rating: item.rating || 0,
-      swap: {
-        total: item.swapCount || 0,
-      },
-    };
-  });
+  const totalPages = (() => {
+    if (Array.isArray(listingsData)) return 1;
+    if (listingsData?.totalPages) return listingsData.totalPages;
+    if (listingsData?.totalCount && listingsData?.pageSize) {
+      return Math.max(1, Math.ceil(listingsData.totalCount / listingsData.pageSize));
+    }
+    return 1;
+  })();
 
   return (
     <PageLayout>
@@ -110,47 +118,88 @@ export const Listing: React.FC = () => {
         description="Manage your listings and track your swap activity"
       />
       <Box mt="32px">
-        <Tab
-          options={listingStatus}
-          value={selectedStatus}
-          onValueChange={handleTabChange}
-        />
+        <Flex direction="column" gap={4}>
+          <Input
+            type="search"
+            name="listing-search"
+            label="Search"
+            placeholder="Search by item name, user, or keyword..."
+            value={searchInput}
+            handleChange={(e) => {
+              setSearchInput(e.target.value);
+              resetPage();
+            }}
+          />
+          <Grid
+            templateColumns={{
+              base: "1fr",
+              md: "repeat(3, 1fr)",
+            }}
+            gap={4}
+          >
+            <Select
+              name="swap-listing-status"
+              placeholder="Swap status"
+              options={SWAP_LISTING_STATUS_OPTIONS}
+              value={swapListingStatus}
+              onChange={(val) => {
+                setSwapListingStatus(val as SwapListingStatus);
+                resetPage();
+              }}
+            />
+            <Select
+              name="review-stage"
+              placeholder="Review stage"
+              options={REVIEW_STAGE_OPTIONS}
+              value={reviewStage}
+              onChange={(val) => {
+                setReviewStage(val as ReviewStage);
+                resetPage();
+              }}
+            />
+            <Select
+              name="listing-date"
+              placeholder="Listing date"
+              options={LISTING_DATE_OPTIONS}
+              value={listingDate}
+              onChange={(val) => {
+                setListingDate(val as ListingDate);
+                resetPage();
+              }}
+            />
+          </Grid>
+        </Flex>
 
         <Flex direction="column" gap={6} mt={6}>
-          {isLoading ? (
-            <Box
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              minH="400px"
-              w="100%"
-            >
-              <Spinner size="xl" color="#007AFF" />
+          <QueryState
+            isLoading={isLoading || isFetching}
+            isError={isError}
+            error={error}
+            onRetry={() => refetch()}
+            isEmpty={listings.length === 0}
+            emptyProps={{
+              title: "No listings found",
+              description:
+                "No listings match your filters. Try adjusting search or filters.",
+            }}
+            errorProps={{
+              title: "Could not load listings",
+              description:
+                "We had trouble fetching your listings. Please try again.",
+            }}
+          >
+            {listings.map((list: SwapDetailsProps, idx: number) => (
+              <List key={list.listingId || list.name + idx} item={list} />
+            ))}
+          </QueryState>
+          {!isError && (
+            <Box mt={6}>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={Math.max(1, totalPages)}
+                onPageChange={setCurrentPage}
+              />
             </Box>
-          ) : isError ? (
-            <Box
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              minH="400px"
-              color="#E42222"
-            >
-              Error loading listings: {error?.message || "Unknown error"}
-            </Box>
-          ) : listings.length === 0 ? (
-            <Box
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              minH="400px"
-              color="#737373"
-            >
-              No listings found
-            </Box>
-          ) : (
-            listings.map((list: SwapDetailsProps, idx: number) => (
-              <List key={list.name + idx} item={list} />
-            ))
           )}
         </Flex>
       </Box>

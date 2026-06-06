@@ -18,6 +18,7 @@ interface iProps {
   onPageChange: (value: number) => void;
   totalPages: number;
   loading: boolean;
+  emptyDescription?: string;
 }
 
 const SwapActivityTable: React.FC<iProps> = ({
@@ -26,6 +27,7 @@ const SwapActivityTable: React.FC<iProps> = ({
   onPageChange,
   totalPages,
   loading,
+  emptyDescription,
 }) => {
   const navigate = useNavigate();
   const [profileImageError, setProfileImageError] = useState(false);
@@ -113,24 +115,15 @@ const SwapActivityTable: React.FC<iProps> = ({
         </Text>
       </Flex>
     ),
-    listedItems: (item: SwapActivityData) => (
-      <Flex alignItems="center" gap="4px">
-        <Text {...textProps} color={"#222222"}>
-          {item?.listedItem || "N/A"}
-        </Text>
-      </Flex>
+    listedItem: (item: SwapActivityData) => (
+      <Text {...textProps} color={"#222222"}>
+        {item?.listedItem || "N/A"}
+      </Text>
     ),
-    items: (item: SwapActivityData) => (
-      <Flex alignItems="center" gap="4px">
-        <Text {...textProps} color={"#222222"}>
-          {item?.itemOne || "N/A"}
-        </Text>
-        <ArrowLeft size={16} color="#737373" />
-        <ArrowRight size={16} color="#737373" />
-        <Text {...textProps} color={"#222222"}>
-          {item?.itemTwo || "N/A"}
-        </Text>
-      </Flex>
+    swapperRequestItem: (item: SwapActivityData) => (
+      <Text {...textProps} color={"#222222"}>
+        {item?.swapperRequestItem || "N/A"}
+      </Text>
     ),
     status: (item: SwapActivityData) => {
       const { borderColor, bg, textColor } = getStatusStyles(
@@ -192,7 +185,7 @@ const SwapActivityTable: React.FC<iProps> = ({
   const columnOrder: (keyof SwapActivityData)[] = [
     "swappers",
     "listedItem",
-    "items",
+    "swapperRequestItem",
     "status",
     "createdAt",
     "updatedAt",
@@ -202,7 +195,7 @@ const SwapActivityTable: React.FC<iProps> = ({
   const columnLabels = {
     swappers: "Swappers",
     listedItem: "Listed Item(s)",
-    items: "Items",
+    swapperRequestItem: "Swapper Request Item(s)",
     status: "Status",
     createdAt: "Date Initiated",
     updatedAt: "Last Activity",
@@ -220,6 +213,7 @@ const SwapActivityTable: React.FC<iProps> = ({
         columnOrder={columnOrder}
         columnLabels={columnLabels}
         isLoading={loading}
+        emptyDescription={emptyDescription}
       />
     </>
   );

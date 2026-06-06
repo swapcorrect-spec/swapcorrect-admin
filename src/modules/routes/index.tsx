@@ -16,6 +16,7 @@ const UserSettings = lazy(() => import("../app/settings").then(module => ({ defa
 const SwapActivity = lazy(() => import("../app/swap-activity").then(module => ({ default: module.SwapActivity })));
 const SwapActivityInfo = lazy(() => import("../app/swap-activity/info").then(module => ({ default: module.SwapActivityInfo })));
 const FlagsAndReports = lazy(() => import("../app/flags-reports").then(module => ({ default: module.FlagsAndReports })));
+const Transactions = lazy(() => import("../app/transactions").then(module => ({ default: module.Transactions })));
 const FlagReportDetails = lazy(() => import("../app/flags-reports/details").then(module => ({ default: module.FlagReportDetails })));
 const Profile = lazy(() => import("../app/profile").then(module => ({ default: module.Profile })));
 const ProfileInfo = lazy(() => import("../app/profile/info").then(module => ({ default: module.default })));
@@ -49,6 +50,7 @@ const Routes: FunctionComponent<Record<string, never>> = () => {
             element={<SwapActivityInfo />}
           />
           <Route path={PATHS.FLAGSANDREPORTS} element={<FlagsAndReports />} />
+          <Route path={PATHS.TRANSACTIONS} element={<Transactions />} />
           <Route
             path={`${PATHS.FLAGSANDREPORTS}/:reportId`}
             element={<FlagReportDetails />}

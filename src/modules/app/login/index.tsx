@@ -1,32 +1,23 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useFormik } from "formik";
 import { toast } from "sonner";
-import { Stack, Box, Link, IconButton } from "@chakra-ui/react";
-import { Eye, EyeOff } from "lucide-react";
+import { Stack, Box, Link } from "@chakra-ui/react";
 
 import { useLogin } from "~/hooks/queries/auth/auth";
 import { PATHS } from "~/modules/_constants/paths";
 import  {  type loginPayload } from "./_validation";
 import AuthForm from "~/modules/shared/AuthForm";
-import { Button, Input } from "~/modules/shared";
-import Cookies from "js-cookie";
+import { Button, Input, PasswordInput } from "~/modules/shared";
+import { Auth } from "~/config/auth";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-const [showPassword, setShowPassword] = useState(false);
-
-  const toggleVisibility = () => setShowPassword((prev: boolean) => !prev);
   const { mutate, isPending } = useLogin({
     onSuccess(_val: { displayMessage: string; result: { jwt: string } }) {
       toast.success(_val.displayMessage, {
         onAutoClose: () => {
-          localStorage.setItem("access-token", _val.result.jwt);
-          Cookies.set("access_token_key", _val.result.jwt, {
-            expires: 1,
-            secure: true,
-            sameSite: "Strict",
-          });
+          Auth.setToken(_val.result.jwt);
           navigate(`${PATHS.DASHBOARD}`);
         },
       });
@@ -79,8 +70,7 @@ const [showPassword, setShowPassword] = useState(false);
             label="Email Address"
           />
           <Box>
-            <Input
-              type={showPassword ? "text" : "password"}
+            <PasswordInput
               placeholder="Password"
               name="password"
               handleChange={handleChange}

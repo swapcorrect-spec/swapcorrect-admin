@@ -2,30 +2,49 @@
 import {
   Flex,
   Box,
-  Button,
   Text,
   Tabs,
   Menu,
   Badge,
-  VStack,
+  Image,
+  Skeleton,
 } from "@chakra-ui/react";
-
-// SVGs
-
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { PATHS } from "../_constants/paths";
 import { mockNotifications, notifyType } from "../_constants";
 import { Bell } from "~/assets/images";
 import Notification from "~/modules/shared/widgets";
-import profyle from "~/assets/images/profyle.png";
+import userFallback from "~/assets/images/user.png";
+import { useGetUserInfo } from "~/hooks/queries/auth/auth";
+import { useLogout } from "~/hooks/useLogout";
+import { Auth } from "~/config/auth";
+import { LogoutConfirmDialog } from "~/modules/shared";
+import {
+  createImageErrorHandler,
+  getImageSrcWithFallback,
+} from "~/modules/util";
 
 export const Navbar: React.FC = () => {
   const path = useLocation().pathname;
+  const [imageError, setImageError] = useState(false);
+  const {
+    isModalOpen,
+    isLoggingOut,
+    openLogoutModal,
+    closeLogoutModal,
+    confirmLogout,
+  } = useLogout();
 
-  const handleLogout = () => {
-    localStorage.clear();
-    // navigate(`/${PATHS.LOGIN}`);
-  };
+  const { data: user, isLoading } = useGetUserInfo({
+    enabler: Auth.isAuthenticated(),
+  });
+
+  const displayName = user
+    ? `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+      user.userName ||
+      "User"
+    : "User";
   function getPageTitle(pathname: string): string {
     if (pathname === "/dashboard") return "Dashboard";
     if (pathname === "/listing") return "Listing";
@@ -113,14 +132,33 @@ export const Navbar: React.FC = () => {
         <Menu.Root>
           <Menu.Trigger>
             <Flex align="center" gap={3} cursor="pointer" fontWeight={500}>
-              <Box>
-                <img
-                  src={profyle}
-                  alt="Profile icon"
-                  style={{ width: "32px", height: "32px", borderRadius: "50%" }}
-                />
-              </Box>
-              Wisdom Apavie
+              {isLoading ? (
+                <Skeleton boxSize="32px" borderRadius="full" />
+              ) : (
+                <Box
+                  boxSize="32px"
+                  borderRadius="full"
+                  overflow="hidden"
+                  flexShrink={0}
+                >
+                  <Image
+                    src={getImageSrcWithFallback(
+                      user?.profilePicture,
+                      imageError || !user?.profilePicture?.trim(),
+                      userFallback
+                    )}
+                    alt={displayName}
+                    boxSize="32px"
+                    objectFit="cover"
+                    onError={createImageErrorHandler(setImageError)}
+                  />
+                </Box>
+              )}
+              {isLoading ? (
+                <Skeleton height="16px" width="100px" />
+              ) : (
+                <Text color="#222222">{displayName}</Text>
+              )}
             </Flex>
           </Menu.Trigger>
           <Menu.Positioner>
@@ -137,13 +175,24 @@ export const Navbar: React.FC = () => {
                 </Menu.Item>
               </Link>
 
-              <Menu.Item onClick={handleLogout} value="logout" cursor="pointer">
+              <Menu.Item
+                onClick={openLogoutModal}
+                value="logout"
+                cursor="pointer"
+              >
                 Logout
               </Menu.Item>
             </Menu.Content>
           </Menu.Positioner>
         </Menu.Root>
       </Flex>
+
+      <LogoutConfirmDialog
+        open={isModalOpen}
+        onClose={closeLogoutModal}
+        onConfirm={confirmLogout}
+        isLoading={isLoggingOut}
+      />
     </Flex>
   );
 };

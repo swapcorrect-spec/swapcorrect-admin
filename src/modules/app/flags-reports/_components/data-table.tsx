@@ -17,11 +17,12 @@ import { useNavigate } from "react-router";
 import { PATHS } from "~/modules/_constants/paths";
 
 interface iProps {
-  data?: any;
+  data?: FlagData[];
   currentPage: number;
   onPageChange: (value: number) => void;
   totalPages: number;
   loading: boolean;
+  emptyDescription?: string;
 }
 
 const FlagsAndReportTable: React.FC<iProps> = ({
@@ -31,6 +32,7 @@ const FlagsAndReportTable: React.FC<iProps> = ({
 
   totalPages,
   loading,
+  emptyDescription,
 }) => {
   const navigate = useNavigate();
   const textProps = {
@@ -79,13 +81,16 @@ const FlagsAndReportTable: React.FC<iProps> = ({
         </Text>
       );
     },
-    action: () => (
+    action: (item: FlagData) => (
       <Menu>
         <Box>
           <MenuItem
             label="View details"
             icon={<Book size={20} />}
-            onClick={() => navigate(`${PATHS.FLAGSANDREPORTS}/1`)}
+            onClick={() =>
+              item.reportId &&
+              navigate(`${PATHS.FLAGSANDREPORTS}/${item.reportId}`)
+            }
             value="view"
             styleProps={{ color: "#222222" }}
           />
@@ -153,14 +158,15 @@ const FlagsAndReportTable: React.FC<iProps> = ({
   return (
     <>
       <TableComponent<FlagData>
-        tableData={data}
+        tableData={data ?? []}
         currentPage={currentPage}
         onPageChange={onPageChange}
-        totalPages={Math.ceil(totalPages / 10)}
+        totalPages={totalPages}
         cellRenderers={cellRenderers}
         columnOrder={columnOrder}
         columnLabels={columnLabels}
         isLoading={loading}
+        emptyDescription={emptyDescription}
       />
     </>
   );

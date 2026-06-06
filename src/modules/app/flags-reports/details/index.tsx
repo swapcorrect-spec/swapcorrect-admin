@@ -1,6 +1,8 @@
 import { Box, Flex, Image, Text } from "@chakra-ui/react";
+import { useParams } from "react-router-dom";
 import PageLayout from "~/modules/layout/page-layout";
-import { Button, Header, Input } from "~/modules/shared";
+import { Button, Header, Input, QueryState } from "~/modules/shared";
+import { useGetReportDetails } from "~/hooks/queries/report/report";
 import ProfileInfo from "~/modules/shared/widgets/profile_info";
 import { Menu, MenuItem } from "~/modules/shared";
 import swapitem from "~/assets/images/swap_item.png";
@@ -16,6 +18,12 @@ import {
 } from "lucide-react";
 
 export const FlagReportDetails = () => {
+  const { reportId = "" } = useParams<{ reportId: string }>();
+  const { isLoading, isFetching, isError, error, refetch } = useGetReportDetails({
+    reportId,
+    enabler: !!reportId,
+  });
+
   const sampleDetail = {
     listingId: "12-edsefffgg-90",
     name: "iPhone 14 Pro",
@@ -40,6 +48,21 @@ export const FlagReportDetails = () => {
 
   return (
     <PageLayout>
+      <QueryState
+        isLoading={isLoading || isFetching}
+        isError={isError}
+        error={error}
+        onRetry={() => refetch()}
+        isEmpty={!reportId}
+        emptyProps={{
+          title: "Report not found",
+          description: "Select a report from the list to view its details.",
+        }}
+        errorProps={{
+          title: "Could not load report",
+          description: "We had trouble fetching this report. Please try again.",
+        }}
+      >
       <Header
         title="Report Details"
         description="Swap report filed by bookworm"
@@ -196,6 +219,7 @@ export const FlagReportDetails = () => {
           </Box>
         </Menu>
       </Box>
+      </QueryState>
     </PageLayout>
   );
 };

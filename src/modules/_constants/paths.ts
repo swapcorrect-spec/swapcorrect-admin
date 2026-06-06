@@ -8,6 +8,7 @@ export const PATHS = {
   USERMANAGEMENT: "/user-management",
   SWAPACTIVITY: "/swap-activity",
   FLAGSANDREPORTS: "/flags-reports",
+  TRANSACTIONS: "/transactions",
   SETTINGS: "/settings",
   PROFILE: "/profile",
 };

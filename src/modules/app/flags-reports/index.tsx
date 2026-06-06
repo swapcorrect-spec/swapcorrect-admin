@@ -1,114 +1,69 @@
 import { Flex } from "@chakra-ui/react";
 import PageLayout from "~/modules/layout/page-layout";
-import { Header, Select } from "~/modules/shared";
+import { Header, QueryState } from "~/modules/shared";
 import { useState } from "react";
 import FlagsAndReportTable from "./_components/data-table";
+import {
+  mapReportToTableRow,
+  useGetReports,
+} from "~/hooks/queries/report/report";
 
 export const FlagsAndReports = () => {
   const [currentPage, setCurrentPage] = useState(1);
+
   const onPageChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  const reportsData = [
-    {
-      reporter: "Alice Johnson",
-      type: "User Misconduct",
-      reportedEntity: "John Doe",
-      status: "New",
-      reason: "Spamming inappropriate messages",
-      createdAt: "2025-07-09T10:50:00Z",
-    },
-    {
-      reporter: "David Smith",
-      type: "Fraudulent Activity",
-      reportedEntity: "Mike Taylor",
-      status: "Resolved",
-      reason: "Reported for multiple failed payments",
-      createdAt: "2025-07-09T10:50:00Z",
-    },
-    {
-      reporter: "Olivia Green",
-      type: "Abuse",
-      reportedEntity: "Chris Brown",
-      status: "Dismissed",
-      reason: "Insufficient evidence to proceed",
-      createdAt: "2025-07-09T10:50:00Z",
-    },
-    {
-      reporter: "James Carter",
-      type: "System Exploit",
-      reportedEntity: "Emma White",
-      status: "Under Review",
-      reason: "Suspected API abuse for swapping",
-      createdAt: "2025-07-09T10:50:00Z",
-    },
-    {
-      reporter: "Sophia Turner",
-      type: "Scam Attempt",
-      reportedEntity: "Mark Allen",
-      status: "New",
-      reason: "Attempted to trade counterfeit items",
-      createdAt: "2025-07-09T10:50:00Z",
-    },
-    {
-      reporter: "Ethan Brooks",
-      type: "User Misconduct",
-      reportedEntity: "Grace Walker",
-      status: "Resolved",
-      reason: "User apologized and warning issued",
-      createdAt: "2025-07-09T10:50:00Z",
-    },
-    {
-      reporter: "Liam Davis",
-      type: "Fraudulent Activity",
-      reportedEntity: "Noah Adams",
-      status: "Dismissed",
-      reason: "Case closed after investigation",
-      createdAt: "2025-07-09T10:50:00Z",
-    },
-    {
-      reporter: "Isabella Scott",
-      type: "Abuse",
-      reportedEntity: "Lucas Hill",
-      status: "Under Review",
-      reason: "Reported for verbal abuse in chats",
-      createdAt: "2025-07-09T10:50:00Z",
-    },
-    {
-      reporter: "Mason Lee",
-      type: "Scam Attempt",
-      reportedEntity: "Henry Wright",
-      status: "New",
-      reason: "Fake payment screenshot submitted",
-      createdAt: "2025-07-09T10:50:00Z",
-    },
-    {
-      reporter: "Zoe Thompson",
-      type: "System Exploit",
-      reportedEntity: "Ava King",
-      status: "Resolved",
-      reason: "Exploit patched and account restored",
-      createdAt: "2025-07-09T10:50:00Z",
-    },
-  ];
+  const {
+    data: reportsData,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    refetch,
+  } = useGetReports({
+    enabler: true,
+    pageNumber: currentPage,
+    perpageSize: 20,
+  });
+
+  const reportsItems = (reportsData?.items ?? []).map(mapReportToTableRow);
 
   return (
     <PageLayout>
       <Flex justifyContent="space-between" alignItems="center" mb={7}>
         <Header
           title="Recent Activity"
-          description="Monitor and manage all swaps between users on the platform"
+          description="Monitor and manage all flags and reports on the platform"
         />
       </Flex>
 
-      <FlagsAndReportTable
-        data={reportsData}
-        currentPage={currentPage}
-        onPageChange={onPageChange}
-        totalPages={30}
-        loading={false}
-      />
+      <QueryState
+        isLoading={isLoading || isFetching}
+        isError={isError}
+        error={error}
+        onRetry={() => refetch()}
+        isEmpty={!isLoading && !isFetching && reportsItems.length === 0}
+        emptyProps={{
+          title: "No reports yet",
+          description:
+            "There are no flags or reports to show. New reports will appear here when users file them.",
+        }}
+        errorProps={{
+          title: "Could not load reports",
+          description: "We had trouble fetching flags and reports. Please try again.",
+        }}
+      >
+        <FlagsAndReportTable
+          data={reportsItems}
+          currentPage={currentPage}
+          onPageChange={onPageChange}
+          totalPages={reportsData?.totalPages || 1}
+          loading={false}
+          emptyDescription="No flags or reports match your current filters."
+        />
+      </QueryState>
     </PageLayout>
   );
 };

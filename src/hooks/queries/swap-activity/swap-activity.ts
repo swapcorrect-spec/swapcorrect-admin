@@ -1,6 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { getRequestParams } from "~/config/request-methods";
-import type { SwapSearchResponseInterface,IGetSwapInfoResponseData } from "./swap-activity.type";
+import type {
+  SwapProceedingResponse,
+  SwapSearchResponseInterface,
+} from "./swap-activity.type";
+
+export const SWAP_PROCEEDING = "SWAP_PROCEEDING";
 
 export interface UseSearchSwapsProps {
   enabler: boolean;
@@ -23,7 +28,8 @@ export const useSearchSwaps = (props: UseSearchSwapsProps) => {
     perpageSize = 20,
   } = props;
 
-  const { data, isError, isSuccess, isLoading, isFetching, error } = useQuery({
+  const { data, isError, isSuccess, isLoading, isFetching, error, refetch } =
+    useQuery({
     queryKey: [
       "useSearchSwaps",
       listingUserId,
@@ -66,28 +72,38 @@ export const useSearchSwaps = (props: UseSearchSwapsProps) => {
     isError,
     error,
     isSuccess,
+    refetch,
   };
 };
 
 
-export const useGetSwapInfo = (props: { swapId: string; enabler: boolean }) => {
-  const { swapId, enabler } = props;
-  const { data, isError, isSuccess, isLoading, isFetching, error } = useQuery({
-    queryKey: ["useGetGeneralUserInfo", swapId],
-    queryFn: () =>
-      getRequestParams<{}, IGetSwapInfoResponseData>({
-        url: "/auth/general/user/info",
-        params: { swapId },
-      }),
-    enabled: !!enabler && !!swapId,
-  });
+export const useGetSwapProceeding = (props: {
+  swapProceedId: string;
+  enabler: boolean;
+}) => {
+  const { swapProceedId, enabler } = props;
+  const { data, isError, isSuccess, isLoading, isFetching, error, refetch } =
+    useQuery({
+      queryKey: [SWAP_PROCEEDING, swapProceedId],
+      queryFn: async ({ signal }) =>
+        getRequestParams<
+          { swapProceedId: string },
+          SwapProceedingResponse
+        >({
+          url: "/listing_item/single-swap-proceeding",
+          params: { swapProceedId },
+          config: { signal },
+        }),
+      enabled: !!enabler && !!swapProceedId,
+    });
 
   return {
-    data,
+    data: data?.result,
     isLoading,
     isFetching,
     isError,
     error,
     isSuccess,
+    refetch,
   };
 };

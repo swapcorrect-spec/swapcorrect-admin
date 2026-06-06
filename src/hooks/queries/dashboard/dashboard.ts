@@ -1,7 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { DASHBOARD_SUMMARY } from "~/modules/_constants";
-import { getRequestParams, getRequest } from "~/config/request-methods";
-import type { DashboardSummaryResponse, AnalyticsResponse } from "./dashboard.type";
+import { getRequestParams } from "~/config/request-methods";
+import type {
+  AnalyticsResponse,
+  DashboardSummaryResponse,
+  MetricFilter,
+  PeriodicFilter,
+} from "./dashboard.type";
 
 export const ADVANCED_ANALYTICS = "ADVANCED_ANALYTICS";
 
@@ -39,20 +44,29 @@ export const useGetDashboardSummary = (props: {
 
 export const useGetAdvancedAnalytics = (props: {
   enabler: boolean;
-  filter?: "Today" | "ThisWeek" | "ThisMonth" | "AllTime";
+  metricFilter?: MetricFilter;
+  periodicFilter?: PeriodicFilter;
 }) => {
-  const { enabler = true, filter = "ThisMonth" } = props;
+  const {
+    enabler = true,
+    metricFilter = "All",
+    periodicFilter = "ThisWeek",
+  } = props;
 
   const { data, isError, isSuccess, isLoading, isFetching, error } = useQuery({
-    queryKey: [ADVANCED_ANALYTICS, filter],
-    queryFn: async ({ signal }) => {
-      return getRequest<AnalyticsResponse>({
+    queryKey: [ADVANCED_ANALYTICS, metricFilter, periodicFilter],
+    queryFn: async ({ signal }) =>
+      getRequestParams<
+        { metricFilter: MetricFilter; periodicFilter: PeriodicFilter },
+        AnalyticsResponse
+      >({
         url: "/Admin/advanced-analytics",
-      });
-    },
+        params: { metricFilter, periodicFilter },
+        config: { signal },
+      }),
     enabled: !!enabler,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 
   return {

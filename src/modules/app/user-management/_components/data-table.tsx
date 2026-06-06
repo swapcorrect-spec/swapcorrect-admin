@@ -1,15 +1,26 @@
 "use client";
 
 import { Text, Flex, Box, Image } from "@chakra-ui/react";
-import { Caution, Star } from "~/assets/images";
+import { Star } from "~/assets/images";
 import { TableComponent } from "~/modules/shared/table";
 import type { UsersData } from "~/types/base";
-import { getStatusStyles, formatDateTime, getImageSrcWithFallback, createImageErrorHandler } from "~/modules/util";
-import { Flag, UserRound } from "lucide-react";
+import {
+  getStatusStyles,
+  formatDateTime,
+  getImageSrcWithFallback,
+  createImageErrorHandler,
+} from "~/modules/util";
+import { OctagonAlert, ShieldCheck, UserRound } from "lucide-react";
 import { MenuItem, Menu } from "~/modules/shared";
 import { useNavigate } from "react-router";
 import user from "~/assets/images/user.png";
 import { useState } from "react";
+import {
+  UserSuspendConfirm,
+  toUserSuspendSummary,
+  type UserSuspendMode,
+  type UserSuspendSummary,
+} from "./user-suspend-confirm";
 
 
 interface iProps {
@@ -18,6 +29,7 @@ interface iProps {
   onPageChange: (value: number) => void;
   totalPages: number;
   loading: boolean;
+  emptyDescription?: string;
 }
 
 const UsersTable: React.FC<iProps> = ({
@@ -26,10 +38,20 @@ const UsersTable: React.FC<iProps> = ({
   onPageChange,
   totalPages,
   loading,
+  emptyDescription,
 }) => {
   const navigate = useNavigate();
   const [profileImageError, setProfileImageError] = useState(false);
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
+  const [suspendMode, setSuspendMode] = useState<UserSuspendMode | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserSuspendSummary | null>(
+    null
+  );
+
+  const openSuspendAction = (item: UsersData, mode: UserSuspendMode) => {
+    setSelectedUser(toUserSuspendSummary(item));
+    setSuspendMode(mode);
+  };
 
 
   const handleViewProfile = (item: UsersData) => {
@@ -92,9 +114,33 @@ const UsersTable: React.FC<iProps> = ({
           py="5px"
           px="17px"
           borderRadius="37.74px"
-          width={"fit-content"}
+          width="fit-content"
         >
           {item?.status}
+        </Text>
+      );
+    },
+
+    isSuspended: (item: UsersData) => {
+      const suspended = item.isSuspended === true;
+      const { borderColor, bg, textColor } = suspended
+        ? getStatusStyles("flagged")
+        : getStatusStyles("suspended");
+
+      return (
+        <Text
+          border="1px solid"
+          borderColor={borderColor}
+          bg={bg}
+          color={textColor}
+          py="5px"
+          px="17px"
+          borderRadius="37.74px"
+          width="fit-content"
+          fontWeight={500}
+          fontSize="13px"
+        >
+          {suspended ? "true" : "false"}
         </Text>
       );
     },
@@ -117,33 +163,40 @@ const UsersTable: React.FC<iProps> = ({
       </Text>
     ),
 
-    action: (item: UsersData) => (
-      <Menu>
-        <Box>
-          <MenuItem
-            label="View profile"
-            icon={<UserRound size={20} />}
-            onClick={() => handleViewProfile(item)}
-            value="view"
-            styleProps={{ color: "#222222" }}
-          />
-          <MenuItem
-            label="Suspend"
-            icon={<Caution />}
-            onClick={() => console.log("View")}
-            value="suspend"
-            styleProps={{ color: "#007AFF" }}
-          />
-          {/* <MenuItem
-            label="Flag User"
-            icon={<Flag size={20} />}
-            onClick={() => console.log("Flag")}
-            value="flag"
-            styleProps={{ color: "#E42222" }}
-          /> */}
-        </Box>
-      </Menu>
-    ),
+    action: (item: UsersData) => {
+      const suspended = item.isSuspended === true;
+
+      return (
+        <Menu>
+          <Box>
+            <MenuItem
+              label="View profile"
+              icon={<UserRound size={20} />}
+              onClick={() => handleViewProfile(item)}
+              value="view"
+              styleProps={{ color: "#222222" }}
+            />
+            {suspended ? (
+              <MenuItem
+                label="Unsuspend"
+                icon={<ShieldCheck size={20} color="#007AFF" />}
+                onClick={() => openSuspendAction(item, "unsuspend")}
+                value="unsuspend"
+                styleProps={{ color: "#007AFF" }}
+              />
+            ) : (
+              <MenuItem
+                label="Suspend"
+                icon={<OctagonAlert size={20} color="#E42222" />}
+                onClick={() => openSuspendAction(item, "suspend")}
+                value="suspend"
+                styleProps={{ color: "#E42222" }}
+              />
+            )}
+          </Box>
+        </Menu>
+      );
+    },
   };
 
   const columnOrder: (keyof UsersData)[] = [
@@ -151,6 +204,7 @@ const UsersTable: React.FC<iProps> = ({
     "trustScore",
     "swaps",
     "status",
+    "isSuspended",
     "dateJoined",
     "role",
     "action",
@@ -161,6 +215,7 @@ const UsersTable: React.FC<iProps> = ({
     trustScore: "Trust Score",
     swaps: "Swap Completed",
     status: "Status",
+    isSuspended: "Suspended",
     dateJoined: "Date Joined",
     role: "User Role",
     action: "",
@@ -177,6 +232,16 @@ const UsersTable: React.FC<iProps> = ({
         columnOrder={columnOrder}
         columnLabels={columnLabels}
         isLoading={loading}
+        emptyDescription={emptyDescription}
+      />
+      <UserSuspendConfirm
+        open={!!suspendMode}
+        mode={suspendMode}
+        user={selectedUser}
+        onClose={() => {
+          setSuspendMode(null);
+          setSelectedUser(null);
+        }}
       />
     </>
   );

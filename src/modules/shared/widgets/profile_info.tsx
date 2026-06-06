@@ -1,6 +1,7 @@
 import { Box, Image, Text, Flex } from "@chakra-ui/react";
 import { CircleArrowRight, Dot } from "lucide-react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
+import { PATHS } from "~/modules/_constants/paths";
 import { Star } from "~/assets/images";
 import user from "~/assets/images/user.png";
 import { createImageErrorHandler, getImageSrcWithFallback } from "~/modules/util";
@@ -13,6 +14,7 @@ interface iSwapDetails {
 
 const ProfileInfo: React.FC<iSwapDetails> = ({ detail }) => {
   const [imageError, setImageError] = useState(false);
+  const missingAvatar = !detail.ownerAvatar?.trim();
 
   return (
     <Flex
@@ -27,8 +29,12 @@ const ProfileInfo: React.FC<iSwapDetails> = ({ detail }) => {
     >
       <Box display="flex" height="62px" width="62px" borderRadius="full" overflow="hidden">
         <Image
-          src={getImageSrcWithFallback(detail.ownerAvatar || "", imageError, user)}
-          alt="Owner Avatar"
+          src={getImageSrcWithFallback(
+            detail.ownerAvatar,
+            imageError || missingAvatar,
+            user
+          )}
+          alt={`${detail.owner || "User"} avatar`}
           borderRadius="full"
           height="100%"
           width="100%"
@@ -50,7 +56,13 @@ const ProfileInfo: React.FC<iSwapDetails> = ({ detail }) => {
           {detail.swap.total} swaps
         </Text>
       </Box>
-      <Link to="">
+      <Link
+        to={detail.ownerId ? `${PATHS.PROFILE}/${detail.ownerId}` : "#"}
+        style={{
+          pointerEvents: detail.ownerId ? "auto" : "none",
+          opacity: detail.ownerId ? 1 : 0.5,
+        }}
+      >
         <Text
           w="fit-content"
           textAlign="center"

@@ -82,6 +82,7 @@ export interface IGetGeneralUserInfoResponseData {
     userName: string;
     gender: string;
     isSuspendUser: boolean;
+    isSuspended?: boolean;
     isFlag: boolean;
     isTwoFactorEnable: boolean;
     lastLoginTime: string;
