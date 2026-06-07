@@ -50,6 +50,7 @@ const [listingDate, setListingDate] = useState<"All" | "LastWeek" | "LastMonth">
       createdAt: item.createdOn || "",
       updatedAt: item.lastActivity || "",
       swapProceedId: item.swapProceedId || "",
+      isFlagged: item.isFlagged ?? false,
     };
   });
 

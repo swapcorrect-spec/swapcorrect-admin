@@ -163,6 +163,8 @@ export const useFlagContent = (props: MutationProps) => {
       }),
     onSuccess(values) {
       queryClient.invalidateQueries({ queryKey: [LISTINGS] });
+      queryClient.invalidateQueries({ queryKey: ["useSearchSwaps"] });
+      queryClient.invalidateQueries({ queryKey: ["SWAP_PROCEEDING"] });
       onSuccess(values);
     },
     onError(err) {

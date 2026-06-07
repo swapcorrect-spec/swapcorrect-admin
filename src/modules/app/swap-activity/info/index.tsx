@@ -1,14 +1,18 @@
-import { Box, Text, Flex, Image } from "@chakra-ui/react";
+import { Box, Text, Flex } from "@chakra-ui/react";
+import { useState } from "react";
 import PageLayout from "~/modules/layout/page-layout";
 import { Button, PageHeaderWithBack, QueryState } from "~/modules/shared";
 import ProfileInfo from "~/modules/shared/widgets/profile_info";
-import swapitem from "~/assets/images/swap_item.png";
-import { ArrowLeft, ArrowRight, Flag, X } from "lucide-react";
-import { formatDateTime, getStatusStyles } from "~/modules/util";
-import { useNavigate, useParams } from "react-router";
+import { ArrowLeft, ArrowRight, Flag } from "lucide-react";
+import { formatDateTime, getSwapStatusStyles } from "~/modules/util";
+import { useParams } from "react-router";
 import { useGetSwapProceeding } from "~/hooks/queries/swap-activity/swap-activity";
 import type { SwapDetailsProps } from "~/types/base";
-import { PATHS } from "~/modules/_constants/paths";
+import { FlaggedBadge } from "~/modules/app/listing/_components/flagged-badge";
+import {
+  SwapFlagConfirm,
+  type SwapFlagSummary,
+} from "../_components/swap-flag-confirm";
 
 const emptyProfileDetail = (): SwapDetailsProps => ({
   listingId: "",
@@ -41,30 +45,27 @@ const toProfileDetail = (
   ownerId: userId,
 });
 
-const ItemCard = ({ label, itemName }: { label: string; itemName: string }) => (
-  <Box
-    border="1px solid #E9E9E9"
-    p={2.5}
-    borderRadius="lg"
-    bg="#fff"
-  >
+const normalizeItems = (
+  value: string | string[] | null | undefined,
+): string[] => {
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item).trim()).filter(Boolean);
+  }
+  if (!value) return [];
+  return String(value)
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+};
+
+const ItemCard = ({ label, items }: { label: string; items: string[] }) => (
+  <Box border="1px solid #E9E9E9" p={2.5} borderRadius="lg" bg="#fff">
     <Text fontWeight={500} mb={2.5}>
       {label}
     </Text>
-    <Flex alignItems="center" gap={4}>
-      <Box display="flex" height="61px" width="61px" borderRadius="md" overflow="hidden">
-        <Image
-          src={swapitem}
-          alt={itemName}
-          height="100%"
-          width="100%"
-          objectFit="cover"
-        />
-      </Box>
-      <Text fontWeight={500} color="#222222">
-        {itemName || "—"}
-      </Text>
-    </Flex>
+    <Text fontWeight={500} color="#222222">
+      {items.length > 0 ? items.join(", ") : "—"}
+    </Text>
   </Box>
 );
 
@@ -72,12 +73,12 @@ const ParticipantBlock = ({
   roleLabel,
   profileDetail,
   itemLabel,
-  itemName,
+  items,
 }: {
   roleLabel: string;
   profileDetail: SwapDetailsProps;
   itemLabel: string;
-  itemName: string;
+  items: string[];
 }) => (
   <Box
     bg="#F7F7F7"
@@ -89,14 +90,15 @@ const ParticipantBlock = ({
     <Text fontWeight={500} mb={3}>
       {roleLabel}
     </Text>
-    <ProfileInfo detail={profileDetail} />
-    <ItemCard label={itemLabel} itemName={itemName} />
+    <ProfileInfo detail={profileDetail} showStats={false} />
+    <ItemCard label={itemLabel} items={items} />
   </Box>
 );
 
 export const SwapActivityInfo = () => {
-  const navigate = useNavigate();
   const { swapId: swapProceedId } = useParams<{ swapId: string }>();
+  const [flagOpen, setFlagOpen] = useState(false);
+  const [selectedSwap, setSelectedSwap] = useState<SwapFlagSummary | null>(null);
   const {
     data: swap,
     isLoading,
@@ -109,8 +111,7 @@ export const SwapActivityInfo = () => {
     enabler: !!swapProceedId,
   });
 
-  const statusKey = swap?.status?.toLowerCase() || "pending";
-  const { borderColor, bg, textColor } = getStatusStyles(statusKey);
+  const { borderColor, bg, textColor } = getSwapStatusStyles(swap?.status);
 
   const swapperProfile = swap
     ? toProfileDetail(swap.swapperName, swap.swapperImage, swap.swapperUserId)
@@ -120,24 +121,53 @@ export const SwapActivityInfo = () => {
     ? toProfileDetail(swap.visitorName, swap.visitorImage, swap.visitorUserId)
     : emptyProfileDetail();
 
-  const listedItem =
-    Array.isArray(swap?.listedItem)
-      ? swap.listedItem.join(", ")
-      : swap?.listedItem || "";
+  const listedItems = normalizeItems(swap?.listedItem);
+  const requestItems = normalizeItems(swap?.swapperRequestItem);
 
-  const requestItems =
-    Array.isArray(swap?.swapperRequestItem)
-      ? swap.swapperRequestItem.join(", ")
-      : swap?.swapperRequestItem || "";
+  const openFlag = () => {
+    if (!swap) return;
+
+    setSelectedSwap({
+      swapProceedId: swap.swapProceedId,
+      swapperOne: swap.swapperName,
+      swapperTwo: swap.visitorName,
+      listedItem: listedItems.join(", "),
+      swapperRequestItem: requestItems.join(", "),
+      status: swap.status,
+      isFlagged: swap.isFlagged ?? false,
+    });
+    setFlagOpen(true);
+  };
+
+  const closeFlag = () => {
+    setFlagOpen(false);
+    setSelectedSwap(null);
+  };
 
   return (
     <PageLayout>
-      <PageHeaderWithBack
-        title="Swap Details"
-        description={
-          swap ? `Initiated on ${formatDateTime(swap.createdOn)}` : undefined
-        }
-      />
+      <Flex
+        justify="space-between"
+        align="flex-start"
+        gap={4}
+        mb={6}
+        flexWrap="wrap"
+      >
+        <PageHeaderWithBack
+          title="Swap Details"
+          description={
+            swap ? `Initiated on ${formatDateTime(swap.createdOn)}` : undefined
+          }
+        />
+        {swap && (
+          <Button bg="#FFF0EF" width="fit-content" handleClick={openFlag}>
+            <Flag color="#E42222" size={16} />
+            <Text fontSize="14px" color="#E42222">
+              {swap.isFlagged ? "Unflag Swap" : "Flag Swap"}
+            </Text>
+          </Button>
+        )}
+      </Flex>
       <QueryState
         isLoading={isLoading || isFetching}
         isError={isError}
@@ -160,7 +190,7 @@ export const SwapActivityInfo = () => {
                 roleLabel="Swapper"
                 profileDetail={swapperProfile}
                 itemLabel="Listed Item"
-                itemName={listedItem}
+                items={listedItems}
               />
               <Box gap={4} display="flex" flexShrink={0}>
                 <ArrowLeft size={40} color="#737373" />
@@ -170,7 +200,7 @@ export const SwapActivityInfo = () => {
                 roleLabel="Visitor"
                 profileDetail={visitorProfile}
                 itemLabel="Swapper Request Item(s)"
-                itemName={requestItems}
+                items={requestItems}
               />
             </Flex>
             <Box
@@ -180,10 +210,12 @@ export const SwapActivityInfo = () => {
               bg="#fff"
               my={8}
             >
-              <Text fontWeight={500} mb={2.5}>
-                Swap Status
-              </Text>
+              <Flex align="center" gap={2} mb={2.5} flexWrap="wrap">
+                <Text fontWeight={500}>Swap Status</Text>
+                {swap.isFlagged && <FlaggedBadge />}
+              </Flex>
               <Text
+                border="1px solid"
                 borderColor={borderColor}
                 bg={bg}
                 color={textColor}
@@ -192,6 +224,8 @@ export const SwapActivityInfo = () => {
                 borderRadius="37.74px"
                 width="fit-content"
                 mb={2.5}
+                fontWeight={500}
+                fontSize="13px"
               >
                 {swap.status}
               </Text>
@@ -221,24 +255,12 @@ export const SwapActivityInfo = () => {
                 </Text>
               </Box>
             </Box>
-            <Box display="flex" alignItems="center" gap={5} justifyContent="end">
-              <Button
-                bg="#F6F6F6"
-                width="fit-content"
-                handleClick={() => navigate(PATHS.SWAPACTIVITY)}
-              >
-                <X color="#1C274C" />
-                <Text fontSize="14px" color="#737373">
-                  Close
-                </Text>
-              </Button>
-              <Button bg="#FFF0EF" width="fit-content">
-                <Flag color="#E42222" size={16} />
-                <Text fontSize="14px" color="#E42222">
-                  Flag Users
-                </Text>
-              </Button>
-            </Box>
+
+            <SwapFlagConfirm
+              open={flagOpen}
+              swap={selectedSwap}
+              onClose={closeFlag}
+            />
           </>
         )}
       </QueryState>

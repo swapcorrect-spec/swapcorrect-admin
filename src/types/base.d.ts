@@ -56,6 +56,7 @@ export interface SwapActivityData extends DataItem {
   status: string;
   createdAt: string;
   updatedAt: string;
+  isFlagged?: boolean;
 }
 
 export interface FlagData extends DataItem {

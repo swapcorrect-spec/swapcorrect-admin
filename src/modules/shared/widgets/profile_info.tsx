@@ -10,9 +10,10 @@ import { useState } from "react";
 
 interface iSwapDetails {
   detail: SwapDetailsProps;
+  showStats?: boolean;
 }
 
-const ProfileInfo: React.FC<iSwapDetails> = ({ detail }) => {
+const ProfileInfo: React.FC<iSwapDetails> = ({ detail, showStats = true }) => {
   const [imageError, setImageError] = useState(false);
   const missingAvatar = !detail.ownerAvatar?.trim();
 
@@ -27,7 +28,7 @@ const ProfileInfo: React.FC<iSwapDetails> = ({ detail }) => {
       gap={4}
       bg="#fff"
     >
-      <Box display="flex" height="62px" width="62px" borderRadius="full" overflow="hidden">
+      <Box display="flex" borderRadius="full" overflow="hidden">
         <Image
           src={getImageSrcWithFallback(
             detail.ownerAvatar,
@@ -42,19 +43,26 @@ const ProfileInfo: React.FC<iSwapDetails> = ({ detail }) => {
         />
       </Box>
       <Box width="full">
-        <Text fontSize="16px" color="#222222" fontWeight="500" mb="12px">
+        <Text
+          fontSize="16px"
+          color="#222222"
+          fontWeight="500"
+          mb={showStats ? "12px" : 0}
+        >
           {detail.owner}
         </Text>
-        <Text
-          fontSize="14px"
-          color="#737373"
-          display="flex"
-          alignItems="center"
-          gap={2}
-        >
-          {detail.rating} <Star /> <Dot size={"4px"} />
-          {detail.swap.total} swaps
-        </Text>
+        {showStats && (
+          <Text
+            fontSize="14px"
+            color="#737373"
+            display="flex"
+            alignItems="center"
+            gap={2}
+          >
+            {detail.rating} <Star /> <Dot size={"4px"} />
+            {detail.swap.total} swaps
+          </Text>
+        )}
       </Box>
       <Link
         to={detail.ownerId ? `${PATHS.PROFILE}/${detail.ownerId}` : "#"}

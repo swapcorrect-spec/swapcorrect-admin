@@ -25,6 +25,7 @@ export interface SwapProceedingItem {
   roomName: string | null;
   createdOn: string;
   lastActivity: string;
+  isFlagged?: boolean;
 }
 
 export interface SwapProceedingResponse {

@@ -1,25 +1,15 @@
 "use client";
-import {
-  Flex,
-  Box,
-  Text,
-  Tabs,
-  Menu,
-  Badge,
-  Image,
-  Skeleton,
-} from "@chakra-ui/react";
+import { Flex, Box, Text, Menu, Badge, Image, Skeleton } from "@chakra-ui/react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { PATHS } from "../_constants/paths";
-import { mockNotifications, notifyType } from "../_constants";
 import { Bell } from "~/assets/images";
-import Notification from "~/modules/shared/widgets";
 import userFallback from "~/assets/images/user.png";
 import { useGetUserInfo } from "~/hooks/queries/auth/auth";
 import { useLogout } from "~/hooks/useLogout";
 import { Auth } from "~/config/auth";
 import { LogoutConfirmDialog } from "~/modules/shared";
+import { NotificationMenu } from "./notification-menu";
 import {
   createImageErrorHandler,
   getImageSrcWithFallback,
@@ -28,6 +18,8 @@ import {
 export const Navbar: React.FC = () => {
   const path = useLocation().pathname;
   const [imageError, setImageError] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notificationTab, setNotificationTab] = useState("all");
   const {
     isModalOpen,
     isLoggingOut,
@@ -79,7 +71,9 @@ export const Navbar: React.FC = () => {
       </Text>
 
       <Flex align="center" gap={5}>
-        <Menu.Root>
+        <Menu.Root
+          onOpenChange={(details) => setNotificationsOpen(details.open)}
+        >
           <Menu.Trigger as={Box} position="relative" cursor="pointer">
             <Bell />
             <Badge
@@ -99,33 +93,12 @@ export const Navbar: React.FC = () => {
             </Badge>
           </Menu.Trigger>
           <Menu.Positioner>
-            <Menu.Content p={4} maxH="75vh" overflowY="auto" w="500px">
-              <Tabs.Root
-                variant="enclosed"
-                display={"flex"}
-                defaultValue={"all"}
-              >
-                <Tabs.List width={"100%"}>
-                  {notifyType.map((tab, index) => (
-                    <Tabs.Trigger key={index} value={tab.value} width={"100%"}>
-                      {tab.title}
-                    </Tabs.Trigger>
-                  ))}
-                </Tabs.List>
-              </Tabs.Root>
-              <Flex direction="column" gap={3} mt={4}>
-                {mockNotifications.map((notify, idx) => (
-                  <Box
-                    key={idx}
-                    border="1px solid #EAEAEA"
-                    borderRadius="md"
-                    bg="gray.50"
-                  >
-                    <Notification notify={notify} />
-                  </Box>
-                ))}
-              </Flex>
-            </Menu.Content>
+            <NotificationMenu
+              open={notificationsOpen && Auth.isAuthenticated()}
+              userId={user?.id}
+              notificationTab={notificationTab}
+              onTabChange={setNotificationTab}
+            />
           </Menu.Positioner>
         </Menu.Root>
 

@@ -140,7 +140,7 @@ export interface UpdateListingReviewResponse {
 
 export interface FlagContentPayload {
   contentId: string;
-  contentType: "Listing";
+  contentType: "Listing" | "Swap";
   isFlagged: boolean;
 }
 

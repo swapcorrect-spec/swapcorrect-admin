@@ -3,13 +3,23 @@
 import { Text, Flex, Box, Image } from "@chakra-ui/react";
 import { TableComponent } from "~/modules/shared/table";
 import type { SwapActivityData } from "~/types/base";
-import { createImageErrorHandler, formatDateTime, getImageSrcWithFallback, getStatusStyles } from "~/modules/util";
+import {
+  createImageErrorHandler,
+  formatDateTime,
+  getImageSrcWithFallback,
+  getStatusStyles,
+  getSwapStatusStyles,
+} from "~/modules/util";
 import { ArrowLeft, ArrowRight, Flag, OctagonAlert, Book } from "lucide-react";
 import { MenuItem, Menu } from "~/modules/shared";
 import { useNavigate } from "react-router";
 import { PATHS } from "~/modules/_constants/paths";
 import { useState } from "react";
 import user from "~/assets/images/user.png";
+import {
+  SwapFlagConfirm,
+  type SwapFlagSummary,
+} from "./swap-flag-confirm";
 
 
 interface iProps {
@@ -31,37 +41,36 @@ const SwapActivityTable: React.FC<iProps> = ({
 }) => {
   const navigate = useNavigate();
   const [profileImageError, setProfileImageError] = useState(false);
+  const [flagOpen, setFlagOpen] = useState(false);
+  const [selectedSwap, setSelectedSwap] = useState<SwapFlagSummary | null>(null);
+
+  const openFlag = (item: SwapActivityData) => {
+    setSelectedSwap({
+      swapProceedId: item.swapProceedId,
+      swapperOne: item.swapperOne,
+      swapperTwo: item.swapperTwo,
+      listedItem: item.listedItem,
+      swapperRequestItem: item.swapperRequestItem,
+      status: item.status,
+      isFlagged: item.isFlagged ?? false,
+    });
+    setFlagOpen(true);
+  };
+
+  const closeFlag = () => {
+    setFlagOpen(false);
+    setSelectedSwap(null);
+  };
   const textProps = {
     color: "#737373",
     fontWeight: 500,
     fontSize: "14px",
-  };
-
-  // Generate consistent color based on name
-  const getAvatarColor = (name: string): string => {
-    if (!name) return "#007AFF";
-    const colors = [
-      "#007AFF", // Blue
-      "#34C759", // Green
-      "#FF9500", // Orange
-      "#FF3B30", // Red
-      "#AF52DE", // Purple
-      "#FF2D55", // Pink
-      "#5AC8FA", // Light Blue
-      "#FFCC00", // Yellow
-      "#5856D6", // Indigo
-      "#FF9500", // Orange
-    ];
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-      hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return colors[Math.abs(hash) % colors.length];
+    whiteSpace: "nowrap" as const,
   };
 
   const cellRenderers = {
     swappers: (item: SwapActivityData) => (
-      <Flex gap="4px" alignItems="center">
+      <Flex gap="8px" alignItems="center" flexWrap="nowrap" minW="max-content">
         <Box
           w="fit-content"
           display="flex"
@@ -116,30 +125,62 @@ const SwapActivityTable: React.FC<iProps> = ({
       </Flex>
     ),
     listedItem: (item: SwapActivityData) => (
-      <Text {...textProps} color={"#222222"}>
+      <Text {...textProps} color="#222222" maxW="280px" truncate title={item?.listedItem}>
         {item?.listedItem || "N/A"}
       </Text>
     ),
     swapperRequestItem: (item: SwapActivityData) => (
-      <Text {...textProps} color={"#222222"}>
+      <Text
+        {...textProps}
+        color="#222222"
+        maxW="280px"
+        truncate
+        title={item?.swapperRequestItem}
+      >
         {item?.swapperRequestItem || "N/A"}
       </Text>
     ),
     status: (item: SwapActivityData) => {
-      const { borderColor, bg, textColor } = getStatusStyles(
-        item?.status?.toLowerCase() || "pending"
-      );
+      const { borderColor, bg, textColor } = getSwapStatusStyles(item?.status);
       return (
         <Text
+          border="1px solid"
           borderColor={borderColor}
           bg={bg}
           color={textColor}
           py="5px"
           px="17px"
           borderRadius="37.74px"
-          width={"fit-content"}
+          width="fit-content"
+          fontWeight={500}
+          fontSize="13px"
+          whiteSpace="nowrap"
         >
           {item?.status || "N/A"}
+        </Text>
+      );
+    },
+    isFlagged: (item: SwapActivityData) => {
+      const flagged = item.isFlagged === true;
+      const { borderColor, bg, textColor } = flagged
+        ? getStatusStyles("flagged")
+        : getStatusStyles("suspended");
+
+      return (
+        <Text
+          border="1px solid"
+          borderColor={borderColor}
+          bg={bg}
+          color={textColor}
+          py="5px"
+          px="17px"
+          borderRadius="37.74px"
+          width="fit-content"
+          fontWeight={500}
+          fontSize="13px"
+          whiteSpace="nowrap"
+        >
+          {flagged ? "true" : "false"}
         </Text>
       );
     },
@@ -171,9 +212,9 @@ const SwapActivityTable: React.FC<iProps> = ({
             styleProps={{ color: "#222222" }}
           />
           <MenuItem
-            label="Flag Swap"
+            label={item.isFlagged ? "Unflag Swap" : "Flag Swap"}
             icon={<Flag size={20} />}
-            onClick={() => console.log("Flag")}
+            onClick={() => openFlag(item)}
             value="flag"
             styleProps={{ color: "#E42222" }}
           />
@@ -187,6 +228,7 @@ const SwapActivityTable: React.FC<iProps> = ({
     "listedItem",
     "swapperRequestItem",
     "status",
+    "isFlagged",
     "createdAt",
     "updatedAt",
     "action",
@@ -197,6 +239,7 @@ const SwapActivityTable: React.FC<iProps> = ({
     listedItem: "Listed Item(s)",
     swapperRequestItem: "Swapper Request Item(s)",
     status: "Status",
+    isFlagged: "Flagged",
     createdAt: "Date Initiated",
     updatedAt: "Last Activity",
     action: "",
@@ -213,7 +256,14 @@ const SwapActivityTable: React.FC<iProps> = ({
         columnOrder={columnOrder}
         columnLabels={columnLabels}
         isLoading={loading}
+        scrollable
         emptyDescription={emptyDescription}
+      />
+
+      <SwapFlagConfirm
+        open={flagOpen}
+        swap={selectedSwap}
+        onClose={closeFlag}
       />
     </>
   );

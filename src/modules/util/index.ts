@@ -26,6 +26,52 @@ export const isUserSuspended = (options: {
   );
 };
 
+const normalizeStatusKey = (status?: string | null): string =>
+  status?.trim().toLowerCase().replace(/\s+/g, "") ?? "";
+
+export const getSwapStatusStyles = (status?: string | null): StatusStyles => {
+  switch (normalizeStatusKey(status)) {
+    case "pending":
+      return {
+        borderColor: "#FFE1A5",
+        bg: "#FFF9EC",
+        textColor: "#BB7E05",
+      };
+    case "negotiation":
+      return {
+        borderColor: "#FFD4A8",
+        bg: "#FFF4E8",
+        textColor: "#C45E00",
+      };
+    case "advnegotiation":
+      return {
+        borderColor: "#D4B8FF",
+        bg: "#F6F0FF",
+        textColor: "#7B3FE4",
+      };
+    case "awaitingvendorholdingfee":
+      return {
+        borderColor: "#007AFF1A",
+        bg: "#007AFF1A",
+        textColor: "#007AFF",
+      };
+    case "swapped":
+      return {
+        borderColor: "#C5FFBC",
+        bg: "#EDFFEA",
+        textColor: "#106104",
+      };
+    case "closed":
+      return {
+        borderColor: "#D1D1D1",
+        bg: "#F3F3F3",
+        textColor: "#5C5C5C",
+      };
+    default:
+      return getStatusStyles(normalizeStatusKey(status) || "pending");
+  }
+};
+
 export const getStatusStyles = (status: string): StatusStyles => {
   switch (status) {
     case "pending":
