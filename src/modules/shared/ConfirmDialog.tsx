@@ -36,8 +36,10 @@ export const ConfirmDialog: FC<ConfirmDialogProps> = ({
     <Dialog.Root
       open={open}
       placement="center"
+      lazyMount
+      unmountOnExit
       onOpenChange={(details) => {
-        if (!details.open) onClose();
+        if (!details.open && !isLoading) onClose();
       }}
     >
       <Portal>

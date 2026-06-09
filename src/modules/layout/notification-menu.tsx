@@ -1,12 +1,12 @@
 "use client";
 
-import { Box, Flex, Menu, Skeleton, Tabs } from "@chakra-ui/react";
-import { useCallback, useMemo } from "react";
-import { mockNotifications, notifyType } from "../_constants";
+import { Box, Flex, Menu, Skeleton } from "@chakra-ui/react";
+import { useCallback } from "react";
 import Notification from "~/modules/shared/widgets";
+import { EmptyState } from "~/modules/shared";
 import { useGetNotifications } from "~/hooks/queries/notification/notification";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 const SCROLL_THRESHOLD = 0.8;
 
 const NotificationSkeleton: React.FC = () => (
@@ -22,39 +22,19 @@ const NotificationSkeleton: React.FC = () => (
 
 type NotificationMenuProps = {
   open: boolean;
-  userId?: string;
-  notificationTab: string;
-  onTabChange: (value: string) => void;
 };
 
-export const NotificationMenu: React.FC<NotificationMenuProps> = ({
-  open,
-  userId,
-  notificationTab,
-  onTabChange,
-}) => {
+export const NotificationMenu: React.FC<NotificationMenuProps> = ({ open }) => {
   const {
-    pageCount,
+    items,
     isLoading,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
   } = useGetNotifications({
-    enabler: open && !!userId,
-    userId,
-    type: notificationTab === "all" ? undefined : notificationTab,
+    enabler: open,
     pageSize: PAGE_SIZE,
   });
-
-  const displayNotifications = useMemo(() => {
-    const pages = Math.max(1, pageCount);
-    return Array.from({ length: pages }).flatMap((_, pageIndex) =>
-      mockNotifications.map((notify, notifyIndex) => ({
-        ...notify,
-        key: `page-${pageIndex}-notify-${notifyIndex}`,
-      })),
-    );
-  }, [pageCount]);
 
   const handleScroll = useCallback(
     (event: React.UIEvent<HTMLDivElement>) => {
@@ -75,25 +55,10 @@ export const NotificationMenu: React.FC<NotificationMenuProps> = ({
 
   return (
     <Menu.Content p={0} maxH="75vh" w="500px" overflow="hidden">
-      <Box p={4} maxH="75vh" overflowY="auto" onScroll={handleScroll}>
-        <Tabs.Root
-          variant="enclosed"
-          display="flex"
-          value={notificationTab}
-          onValueChange={(details) => onTabChange(details.value)}
-        >
-          <Tabs.List width="100%">
-            {notifyType.map((tab, index) => (
-              <Tabs.Trigger key={index} value={tab.value} width="100%">
-                {tab.title}
-              </Tabs.Trigger>
-            ))}
-          </Tabs.List>
-        </Tabs.Root>
-
-        <Flex direction="column" gap={3} mt={4}>
+      <Box p={4} maxH="400px" overflowY="auto" onScroll={handleScroll}>
+        <Flex direction="column" gap={3}>
           {isLoading ? (
-            Array.from({ length: 5 }).map((_, index) => (
+            Array.from({ length: PAGE_SIZE }).map((_, index) => (
               <Box
                 key={index}
                 border="1px solid #EAEAEA"
@@ -103,11 +68,17 @@ export const NotificationMenu: React.FC<NotificationMenuProps> = ({
                 <NotificationSkeleton />
               </Box>
             ))
+          ) : items.length === 0 ? (
+            <EmptyState
+              minH="180px"
+              title="No notifications"
+              description="You're all caught up — nothing new to show."
+            />
           ) : (
             <>
-              {displayNotifications.map((notify) => (
+              {items.map((notify) => (
                 <Box
-                  key={notify.key}
+                  key={notify.id}
                   border="1px solid #EAEAEA"
                   borderRadius="md"
                   bg="gray.50"

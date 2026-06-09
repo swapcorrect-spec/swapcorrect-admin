@@ -1,12 +1,28 @@
-import { useQuery } from "@tanstack/react-query";
-import { getRequestParams } from "~/config/request-methods";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getRequestParams, postRequest } from "~/config/request-methods";
+import type { MutationProps } from "~/types/mutation-prop-types";
+import handleApiError from "~/utils/handle-api-error";
 import type {
+  AddReportNotePayload,
+  AddReportNoteResponse,
+  ChangeReportStatusPayload,
+  ChangeReportStatusResponse,
   ReportDateFilter,
   ReportDetailsResponse,
   ReportListItem,
   ReportsPaginatedResponse,
   ReportUserStatus,
 } from "./report.type";
+
+export const isReportClosed = (status?: string) => {
+  const normalized = status?.trim().toLowerCase().replace(/\s+/g, "") ?? "";
+  return normalized === "resolved" || normalized === "dismissed";
+};
+
+export const isReportUnderReview = (status?: string) => {
+  const normalized = status?.trim().toLowerCase().replace(/\s+/g, "") ?? "";
+  return normalized === "underreview";
+};
 
 export const REPORTS = "REPORTS";
 export const REPORT_DETAILS = "REPORT_DETAILS";
@@ -118,5 +134,66 @@ export const useGetReportDetails = (props: {
     error,
     isSuccess,
     refetch,
+  };
+};
+
+export const useAddReportNote = (props: MutationProps) => {
+  const { onSuccess, onError } = props;
+  const queryClient = useQueryClient();
+
+  const { mutate, isError, isSuccess, isPending } = useMutation({
+    mutationFn: (payload: AddReportNotePayload) =>
+      postRequest<AddReportNotePayload, AddReportNoteResponse>({
+        url: "/report/Add/report/note",
+        payload,
+      }),
+    onSuccess(values, variables) {
+      queryClient.invalidateQueries({
+        queryKey: [REPORT_DETAILS, variables.reportId],
+      });
+      onSuccess(values);
+    },
+    onError(err) {
+      const msgError = handleApiError(err);
+      onError?.(msgError, err);
+    },
+  });
+
+  return {
+    mutate,
+    isError,
+    isSuccess,
+    isPending,
+  };
+};
+
+export const useChangeReportStatus = (props: MutationProps) => {
+  const { onSuccess, onError } = props;
+  const queryClient = useQueryClient();
+
+  const { mutate, isError, isSuccess, isPending } = useMutation({
+    mutationFn: (payload: ChangeReportStatusPayload) =>
+      postRequest<ChangeReportStatusPayload, ChangeReportStatusResponse>({
+        url: "/report/change/report/status",
+        payload,
+      }),
+    onSuccess(values, variables) {
+      queryClient.invalidateQueries({
+        queryKey: [REPORT_DETAILS, variables.reportId],
+      });
+      queryClient.invalidateQueries({ queryKey: [REPORTS] });
+      onSuccess(values);
+    },
+    onError(err) {
+      const msgError = handleApiError(err);
+      onError?.(msgError, err);
+    },
+  });
+
+  return {
+    mutate,
+    isError,
+    isSuccess,
+    isPending,
   };
 };

@@ -1,6 +1,6 @@
 import { Box, Button, Dialog, Flex, Grid, Portal, Text } from "@chakra-ui/react";
 import { Eye } from "lucide-react";
-import { formatDateTime } from "~/modules/util";
+import { formatDateTime, formatMoney } from "~/modules/util";
 import type { WithdrawalItem } from "~/hooks/queries/withdrawal/withdrawal.type";
 
 type WithdrawalDetailsModalProps = {
@@ -20,6 +20,12 @@ const formatValue = (key: string, value: unknown): string => {
   if (typeof value === "object") return JSON.stringify(value);
 
   const keyName = key.toLowerCase();
+
+  if (keyName.includes("amount")) {
+    const num = Number(value);
+    return Number.isFinite(num) ? formatMoney(num) : String(value);
+  }
+
   if (
     typeof value === "string" &&
     (keyName.includes("date") ||

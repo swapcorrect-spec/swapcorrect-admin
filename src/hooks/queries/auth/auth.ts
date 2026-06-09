@@ -1,6 +1,14 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import type { LoginPayload, ILoginResponse, ForgotPasswordPayload, IFogotPasswordResponse,  ResetPasswordPayload, IResetPasswordResponse, IGetUserInfoResponseData, IGetGeneralUserInfoResponseData } from "./auth.type";
-import type { } from "./auth.type";
+import type {
+  LoginPayload,
+  ILoginResponse,
+  ForgotPasswordPayload,
+  IFogotPasswordResponse,
+  ResetPasswordPayload,
+  IResetPasswordResponse,
+  IGetUserInfoResponseData,
+  IGetGeneralUserInfoResponseData,
+} from "./auth.type";
 import handleApiError from "~/utils/handle-api-error";
 import { postRequest, getRequest, getRequestParams } from "~/config/request-methods";
 import type { MutationProps } from "~/types/mutation-prop-types";

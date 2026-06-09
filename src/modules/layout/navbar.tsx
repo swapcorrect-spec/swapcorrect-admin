@@ -1,5 +1,6 @@
 "use client";
-import { Flex, Box, Text, Menu, Badge, Image, Skeleton } from "@chakra-ui/react";
+import { Flex, Box, Text, Menu, Image, Skeleton } from "@chakra-ui/react";
+import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { PATHS } from "../_constants/paths";
@@ -19,7 +20,6 @@ export const Navbar: React.FC = () => {
   const path = useLocation().pathname;
   const [imageError, setImageError] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [notificationTab, setNotificationTab] = useState("all");
   const {
     isModalOpen,
     isLoggingOut,
@@ -74,37 +74,37 @@ export const Navbar: React.FC = () => {
         <Menu.Root
           onOpenChange={(details) => setNotificationsOpen(details.open)}
         >
-          <Menu.Trigger as={Box} position="relative" cursor="pointer">
-            <Bell />
-            <Badge
-              position="absolute"
-              top="-3px"
-              right="-2px"
-              color="white"
-              bg="#E42222"
-              fontSize="0.7rem"
-              borderRadius="full"
-              px={1}
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              4
-            </Badge>
+          <Menu.Trigger
+            as={Box}
+            cursor="pointer"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Bell width={22} height={22} />
           </Menu.Trigger>
           <Menu.Positioner>
             <NotificationMenu
               open={notificationsOpen && Auth.isAuthenticated()}
-              userId={user?.id}
-              notificationTab={notificationTab}
-              onTabChange={setNotificationTab}
             />
           </Menu.Positioner>
         </Menu.Root>
 
         <Menu.Root>
           <Menu.Trigger>
-            <Flex align="center" gap={3} cursor="pointer" fontWeight={500}>
+            <Flex
+              align="center"
+              gap={2}
+              cursor="pointer"
+              fontWeight={500}
+              border="1px solid #E9E9E9"
+              borderRadius="full"
+              py="4px"
+              pl="4px"
+              pr="12px"
+              _hover={{ bg: "#FAFAFA" }}
+              transition="background 0.15s ease"
+            >
               {isLoading ? (
                 <Skeleton boxSize="32px" borderRadius="full" />
               ) : (
@@ -130,7 +130,12 @@ export const Navbar: React.FC = () => {
               {isLoading ? (
                 <Skeleton height="16px" width="100px" />
               ) : (
-                <Text color="#222222">{displayName}</Text>
+                <>
+                  <Text color="#222222" fontSize="14px">
+                    {displayName}
+                  </Text>
+                  <ChevronDown size={16} color="#737373" />
+                </>
               )}
             </Flex>
           </Menu.Trigger>

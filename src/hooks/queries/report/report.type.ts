@@ -38,9 +38,53 @@ export interface ReportsPaginatedResponse {
   errorMessages: string[] | null;
 }
 
+export interface ReportDetails {
+  reportId: string;
+  reporterId: string;
+  reporterName: string;
+  reporterImg: string | null;
+  reportedPersonId: string;
+  reportedPersonName: string;
+  reportedPersonImg: string | null;
+  reportedPersonRating: string;
+  reportedPersonTotalSwap: string;
+  reportType: string;
+  reason: string;
+  status: string;
+  notes: string[];
+  evidenceImg: string[];
+  created: string;
+}
+
 export interface ReportDetailsResponse {
   statusCode: number;
   displayMessage: string;
-  result: Record<string, unknown>;
+  result: ReportDetails;
+  errorMessages: string[] | null;
+}
+
+export type AddReportNotePayload = {
+  note: string;
+  reportId: string;
+};
+
+export interface AddReportNoteResponse {
+  statusCode: number;
+  displayMessage: string;
+  result: unknown;
+  errorMessages: string[] | null;
+}
+
+export type ReportStatusValue = Exclude<ReportUserStatus, "All">;
+
+export type ChangeReportStatusPayload = {
+  reportId: string;
+  status: ReportStatusValue;
+};
+
+export interface ChangeReportStatusResponse {
+  statusCode: number;
+  displayMessage: string;
+  result: unknown;
   errorMessages: string[] | null;
 }

@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import { Box, Spinner } from "@chakra-ui/react";
 import { PATHS } from "../_constants/paths";
+import { SessionManager } from "../layout/session-manager";
 
 const Login = lazy(() => import("../app/login"));
 const ForgotPassword = lazy(() => import("../app/forgot-password"));
@@ -36,6 +37,7 @@ const LoadingFallback = () => (
 const Routes: FunctionComponent<Record<string, never>> = () => {
   return (
     <BrowserRouter>
+      <SessionManager />
       <Suspense fallback={<LoadingFallback />}>
         <BrowserRoutes>
           <Route path="/" element={<Login />} />

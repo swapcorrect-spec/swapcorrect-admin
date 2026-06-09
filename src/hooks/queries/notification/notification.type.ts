@@ -1,7 +1,23 @@
-import type { DataItem } from "~/types/base";
+export type NotificationType =
+  | "Swap"
+  | "Withdrawal"
+  | "Payment"
+  | "Account"
+  | "Security"
+  | "System"
+  | "Dispute"
+  | "Report"
+  | "Chat"
+  | string;
 
-export interface NotificationItem extends DataItem {
-  id?: string | number;
+export interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  type: NotificationType;
+  referenceId: string | null;
+  isRead: boolean;
+  createdAt: string;
 }
 
 export interface NotificationsResult {

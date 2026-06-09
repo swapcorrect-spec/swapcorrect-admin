@@ -5,13 +5,11 @@ import type { NotificationsResponse } from "./notification.type";
 export const NOTIFICATIONS = "NOTIFICATIONS";
 
 const fetchNotifications = async ({
-  userId,
   type,
   pageNumber,
   pageSize,
   signal,
 }: {
-  userId?: string;
   type?: string;
   pageNumber: number;
   pageSize: number;
@@ -19,7 +17,6 @@ const fetchNotifications = async ({
 }) => {
   const response = await getRequestParams<
     {
-      userId?: string;
       type?: string;
       pageNumber: number;
       pageSize: number;
@@ -28,7 +25,6 @@ const fetchNotifications = async ({
   >({
     url: "/Admin/notifications",
     params: {
-      userId: userId?.trim() || undefined,
       type: type?.trim() || undefined,
       pageNumber,
       pageSize,
@@ -36,18 +32,15 @@ const fetchNotifications = async ({
     config: { signal },
   });
 
-  console.log("[notifications]", { pageNumber, response });
-
   return response;
 };
 
 export const useGetNotifications = (props: {
   enabler: boolean;
-  userId?: string;
   type?: string;
   pageSize?: number;
 }) => {
-  const { enabler = true, userId, type, pageSize = 20 } = props;
+  const { enabler = true, type, pageSize = 10 } = props;
 
   const {
     data,
@@ -61,10 +54,9 @@ export const useGetNotifications = (props: {
     error,
     refetch,
   } = useInfiniteQuery({
-    queryKey: [NOTIFICATIONS, userId, type, pageSize],
+    queryKey: [NOTIFICATIONS, type, pageSize],
     queryFn: ({ pageParam, signal }) =>
       fetchNotifications({
-        userId,
         type,
         pageNumber: pageParam,
         pageSize,

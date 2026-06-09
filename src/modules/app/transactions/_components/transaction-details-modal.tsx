@@ -1,7 +1,7 @@
 import { Box, Button, Dialog, Flex, Grid, Portal, Text } from "@chakra-ui/react";
 import { BadgeInfo } from "lucide-react";
 import type { TransactionItem } from "~/hooks/queries/transaction/transaction.type";
-import { formatAmount, formatDateTime, getStatusStyles } from "~/modules/util";
+import { formatDateTime, formatMoney, getStatusStyles } from "~/modules/util";
 
 type TransactionDetailsModalProps = {
   open: boolean;
@@ -110,7 +110,7 @@ export const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = (
                 >
                   <Box>
                     <Text fontSize="lg" fontWeight={600} color="#222222">
-                      {formatAmount(transaction.amount)}
+                      {formatMoney(transaction.amount)}
                     </Text>
                     <Text fontSize="sm" color="#737373" mt={1}>
                       {transaction.feeType}
@@ -149,7 +149,7 @@ export const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = (
                   value={transaction.userFullName}
                 />
                 <DetailField label="User email" value={transaction.userEmail} />
-                <DetailField label="Amount" value={formatAmount(transaction.amount)} />
+                <DetailField label="Amount" value={formatMoney(transaction.amount)} />
                 <DetailField label="Fee type" value={transaction.feeType} />
                 <DetailField label="Payment type" value={transaction.paymentType} />
                 <DetailField

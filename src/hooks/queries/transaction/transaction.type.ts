@@ -42,3 +42,36 @@ export interface TransactionsResponse {
   result: TransactionsResult;
   errorMessages: string[] | null;
 }
+
+export interface TransactionStatsBreakdownItem {
+  label: string;
+  count: number;
+  totalRevenue: number;
+}
+
+export interface TransactionStatsResult {
+  totalTransactions: number;
+  totalRevenue: number;
+  successCount: number;
+  successRevenue: number;
+  pendingCount: number;
+  pendingRevenue: number;
+  failedCount: number;
+  failedRevenue: number;
+  todayCount: number;
+  todayRevenue: number;
+  thisWeekCount: number;
+  thisWeekRevenue: number;
+  thisMonthCount: number;
+  thisMonthRevenue: number;
+  byFeeType: TransactionStatsBreakdownItem[];
+  byPaymentType: TransactionStatsBreakdownItem[];
+  byPaymentChannel: TransactionStatsBreakdownItem[];
+}
+
+export interface TransactionStatsResponse {
+  statusCode: number;
+  displayMessage: string;
+  result: TransactionStatsResult;
+  errorMessages: string[] | null;
+}

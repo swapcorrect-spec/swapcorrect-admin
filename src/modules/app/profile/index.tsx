@@ -2,15 +2,7 @@ import { Flex, Text, Box, Image } from "@chakra-ui/react";
 import { Calendar, Mail, Phone, UserPlus } from "lucide-react";
 import userFallback from "~/assets/images/user.png";
 import PageLayout from "~/modules/layout/page-layout";
-import {
-  Button,
-  ErrorState,
-  Input,
-  PasswordInput,
-  QueryState,
-  Tab,
-} from "~/modules/shared";
-import Activity from "./activity";
+import { Input, QueryState } from "~/modules/shared";
 import { useGetUserInfo } from "~/hooks/queries/auth/auth";
 import type { IGetUserInfoResponseData } from "~/hooks/queries/auth/auth.type";
 import { Auth } from "~/config/auth";
@@ -31,23 +23,28 @@ const formatLocation = (user?: LoggedInUser) => {
 };
 
 const Account = ({ user }: { user?: LoggedInUser }) => {
-  const fullName = user
-    ? `${user.firstName || ""} ${user.lastName || ""}`.trim()
-    : "";
-
   return (
     <Box>
       <Text color="#222222" fontWeight={500} mb={5} fontSize="14px">
-        Account Setting
+        Account Details
       </Text>
-      <form style={{ display: "flex", gap: "20px", flexDirection: "column" }}>
+      <Box display="flex" flexDirection="column" gap="20px">
         <Input
           type="text"
-          name="fullName"
+          name="firstName"
           handleChange={() => {}}
-          placeholder="Full name"
-          value={fullName}
-          label="Full Name"
+          placeholder="First name"
+          value={user?.firstName || ""}
+          label="First Name"
+          disabled
+        />
+        <Input
+          type="text"
+          name="lastName"
+          handleChange={() => {}}
+          placeholder="Last name"
+          value={user?.lastName || ""}
+          label="Last Name"
           disabled
         />
         <Input
@@ -68,51 +65,10 @@ const Account = ({ user }: { user?: LoggedInUser }) => {
           label="Phone Number"
           disabled
         />
-        <Button variant="solid" bg="#222222" width="fit-content" isDisabled>
-          Save Changes
-        </Button>
-      </form>
+      </Box>
     </Box>
   );
 };
-
-const Security = () => {
-  return (
-    <Box>
-      <Text color="#222222" fontWeight={500} fontSize="14px" mb={5}>
-        Security
-      </Text>
-      <form style={{ display: "flex", gap: "20px", flexDirection: "column" }}>
-        <PasswordInput
-          name="password"
-          handleChange={() => {}}
-          placeholder="Enter current password"
-          value=""
-          label="Current Password"
-        />
-        <PasswordInput
-          name="newPassword"
-          handleChange={() => {}}
-          placeholder="Enter new password"
-          value=""
-          label="New Password"
-        />
-        <PasswordInput
-          name="confirmNewPassword"
-          handleChange={() => {}}
-          placeholder="Confirm new password"
-          value=""
-          label="Confirm New Password"
-        />
-        <Button variant="solid" bg="#222222" width="fit-content">
-          Save Changes
-        </Button>
-      </form>
-    </Box>
-  );
-};
-
-const Preference = () => <Box />;
 
 export const Profile = () => {
   const [imageError, setImageError] = useState(false);
@@ -123,29 +79,6 @@ export const Profile = () => {
 
   const roleLabel =
     Auth.getDecodedJwt()?.user?.role?.replace(/_/g, " ") || "Admin";
-
-  const tabOptions = [
-    {
-      title: "Account",
-      value: "account",
-      children: <Account user={user} />,
-    },
-    {
-      title: "Security",
-      value: "security",
-      children: <Security />,
-    },
-    {
-      title: "Preference",
-      value: "preference",
-      children: <Preference />,
-    },
-    {
-      title: "Activity",
-      value: "activity",
-      children: <Activity />,
-    },
-  ];
 
   return (
     <PageLayout>
@@ -251,7 +184,9 @@ export const Profile = () => {
                 </Flex>
               </Box>
             </Box>
-            <Tab options={tabOptions} defaultValue="account" />
+            <Box flex={1}>
+              <Account user={user} />
+            </Box>
           </Flex>
         )}
       </QueryState>

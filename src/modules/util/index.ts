@@ -133,6 +133,16 @@ export function formatAmount(
 }
 
 /**
+ * Formats amount with the default Naira (₦) prefix.
+ * @example formatMoney(245000) => "₦245,000.00"
+ */
+export function formatMoney(
+  amount: number | string | null | undefined,
+): string {
+  return `₦${formatAmount(amount)}`;
+}
+
+/**
  * Formats amount with an optional currency code prefix.
  * @example formatCurrency(245000, "NGN") => "NGN 245,000.00"
  */
@@ -155,6 +165,15 @@ export function formatDateTime(dateString: string | undefined | null): string {
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return "N/A";
   return format(date, "MMM dd, yyyy, hh:mm a");
+}
+
+export function formatNotificationDateTime(
+  dateString: string | undefined | null,
+): string {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return "N/A";
+  return format(date, "MMMM dd, yyyy. hh:mm a");
 }
 
 export const createImageErrorHandler = (

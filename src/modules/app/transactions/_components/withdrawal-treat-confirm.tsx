@@ -10,6 +10,7 @@ import {
   isWithdrawalPending,
 } from "~/hooks/queries/withdrawal/withdrawal.type";
 import { ConfirmDialog } from "~/modules/shared/ConfirmDialog";
+import { formatMoney } from "~/modules/util";
 
 type WithdrawalTreatConfirmProps = {
   open: boolean;
@@ -27,7 +28,14 @@ const WithdrawalSummaryCard: React.FC<{ withdrawal: WithdrawalItem }> = ({
   const amountEntry = Object.entries(withdrawal).find(([key]) =>
     key.toLowerCase().includes("amount"),
   );
-  const amount = amountEntry ? String(amountEntry[1] ?? "") : "";
+  const rawAmount = amountEntry?.[1];
+  const numericAmount = Number(rawAmount);
+  const formattedAmount =
+    rawAmount != null && rawAmount !== "" && Number.isFinite(numericAmount)
+      ? formatMoney(numericAmount)
+      : rawAmount != null && rawAmount !== ""
+        ? String(rawAmount)
+        : "";
 
   return (
     <Box border="1px solid #E9E9E9" borderRadius="lg" p={4} bg="#FAFAFA">
@@ -36,9 +44,9 @@ const WithdrawalSummaryCard: React.FC<{ withdrawal: WithdrawalItem }> = ({
           ID: {withdrawalId}
         </Text>
       )}
-      {amount && (
+      {formattedAmount && (
         <Text fontSize="md" fontWeight={600} color="#222222" mb={1}>
-          {amount}
+          {formattedAmount}
         </Text>
       )}
       {status && (

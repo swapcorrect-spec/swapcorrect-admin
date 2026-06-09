@@ -1,37 +1,38 @@
 import { Text, Flex, Box } from "@chakra-ui/react";
-import { Bell, Book, Lock, Settings, Users } from "lucide-react";
+import { Lock } from "lucide-react";
+// import { Bell, Book, Settings, Users } from "lucide-react";
 import { useMemo, useState } from "react";
 import PageLayout from "~/modules/layout/page-layout";
-import General from "./_components/general";
-import AuditLogs from "./_components/audit-logs";
+// import General from "./_components/general";
+// import AuditLogs from "./_components/audit-logs";
 import Security from "./_components/security";
-import Notification from "./_components/notification";
-import RoleAndAccess from "./_components/roles-access";
+// import Notification from "./_components/notification";
+// import RoleAndAccess from "./_components/roles-access";
 
 export const UserSettings = () => {
   const tabs = [
-    { label: "General", value: "general", icon: <Settings /> },
-    { label: "Roles & Access", value: "role_access", icon: <Users /> },
-    { label: "Notifications", value: "notifications", icon: <Bell /> },
+    // { label: "General", value: "general", icon: <Settings /> },
+    // { label: "Roles & Access", value: "role_access", icon: <Users /> },
+    // { label: "Notifications", value: "notifications", icon: <Bell /> },
     { label: "Security", value: "security", icon: <Lock /> },
-    { label: "Audit Logs", value: "audit_logs", icon: <Book /> },
+    // { label: "Audit Logs", value: "audit_logs", icon: <Book /> },
   ];
-  const [activeTab, setActiveTab] = useState<string>("general");
+  const [activeTab, setActiveTab] = useState<string>("security");
   const renderItem = useMemo(() => {
     switch (activeTab) {
-      case "general":
-        return <General />;
-      case "role_access":
-        return <RoleAndAccess />;
-      case "notifications":
-        return <Notification />;
+      // case "general":
+      //   return <General />;
+      // case "role_access":
+      //   return <RoleAndAccess />;
+      // case "notifications":
+      //   return <Notification />;
       case "security":
         return <Security />;
-      case "audit_logs":
-        return <AuditLogs />;
+      // case "audit_logs":
+      //   return <AuditLogs />;
 
       default:
-        return <General />;
+        return <Security />;
     }
   }, [activeTab]);
   return (

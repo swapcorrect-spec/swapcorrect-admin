@@ -6,7 +6,7 @@ import { useState } from "react";
 import { TableComponent } from "~/modules/shared/table";
 import { Menu, MenuItem } from "~/modules/shared";
 import type { TransactionItem } from "~/hooks/queries/transaction/transaction.type";
-import { formatAmount, formatDateTime, getStatusStyles } from "~/modules/util";
+import { formatDateTime, formatMoney, getStatusStyles } from "~/modules/util";
 import { TransactionDetailsModal } from "./transaction-details-modal";
 
 interface TransactionsTableProps {
@@ -66,7 +66,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
 
     amount: (item: TransactionTableRow) => (
       <Text {...textProps} color="#222222" fontWeight={600} whiteSpace="nowrap">
-        {formatAmount(item.amount)}
+        {formatMoney(item.amount)}
       </Text>
     ),
 

@@ -10,7 +10,7 @@ import {
   getWithdrawalStatus,
   isWithdrawalPending,
 } from "~/hooks/queries/withdrawal/withdrawal.type";
-import { formatDateTime, getStatusStyles } from "~/modules/util";
+import { formatDateTime, formatMoney, getStatusStyles } from "~/modules/util";
 import { WithdrawalDetailsModal } from "./withdrawal-details-modal";
 import { WithdrawalTreatConfirm } from "./withdrawal-treat-confirm";
 
@@ -25,13 +25,21 @@ interface WithdrawalsTableProps {
 
 type WithdrawalTableRow = WithdrawalItem & { action?: string };
 
-const HIDDEN_COLUMNS = new Set(["action"]);
+const HIDDEN_COLUMNS = new Set(["action", "userid", "userfullname"]);
+
+const isAmountKey = (key: string) => key.toLowerCase().includes("amount");
 
 const formatCellValue = (key: string, value: unknown): string => {
   if (value == null || value === "") return "—";
   if (typeof value === "object") return JSON.stringify(value);
 
   const keyName = key.toLowerCase();
+
+  if (isAmountKey(keyName)) {
+    const num = Number(value);
+    return Number.isFinite(num) ? formatMoney(num) : String(value);
+  }
+
   if (
     typeof value === "string" &&
     (keyName.includes("date") ||
@@ -102,7 +110,9 @@ const WithdrawalsTable: React.FC<WithdrawalsTableProps> = ({
   const columnOrder = useMemo(() => {
     const sample = data[0];
     const keys = sample
-      ? Object.keys(sample).filter((key) => !HIDDEN_COLUMNS.has(key))
+      ? Object.keys(sample).filter(
+          (key) => !HIDDEN_COLUMNS.has(key.toLowerCase()),
+        )
       : ["status", "amount", "createdAt"];
 
     return [...keys, "action"] as (keyof WithdrawalTableRow)[];

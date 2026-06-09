@@ -5,14 +5,7 @@ import { TableComponent } from "~/modules/shared/table";
 import type { FlagData } from "~/types/base";
 import { formatDateTime, getStatusStyles } from "~/modules/util";
 import { Menu, MenuItem } from "~/modules/shared";
-import {
-  Book,
-  Check,
-  Flag,
-  OctagonAlert,
-  TriangleAlert,
-  X,
-} from "lucide-react";
+import { Book } from "lucide-react";
 import { useNavigate } from "react-router";
 import { PATHS } from "~/modules/_constants/paths";
 
@@ -93,42 +86,6 @@ const FlagsAndReportTable: React.FC<iProps> = ({
             }
             value="view"
             styleProps={{ color: "#222222" }}
-          />
-
-          <MenuItem
-            label="Mark resolved"
-            icon={<Check size={20} />}
-            onClick={() => console.log("Hello world!")}
-            value="resolved"
-            styleProps={{ color: "#222222" }}
-          />
-          <MenuItem
-            label="Dismiss"
-            icon={<X size={20} />}
-            onClick={() => console.log("Hello world!")}
-            value="dismiss"
-            styleProps={{ color: "#222222" }}
-          />
-          <MenuItem
-            label="Warn user"
-            icon={<TriangleAlert size={20} />}
-            onClick={() => console.log("View")}
-            value="warn"
-            styleProps={{ color: "#222222" }}
-          />
-          <MenuItem
-            label="Suspend user"
-            icon={<OctagonAlert size={20} />}
-            onClick={() => console.log("View")}
-            value="suspend"
-            styleProps={{ color: "#222222" }}
-          />
-          <MenuItem
-            label="Flag Swap"
-            icon={<Flag size={20} />}
-            onClick={() => console.log("Flag")}
-            value="flag"
-            styleProps={{ color: "#E42222" }}
           />
         </Box>
       </Menu>
