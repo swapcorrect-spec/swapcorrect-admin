@@ -52,9 +52,17 @@ export interface ReportDetails {
   reason: string;
   status: string;
   notes: string[];
-  evidenceImg: string[];
+  evidenceImg: ReportEvidenceApiItem[];
   created: string;
 }
+
+export interface ReportEvidenceMedia {
+  mediaType: string;
+  url: string;
+}
+
+/** Raw API shape — `MediaType` / `Url` or camelCase equivalents. */
+export type ReportEvidenceApiItem = Record<string, unknown>;
 
 export interface ReportDetailsResponse {
   statusCode: number;

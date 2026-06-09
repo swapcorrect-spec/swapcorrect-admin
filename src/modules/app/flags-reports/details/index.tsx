@@ -12,11 +12,15 @@ import {
 import {
   isReportClosed,
   isReportUnderReview,
+  normalizeReportEvidence,
   useAddReportNote,
   useChangeReportStatus,
   useGetReportDetails,
 } from "~/hooks/queries/report/report";
-import type { ReportStatusValue } from "~/hooks/queries/report/report.type";
+import type {
+  ReportEvidenceMedia,
+  ReportStatusValue,
+} from "~/hooks/queries/report/report.type";
 import { toast } from "sonner";
 import ProfileInfo from "~/modules/shared/widgets/profile_info";
 import type { SwapDetailsProps } from "~/types/base";
@@ -112,10 +116,19 @@ const STATUS_OPTIONS: { label: string; value: ReportStatusValue }[] = [
   { label: "Dismissed", value: "Dismissed" },
 ];
 
-const EvidenceItem = ({ url, index }: { url: string; index: number }) => {
+const EvidenceItem = ({
+  media,
+  index,
+}: {
+  media: ReportEvidenceMedia;
+  index: number;
+}) => {
   const [imageError, setImageError] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
-  const alt = `Evidence ${index + 1}`;
+  const { url, mediaType } = media;
+  const alt = mediaType
+    ? `${mediaType} evidence ${index + 1}`
+    : `Evidence ${index + 1}`;
 
   const handleDownload = async () => {
     if (isDownloading) return;
@@ -151,22 +164,34 @@ const EvidenceItem = ({ url, index }: { url: string; index: number }) => {
           onError={createImageErrorHandler(setImageError)}
         />
       </Box>
-      <Box borderTop="1px solid #E9E9E9">
-          <Button
-            width="100%"
-            bg="#F7F7F7"
-            handleClick={handleDownload}
-            isDisabled={isDownloading}
-            loading={isDownloading}
+      {mediaType && (
+        <Box px={2} py={1} borderTop="1px solid #E9E9E9" bg="#FAFAFA">
+          <Text
+            fontSize="11px"
+            color="#737373"
+            textTransform="capitalize"
+            truncate
           >
-            <Flex align="center" justify="center" gap={2} py={1}>
-              <Download size={14} color="#222222" />
-              <Text color="#222222" fontSize="13px" fontWeight={500}>
-                Download
-              </Text>
-            </Flex>
-          </Button>
+            {mediaType}
+          </Text>
         </Box>
+      )}
+      <Box borderTop="1px solid #E9E9E9">
+        <Button
+          width="100%"
+          bg="#F7F7F7"
+          handleClick={handleDownload}
+          isDisabled={isDownloading}
+          loading={isDownloading}
+        >
+          <Flex align="center" justify="center" gap={2} py={1}>
+            <Download size={14} color="#222222" />
+            <Text color="#222222" fontSize="13px" fontWeight={500}>
+              Download
+            </Text>
+          </Flex>
+        </Button>
+      </Box>
     </Box>
   );
 };
@@ -266,7 +291,7 @@ export const FlagReportDetails = () => {
     formatReportStatus(report?.status).toLowerCase(),
   );
   const notes = report?.notes ?? [];
-  const evidence = (report?.evidenceImg ?? []).filter((url) => url?.trim());
+  const evidence = normalizeReportEvidence(report?.evidenceImg);
   const reportIsClosed = isReportClosed(report?.status);
   const canAddNote = isReportUnderReview(report?.status);
 
@@ -463,8 +488,12 @@ export const FlagReportDetails = () => {
             >
               {evidence.length > 0 ? (
                 <Flex gap={4} flexWrap="wrap">
-                  {evidence.map((url, index) => (
-                    <EvidenceItem key={`${url}-${index}`} url={url} index={index} />
+                  {evidence.map((media, index) => (
+                    <EvidenceItem
+                      key={`${media.url}-${index}`}
+                      media={media}
+                      index={index}
+                    />
                   ))}
                 </Flex>
               ) : (

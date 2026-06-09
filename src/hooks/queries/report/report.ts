@@ -9,10 +9,47 @@ import type {
   ChangeReportStatusResponse,
   ReportDateFilter,
   ReportDetailsResponse,
+  ReportEvidenceMedia,
   ReportListItem,
   ReportsPaginatedResponse,
   ReportUserStatus,
 } from "./report.type";
+
+const getCaseInsensitiveString = (
+  record: Record<string, unknown>,
+  key: string,
+) => {
+  const entry = Object.entries(record).find(
+    ([recordKey]) => recordKey.toLowerCase() === key.toLowerCase(),
+  );
+  return typeof entry?.[1] === "string" ? entry[1].trim() : "";
+};
+
+export const normalizeReportEvidence = (
+  items?: unknown[],
+): ReportEvidenceMedia[] => {
+  if (!Array.isArray(items)) return [];
+
+  return items
+    .map((item) => {
+      if (typeof item === "string") {
+        const url = item.trim();
+        return url ? { mediaType: "", url } : null;
+      }
+
+      if (!item || typeof item !== "object") return null;
+
+      const record = item as Record<string, unknown>;
+      const url = getCaseInsensitiveString(record, "url");
+      if (!url) return null;
+
+      return {
+        mediaType: getCaseInsensitiveString(record, "mediatype"),
+        url,
+      };
+    })
+    .filter((item): item is ReportEvidenceMedia => item !== null);
+};
 
 export const isReportClosed = (status?: string) => {
   const normalized = status?.trim().toLowerCase().replace(/\s+/g, "") ?? "";
