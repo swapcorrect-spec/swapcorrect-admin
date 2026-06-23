@@ -1,0 +1,13 @@
+<svg width="32" height="32" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0.735107" y="0.614563" width="23.973" height="23.973" rx="11.9865" fill="#007AFF"/>
+  <g clip-path="url(#clip0_swapshop_favicon)">
+    <path d="M15.7951 10.6801L9.64819 10.6801M9.64819 10.6801L11.7612 8.75922M9.64819 10.6801L11.7612 12.601" stroke="white" stroke-width="1.38306" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M9.64799 14.522L15.7949 14.522M15.7949 14.522L13.6819 12.6011M15.7949 14.522L13.6819 16.4429" stroke="white" stroke-width="1.38306" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M8.87992 5.94536C10.0101 5.29159 11.3222 4.91742 12.7217 4.91742C16.9653 4.91742 20.4054 8.35751 20.4054 12.6011C20.4054 16.8446 16.9653 20.2847 12.7217 20.2847C8.47818 20.2847 5.03809 16.8446 5.03809 12.6011C5.03809 11.2015 5.41226 9.88941 6.06602 8.75925" stroke="white" stroke-width="1.38306" stroke-linecap="round"/>
+  </g>
+  <defs>
+    <clipPath id="clip0_swapshop_favicon">
+      <rect width="18.4408" height="18.4408" fill="white" transform="translate(3.50122 3.38068)"/>
+    </clipPath>
+  </defs>
+</svg>
