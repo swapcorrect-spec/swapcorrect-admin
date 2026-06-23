@@ -42,7 +42,6 @@ const UsersTable: React.FC<iProps> = ({
 }) => {
   const navigate = useNavigate();
   const [profileImageError, setProfileImageError] = useState(false);
-  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
   const [suspendMode, setSuspendMode] = useState<UserSuspendMode | null>(null);
   const [selectedUser, setSelectedUser] = useState<UserSuspendSummary | null>(
     null

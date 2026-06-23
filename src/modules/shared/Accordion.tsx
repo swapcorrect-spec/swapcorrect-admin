@@ -1,4 +1,4 @@
-import { Box, Accordion as ChakraAccordion, Span } from "@chakra-ui/react";
+import { Accordion as ChakraAccordion, Span } from "@chakra-ui/react";
 interface iAccordionProps {
   items: { value: string; title: string; children: React.ReactNode }[];
 }

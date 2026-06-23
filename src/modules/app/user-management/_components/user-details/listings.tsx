@@ -1,5 +1,4 @@
-import { Box, Text, Image, Flex, Skeleton, Spinner } from "@chakra-ui/react";
-import MomentAgo from "~/components/moment-ago";
+import { Box, Text, Image, Flex, Skeleton } from "@chakra-ui/react";
 import { getStatusStyles, createImageErrorHandler, getImageSrcWithFallback } from "~/modules/util";
 import type { ListingItem } from "~/hooks/queries/listing/listing.type";
 import { resolveListingSwapStatusLabel } from "~/hooks/queries/listing/listing.type";

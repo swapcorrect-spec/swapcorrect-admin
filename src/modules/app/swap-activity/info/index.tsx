@@ -129,10 +129,10 @@ export const SwapActivityInfo = () => {
 
     setSelectedSwap({
       swapProceedId: swap.swapProceedId,
-      swapperOne: swap.swapperName,
-      swapperTwo: swap.visitorName,
-      listedItem: listedItems.join(", "),
-      swapperRequestItem: requestItems.join(", "),
+      ownerName: swap.visitorName,
+      swapperName: swap.swapperName,
+      ownerItem: listedItems.join(", ") || "N/A",
+      swapperItem: requestItems.join(", ") || "N/A",
       status: swap.status,
       isFlagged: swap.isFlagged ?? false,
     });

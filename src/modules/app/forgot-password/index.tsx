@@ -78,7 +78,7 @@ const ForgotPassword: React.FC = () => {
     validationSchema: validationSchemas,
   });
 
-  const { values, handleBlur, handleChange, handleSubmit, errors, touched, setFieldValue, resetForm } = formik;
+  const { values, handleChange, handleSubmit, errors, touched, setFieldValue, resetForm } = formik;
 
   return (
     <AuthForm title="" subtitle="">

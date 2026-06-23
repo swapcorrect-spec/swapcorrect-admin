@@ -1,11 +1,63 @@
 import { useQuery } from "@tanstack/react-query";
 import { getRequestParams } from "~/config/request-methods";
 import type {
+  AdminSwapActivityResponse,
+  SwapActivityFilter,
   SwapProceedingResponse,
   SwapSearchResponseInterface,
 } from "./swap-activity.type";
 
+export const SWAP_ACTIVITY = "SWAP_ACTIVITY";
 export const SWAP_PROCEEDING = "SWAP_PROCEEDING";
+
+export const useGetAdminSwapActivity = (props: {
+  enabler: boolean;
+  pageNumber?: number;
+  pageSize?: number;
+  filter?: SwapActivityFilter;
+}) => {
+  const {
+    enabler,
+    pageNumber = 1,
+    pageSize = 20,
+    filter = "AllTime",
+  } = props;
+
+  const { data, isError, isSuccess, isLoading, isFetching, error, refetch } =
+    useQuery({
+      queryKey: [SWAP_ACTIVITY, pageNumber, pageSize, filter],
+      queryFn: async ({ signal }) =>
+        getRequestParams<
+          {
+            pageNumber: number;
+            pageSize: number;
+            filter: SwapActivityFilter;
+          },
+          AdminSwapActivityResponse
+        >({
+          url: "/Admin/swaps-activity",
+          params: {
+            pageNumber,
+            pageSize,
+            filter,
+          },
+          config: { signal },
+        }),
+      enabled: !!enabler,
+      staleTime: 2 * 60 * 1000,
+      gcTime: 5 * 60 * 1000,
+    });
+
+  return {
+    data: data?.result,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    isSuccess,
+    refetch,
+  };
+};
 
 export interface UseSearchSwapsProps {
   enabler: boolean;

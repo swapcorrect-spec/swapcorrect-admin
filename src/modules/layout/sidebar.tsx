@@ -10,7 +10,6 @@ import {
   SwapActivity,
   UserMgmt,
   UserMgmtFilled,
-  UserRole,
   Flag,
   Counter,
 } from "~/assets/images";

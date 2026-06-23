@@ -5,7 +5,6 @@ import {
   NewChat,
   NewSwap,
   OfferAccepted,
-  OfferDeclined,
 } from "~/assets/images";
 import { Bell, Scale, Settings, User, Wallet } from "lucide-react";
 

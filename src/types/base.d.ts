@@ -47,16 +47,15 @@ export interface UsersData extends DataItem {
 }
 export interface SwapActivityData extends DataItem {
   swapProceedId: string;
-  listedItem: string;
-  swapperRequestItem: string;
-  swapperOne: string;
-  swapperTwo: string;
-  swapperImage: string;
-  visitorImage: string;
+  ownerName: string;
+  swapperName: string;
+  ownerItem: string;
+  swapperItem: string;
   status: string;
-  createdAt: string;
-  updatedAt: string;
+  initiatedOn: string;
+  lastActivity: string;
   isFlagged?: boolean;
+  action?: string;
 }
 
 export interface FlagData extends DataItem {

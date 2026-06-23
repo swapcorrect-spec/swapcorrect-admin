@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { SWAP_ACTIVITY } from "~/hooks/queries/swap-activity/swap-activity";
 import {
   getRequestParams,
   getRequest,
@@ -163,7 +164,7 @@ export const useFlagContent = (props: MutationProps) => {
       }),
     onSuccess(values) {
       queryClient.invalidateQueries({ queryKey: [LISTINGS] });
-      queryClient.invalidateQueries({ queryKey: ["useSearchSwaps"] });
+      queryClient.invalidateQueries({ queryKey: [SWAP_ACTIVITY] });
       queryClient.invalidateQueries({ queryKey: ["SWAP_PROCEEDING"] });
       onSuccess(values);
     },

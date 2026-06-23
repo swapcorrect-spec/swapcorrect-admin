@@ -1,7 +1,7 @@
 import { Box, Flex, Text } from "@chakra-ui/react";
 import { BadgeCheck, Mail, MapPin, Phone } from "lucide-react";
 import { StarOutline } from "~/assets/images";
-import { Button, Input } from "~/modules/shared";
+import { Button } from "~/modules/shared";
 import { Accordion } from "~/modules/shared/Accordion";
 
 interface UserInfoProps {
@@ -61,42 +61,8 @@ const Ratings: React.FC<{ userData?: any }> = ({ userData }) => {
   );
 };
 
-const AdminNotes = () => {
-  return (
-    <Box>
-      <Box display={"flex"} flexDirection={"column"} gap={5} mb={5}>
-        <Box>
-          <Flex
-            alignItems={"center"}
-            justifyContent={"space-between"}
-            mb={3.5}
-            fontWeight={500}
-            fontSize={"14px"}
-          >
-            <Text color="#007AFF">Admin 1</Text>
-            <Text color="#737373">Apr 30, 2025</Text>
-          </Flex>
-          <Text color="#737373" fontSize={"14px"} fontStyle={"italic"}>
-            User was warned about posting inappropriate content.
-          </Text>
-        </Box>
-      </Box>
-
-      <Input
-        type="textarea"
-        name="note"
-        handleChange={() => console.log("Holla world!")}
-        placeholder="Additional note"
-        value="note"
-      />
-      <Button rounded="2xl" bg="#222222" m="20px 0px 0px 0px">
-        <Text fontSize="14px" color="#ffffff" ml={2}>
-          + Add Note
-        </Text>
-      </Button>
-    </Box>
-  );
-};
+// AdminNotes kept for future use — wire back in accordion when notes API is ready.
+// const AdminNotes = () => { ... };
 
 const UserInfo: React.FC<UserInfoProps> = ({ userData }) => {
   const items = [

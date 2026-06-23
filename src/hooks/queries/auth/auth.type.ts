@@ -42,6 +42,23 @@ export interface IResetPasswordResponse {
   result: string;
   errorMessages: null | string;
 }
+
+export type ChangeSignedInPassword = {
+  oldPassword: string;
+  newPassword: string;
+};
+
+export type ChangeSignedInPasswordPayload = Prettify<
+  BaseApiPayloadDto<ChangeSignedInPassword>
+>;
+
+export interface IChangeSignedInPasswordResponse {
+  statusCode: number;
+  displayMessage: string;
+  result: string;
+  errorMessages: null | string;
+}
+
 export interface IGetUserInfoResponseData {
   statusCode: 200;
   displayMessage: string;

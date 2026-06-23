@@ -1,4 +1,4 @@
-import { Box, Flex, Grid, Skeleton } from "@chakra-ui/react";
+import { Grid, Skeleton } from "@chakra-ui/react";
 import {
   Approve,
   Caution,

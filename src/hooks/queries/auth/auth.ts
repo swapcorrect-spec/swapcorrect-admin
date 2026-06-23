@@ -6,11 +6,13 @@ import type {
   IFogotPasswordResponse,
   ResetPasswordPayload,
   IResetPasswordResponse,
+  ChangeSignedInPasswordPayload,
+  IChangeSignedInPasswordResponse,
   IGetUserInfoResponseData,
   IGetGeneralUserInfoResponseData,
 } from "./auth.type";
 import handleApiError from "~/utils/handle-api-error";
-import { postRequest, getRequest, getRequestParams } from "~/config/request-methods";
+import { postRequest, getRequest, getRequestParams, putRequest } from "~/config/request-methods";
 import type { MutationProps } from "~/types/mutation-prop-types";
 
 export const GENERAL_USER_INFO = "GENERAL_USER_INFO";
@@ -76,6 +78,36 @@ export const useResetPassword = (props: MutationProps) => {
     mutationFn: ({ payload }: ResetPasswordPayload) =>
       postRequest<ResetPasswordPayload["payload"], IResetPasswordResponse>({
         url: "/auth/user/reset_password",
+        payload,
+      }),
+    onSuccess(values) {
+      onSuccess(values);
+    },
+    onError(err) {
+      const msgError = handleApiError(err);
+      if (onError) {
+        onError(msgError, err);
+      }
+    },
+  });
+
+  return {
+    mutate,
+    isError,
+    isSuccess,
+    isPending,
+  };
+};
+
+export const useChangeSignedInPassword = (props: MutationProps) => {
+  const { onSuccess, onError } = props;
+  const { mutate, isError, isSuccess, isPending } = useMutation({
+    mutationFn: ({ payload }: ChangeSignedInPasswordPayload) =>
+      putRequest<
+        ChangeSignedInPasswordPayload["payload"],
+        IChangeSignedInPasswordResponse
+      >({
+        url: "/auth/user/reset_password_signedIn_user",
         payload,
       }),
     onSuccess(values) {

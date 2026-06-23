@@ -8,10 +8,10 @@ import { getSwapStatusStyles } from "~/modules/util";
 
 export type SwapFlagSummary = {
   swapProceedId: string;
-  swapperOne: string;
-  swapperTwo: string;
-  listedItem: string;
-  swapperRequestItem: string;
+  ownerName: string;
+  swapperName: string;
+  ownerItem: string;
+  swapperItem: string;
   status: string;
   isFlagged?: boolean;
 };
@@ -29,13 +29,13 @@ const SwapSummaryCard: React.FC<{ swap: SwapFlagSummary }> = ({ swap }) => {
   return (
     <Box border="1px solid #E9E9E9" borderRadius="lg" p={4} bg="#FAFAFA">
       <Text fontSize="md" fontWeight={600} color="#222222" mb={2}>
-        {swap.swapperOne || "N/A"} ↔ {swap.swapperTwo || "N/A"}
+        {swap.ownerName || "N/A"} ↔ {swap.swapperName || "N/A"}
       </Text>
       <Text fontSize="sm" color="#737373" mb={1}>
-        Listed: {swap.listedItem || "N/A"}
+        Owner item: {swap.ownerItem || "N/A"}
       </Text>
       <Text fontSize="sm" color="#737373" mb={2}>
-        Request: {swap.swapperRequestItem || "N/A"}
+        Swapper item: {swap.swapperItem || "N/A"}
       </Text>
       <Text
         border="1px solid"

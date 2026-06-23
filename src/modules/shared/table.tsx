@@ -1,6 +1,6 @@
 "use client";
 
-import { Table, Skeleton, Flex, Box } from "@chakra-ui/react";
+import { Table, Skeleton, Box } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 import type { DataItem, ITableProps } from "~/types/base";
 import { EmptyState } from "./EmptyState";
