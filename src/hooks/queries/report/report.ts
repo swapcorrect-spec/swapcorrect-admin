@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getRequestParams, postRequest } from "~/config/request-methods";
+import { getRequestParams, postRequest, putRequest } from "~/config/request-methods";
 import type { MutationProps } from "~/types/mutation-prop-types";
 import handleApiError from "~/utils/handle-api-error";
 import type {
@@ -120,7 +120,7 @@ export const useGetReports = (props: {
           },
           ReportsPaginatedResponse
         >({
-          url: "/report/paginated/all",
+          url: "/Admin/reports",
           params: {
             searhParam,
             status: status === "All" ? undefined : status,
@@ -156,7 +156,7 @@ export const useGetReportDetails = (props: {
       queryKey: [REPORT_DETAILS, reportId],
       queryFn: async ({ signal }) =>
         getRequestParams<{ reportId: string }, ReportDetailsResponse>({
-          url: "/report/single/details",
+          url: "/Admin/reports/details",
           params: { reportId },
           config: { signal },
         }),
@@ -181,7 +181,7 @@ export const useAddReportNote = (props: MutationProps) => {
   const { mutate, isError, isSuccess, isPending } = useMutation({
     mutationFn: (payload: AddReportNotePayload) =>
       postRequest<AddReportNotePayload, AddReportNoteResponse>({
-        url: "/report/Add/report/note",
+        url: "/Admin/reports/add-note",
         payload,
       }),
     onSuccess(values, variables) {
@@ -210,8 +210,8 @@ export const useChangeReportStatus = (props: MutationProps) => {
 
   const { mutate, isError, isSuccess, isPending } = useMutation({
     mutationFn: (payload: ChangeReportStatusPayload) =>
-      postRequest<ChangeReportStatusPayload, ChangeReportStatusResponse>({
-        url: "/report/change/report/status",
+      putRequest<ChangeReportStatusPayload, ChangeReportStatusResponse>({
+        url: "/Admin/reports/change-status",
         payload,
       }),
     onSuccess(values, variables) {
