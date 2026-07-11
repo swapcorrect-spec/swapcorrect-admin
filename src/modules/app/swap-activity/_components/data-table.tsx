@@ -4,16 +4,11 @@ import { Text, Box } from "@chakra-ui/react";
 import { TableComponent } from "~/modules/shared/table";
 import type { SwapActivityData } from "~/types/base";
 import { formatDateTime, getSwapStatusStyles } from "~/modules/util";
-import { Flag, Book } from "lucide-react";
+import { Book } from "lucide-react";
 import { MenuItem, Menu } from "~/modules/shared";
 import { useNavigate } from "react-router";
 import { PATHS } from "~/modules/_constants/paths";
-import { useState } from "react";
 import { toast } from "sonner";
-import {
-  SwapFlagConfirm,
-  type SwapFlagSummary,
-} from "./swap-flag-confirm";
 
 type SwapActivityTableRow = SwapActivityData;
 type SwapActivityColumn = keyof SwapActivityTableRow;
@@ -58,26 +53,6 @@ const SwapActivityTable: React.FC<SwapActivityTableProps> = ({
   emptyDescription,
 }) => {
   const navigate = useNavigate();
-  const [flagOpen, setFlagOpen] = useState(false);
-  const [selectedSwap, setSelectedSwap] = useState<SwapFlagSummary | null>(null);
-
-  const openFlag = (item: SwapActivityTableRow) => {
-    setSelectedSwap({
-      swapProceedId: item.swapProceedId,
-      ownerName: item.ownerName,
-      swapperName: item.swapperName,
-      ownerItem: item.ownerItem,
-      swapperItem: item.swapperItem,
-      status: item.status,
-      isFlagged: item.isFlagged ?? false,
-    });
-    setFlagOpen(true);
-  };
-
-  const closeFlag = () => {
-    setFlagOpen(false);
-    setSelectedSwap(null);
-  };
 
   const textProps = {
     color: "#737373",
@@ -154,19 +129,6 @@ const SwapActivityTable: React.FC<SwapActivityTableProps> = ({
             value="view"
             styleProps={{ color: "#222222" }}
           />
-          <MenuItem
-            label={item.isFlagged ? "Unflag Swap" : "Flag Swap"}
-            icon={<Flag size={20} />}
-            onClick={() => {
-              if (!item.swapProceedId) {
-                toast.error("This swap cannot be flagged yet.");
-                return;
-              }
-              openFlag(item);
-            }}
-            value="flag"
-            styleProps={{ color: "#E42222" }}
-          />
         </Box>
       </Menu>
     ),
@@ -185,12 +147,6 @@ const SwapActivityTable: React.FC<SwapActivityTableProps> = ({
         isLoading={loading}
         scrollable
         emptyDescription={emptyDescription}
-      />
-
-      <SwapFlagConfirm
-        open={flagOpen}
-        swap={selectedSwap}
-        onClose={closeFlag}
       />
     </>
   );

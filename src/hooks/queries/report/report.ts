@@ -74,12 +74,17 @@ export const mapReportToTableRow = (item: ReportListItem) => ({
   reportId: item.reportId ?? "",
   reporter:
     item.reporterName ?? item.reporter ?? item.reportedByName ?? "—",
+  reporterImg: item.reporterImg ?? null,
   type: item.reportType ?? item.type ?? "—",
   reportedEntity:
-    item.reportedUserName ?? item.reportedEntity ?? "—",
+    item.reportedPersonName ??
+    item.reportedUserName ??
+    item.reportedEntity ??
+    "—",
+  reportedPersonImg: item.reportedPersonImg ?? null,
   reason: item.reason ?? item.description ?? "—",
   status: formatReportStatus(item.status),
-  createdAt: item.createdOn ?? item.createdAt ?? "",
+  createdAt: item.created ?? item.createdOn ?? item.createdAt ?? "",
 });
 
 export const useGetReports = (props: {
@@ -87,6 +92,7 @@ export const useGetReports = (props: {
   searhParam?: string;
   status?: ReportUserStatus;
   reportFilerDate?: ReportDateFilter;
+  userId?: string;
   pageNumber?: number;
   perpageSize?: number;
 }) => {
@@ -95,6 +101,7 @@ export const useGetReports = (props: {
     searhParam,
     status = "All",
     reportFilerDate = "All",
+    userId,
     pageNumber = 1,
     perpageSize = 20,
   } = props;
@@ -106,6 +113,7 @@ export const useGetReports = (props: {
         searhParam,
         status,
         reportFilerDate,
+        userId,
         pageNumber,
         perpageSize,
       ],
@@ -113,8 +121,9 @@ export const useGetReports = (props: {
         getRequestParams<
           {
             searhParam?: string;
-            status?: ReportUserStatus;
+            status: ReportUserStatus;
             reportFilerDate?: ReportDateFilter;
+            UserId?: string;
             pageNumber?: number;
             perpageSize?: number;
           },
@@ -122,10 +131,11 @@ export const useGetReports = (props: {
         >({
           url: "/Admin/reports",
           params: {
-            searhParam,
-            status: status === "All" ? undefined : status,
+            searhParam: searhParam?.trim() || undefined,
+            status,
             reportFilerDate:
               reportFilerDate === "All" ? undefined : reportFilerDate,
+            UserId: userId?.trim() || undefined,
             pageNumber,
             perpageSize,
           },

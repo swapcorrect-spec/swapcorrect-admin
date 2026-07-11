@@ -150,10 +150,10 @@ const EvidenceItem = ({
       border="1px solid #E9E9E9"
       bg="#fff"
     >
-      <Box h="140px" w="100%">
+      <Box h="140px" w="100%" overflow="hidden">
         <Image
-          width="100%"
-          height="100%"
+          w="100%"
+          h="140px"
           objectFit="cover"
           src={getImageSrcWithFallback(
             url,

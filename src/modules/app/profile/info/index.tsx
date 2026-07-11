@@ -17,6 +17,7 @@ import UserActivity from "./activity";
 import UserReports from "./reports";
 import { useGetGeneralUserInfo } from "~/hooks/queries/auth/auth";
 import { useMemo, useState } from "react";
+import { format } from "date-fns";
 import { useParams } from "react-router";
 import PageLayout from "~/modules/layout/page-layout";
 import {
@@ -77,7 +78,9 @@ const UserProfile: React.FC = () => {
     },
     {
       title: "Last Active",
-      description: userData?.lastLoginTime ? formatDateTime(userData.lastLoginTime) : "Never",
+      description: userData?.lastLoginTime
+        ? format(new Date(userData.lastLoginTime), "MMM d, yyyy · h:mm a")
+        : "Never",
       icon: <Counter />,
     },
   ];
@@ -118,7 +121,7 @@ const UserProfile: React.FC = () => {
     {
       title: "Reports",
       value: "reports",
-      children: <UserReports />,
+      children: <UserReports userId={userId} />,
     },
   ];
 
@@ -230,14 +233,16 @@ const UserProfile: React.FC = () => {
           </Box>
           <Flex gap="8px">
             {INFOLIST.map((info, idx) => (
-              <InfoCard
-                key={idx}
-                icon={info.icon}
-                title={info.title}
-                count={info.value}
-                description={info.description}
-                showFooter={false}
-              />
+              <Box key={idx} flex="1" minW={0}>
+                <InfoCard
+                  icon={info.icon}
+                  title={info.title}
+                  count={info.value}
+                  description={info.description}
+                  showFooter={false}
+                  compact
+                />
+              </Box>
             ))}
           </Flex>
         </Box>

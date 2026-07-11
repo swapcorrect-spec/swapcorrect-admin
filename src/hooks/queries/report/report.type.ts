@@ -5,13 +5,45 @@ export type ReportUserStatus =
   | "Resolved"
   | "Dismissed";
 
-export type ReportDateFilter = "All" | "LastWeek" | "LastMonth";
+export type ReportDateFilter =
+  | "All"
+  | "Today"
+  | "ThisWeek"
+  | "ThisMonth"
+  | "AllTime";
+
+export const REPORT_STATUS_OPTIONS: {
+  value: ReportUserStatus;
+  label: string;
+}[] = [
+  { value: "All", label: "All" },
+  { value: "New", label: "New" },
+  { value: "UnderReview", label: "Under Review" },
+  { value: "Resolved", label: "Resolved" },
+  { value: "Dismissed", label: "Dismissed" },
+];
+
+export const REPORT_DATE_FILTER_OPTIONS: {
+  value: ReportDateFilter;
+  label: string;
+}[] = [
+  { value: "All", label: "All Time" },
+  { value: "Today", label: "Today" },
+  { value: "ThisWeek", label: "This Week" },
+  { value: "ThisMonth", label: "This Month" },
+  { value: "AllTime", label: "All Time" },
+];
 
 export interface ReportListItem {
   reportId?: string;
+  reporterId?: string;
   reporterName?: string;
+  reporterImg?: string | null;
   reporter?: string;
   reportedByName?: string;
+  reportedPersonId?: string;
+  reportedPersonName?: string;
+  reportedPersonImg?: string | null;
   reportedUserName?: string;
   reportedEntity?: string;
   reportType?: string;
@@ -19,6 +51,7 @@ export interface ReportListItem {
   reason?: string;
   description?: string;
   status?: string;
+  created?: string;
   createdOn?: string;
   createdAt?: string;
 }

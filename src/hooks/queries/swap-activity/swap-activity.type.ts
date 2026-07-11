@@ -70,3 +70,19 @@ export interface SwapProceedingResponse {
   result: SwapProceedingItem;
   errorMessages: string[] | null;
 }
+
+export interface SwapChatHistoryMessage {
+  id: string;
+  senderName: string;
+  message: string;
+  createdAt: string;
+  senderId?: string;
+  receiverId?: string;
+}
+
+export interface SwapChatHistoryResponse {
+  statusCode: number;
+  displayMessage: string;
+  result: unknown;
+  errorMessages: string[] | null;
+}

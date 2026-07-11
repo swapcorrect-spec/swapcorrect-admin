@@ -61,8 +61,10 @@ export interface SwapActivityData extends DataItem {
 export interface FlagData extends DataItem {
   reportId?: string;
   reporter: string;
+  reporterImg?: string | null;
   type: string;
   reportedEntity: string;
+  reportedPersonImg?: string | null;
   status: string;
   createdAt: string;
   reason?: string;

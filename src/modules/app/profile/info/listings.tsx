@@ -7,6 +7,7 @@ import {
 import swapitem from "~/assets/images/swap_item.png";
 import { useGetListings } from "~/hooks/queries/listing/listing";
 import { EmptyState, ErrorState } from "~/modules/shared";
+import { Pagination } from "~/modules/shared/pagination";
 import { useState } from "react";
 
 interface iList {
@@ -155,20 +156,23 @@ interface UserListingsProps {
 }
 
 const UserListings: React.FC<UserListingsProps> = ({ userId }) => {
+  const [currentPage, setCurrentPage] = useState(1);
   const { data: listingsData, isLoading, isError, error, refetch } =
     useGetListings({
     enabler: !!userId,
     listingUserId: userId?.toString(),
-    pageNumber: 1,
-    pageSize: 20,
+    pageNumber: currentPage,
+    pageSize: 10,
   });
 
   const listings = listingsData?.items || [];
+  const totalPages = listingsData?.totalPages || 1;
+  const totalCount = listingsData?.totalCount ?? listings.length;
 
   return (
     <Box>
       <Text color="#222222" fontWeight={500} mb={5} fontSize={"14px"}>
-        Active Listing ({listings.length})
+        Active Listing ({totalCount})
       </Text>
       {isLoading ? (
         <Box>
@@ -179,11 +183,22 @@ const UserListings: React.FC<UserListingsProps> = ({ userId }) => {
           ))}
         </Box>
       ) : listings.length > 0 ? (
-        <Flex direction="column" gap={4}>
-          {listings.map((item: ListingItem) => (
-            <List key={item.listingId} item={item} />
-          ))}
-        </Flex>
+        <>
+          <Flex direction="column" gap={4}>
+            {listings.map((item: ListingItem) => (
+              <List key={item.listingId} item={item} />
+            ))}
+          </Flex>
+          {totalPages > 1 && (
+            <Box mt={5}>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            </Box>
+          )}
+        </>
       ) : isError ? (
         <ErrorState
           minH="200px"

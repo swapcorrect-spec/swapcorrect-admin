@@ -1,13 +1,50 @@
 "use client";
 
-import { Text, Flex, Box } from "@chakra-ui/react";
+import { Text, Flex, Box, Image } from "@chakra-ui/react";
+import { useState } from "react";
 import { TableComponent } from "~/modules/shared/table";
 import type { FlagData } from "~/types/base";
-import { formatDateTime, getStatusStyles } from "~/modules/util";
+import {
+  createImageErrorHandler,
+  formatDateTime,
+  getImageSrcWithFallback,
+  getStatusStyles,
+} from "~/modules/util";
 import { Menu, MenuItem } from "~/modules/shared";
 import { Book } from "lucide-react";
 import { useNavigate } from "react-router";
 import { PATHS } from "~/modules/_constants/paths";
+import userFallback from "~/assets/images/user.png";
+
+const AvatarCell = ({
+  src,
+  alt,
+}: {
+  src?: string | null;
+  alt: string;
+}) => {
+  const [imageError, setImageError] = useState(false);
+  const missingImage = !src?.trim();
+
+  return (
+    <Box
+      h={8}
+      w={8}
+      flexShrink={0}
+      borderRadius="full"
+      overflow="hidden"
+      bg="#F0F0F0"
+    >
+      <Image
+        src={getImageSrcWithFallback(src, imageError || missingImage, userFallback)}
+        alt={alt}
+        boxSize="32px"
+        objectFit="cover"
+        onError={createImageErrorHandler(setImageError)}
+      />
+    </Box>
+  );
+};
 
 interface iProps {
   data?: FlagData[];
@@ -36,8 +73,8 @@ const FlagsAndReportTable: React.FC<iProps> = ({
 
   const cellRenderers = {
     reporter: (item: FlagData) => (
-      <Flex gap="4px" alignItems="center">
-        <Box borderRadius={"full"} h={8} w={8}></Box>
+      <Flex gap="8px" alignItems="center">
+        <AvatarCell src={item.reporterImg} alt={item.reporter} />
         <Text {...textProps} color={"#222222"}>
           {item.reporter}
         </Text>
@@ -45,8 +82,8 @@ const FlagsAndReportTable: React.FC<iProps> = ({
     ),
     type: (item: FlagData) => <Text {...textProps}>{item?.type}</Text>,
     reportedEntity: (item: FlagData) => (
-      <Flex gap="4px" alignItems="center">
-        <Box borderRadius={"full"} h={8} w={8}></Box>
+      <Flex gap="8px" alignItems="center">
+        <AvatarCell src={item.reportedPersonImg} alt={item.reportedEntity} />
         <Text {...textProps} color={"#222222"}>
           {item.reportedEntity}
         </Text>

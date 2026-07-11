@@ -1,15 +1,32 @@
-import { Flex } from "@chakra-ui/react";
+import { Flex, Grid } from "@chakra-ui/react";
 import PageLayout from "~/modules/layout/page-layout";
-import { Header, QueryState } from "~/modules/shared";
+import { Header, Input, QueryState, Select } from "~/modules/shared";
 import { useState } from "react";
 import FlagsAndReportTable from "./_components/data-table";
 import {
   mapReportToTableRow,
   useGetReports,
 } from "~/hooks/queries/report/report";
+import {
+  REPORT_DATE_FILTER_OPTIONS,
+  REPORT_STATUS_OPTIONS,
+  type ReportDateFilter,
+  type ReportUserStatus,
+} from "~/hooks/queries/report/report.type";
+import { useDebouncedValue } from "~/hooks/useDebouncedValue";
 
 export const FlagsAndReports = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
+  const [userIdInput, setUserIdInput] = useState("");
+  const [status, setStatus] = useState<ReportUserStatus>("All");
+  const [reportFilerDate, setReportFilerDate] =
+    useState<ReportDateFilter>("All");
+
+  const debouncedSearch = useDebouncedValue(searchInput, 400);
+  const debouncedUserId = useDebouncedValue(userIdInput, 400);
+
+  const resetPage = () => setCurrentPage(1);
 
   const onPageChange = (page: number) => {
     setCurrentPage(page);
@@ -24,6 +41,10 @@ export const FlagsAndReports = () => {
     refetch,
   } = useGetReports({
     enabler: true,
+    searhParam: debouncedSearch,
+    status,
+    reportFilerDate,
+    userId: debouncedUserId,
     pageNumber: currentPage,
     perpageSize: 20,
   });
@@ -34,10 +55,60 @@ export const FlagsAndReports = () => {
     <PageLayout>
       <Flex justifyContent="space-between" alignItems="center" mb={7}>
         <Header
-          title="Recent Activity"
+          title="Flags & Reports"
           description="Monitor and manage all flags and reports on the platform"
         />
       </Flex>
+
+      <Grid
+        templateColumns="minmax(0, 1fr) minmax(0, 1fr) 180px 180px"
+        gap={4}
+        mb={6}
+        alignItems="end"
+      >
+        <Input
+          type="search"
+          name="report-search"
+          placeholder="Search reports"
+          value={searchInput}
+          handleChange={(e) => {
+            setSearchInput(e.target.value);
+            resetPage();
+          }}
+        />
+        <Input
+          type="search"
+          name="report-user-id"
+          placeholder="Filter by user ID"
+          value={userIdInput}
+          handleChange={(e) => {
+            setUserIdInput(e.target.value);
+            resetPage();
+          }}
+        />
+        <Select
+          name="report-status"
+          placeholder="Status"
+          options={REPORT_STATUS_OPTIONS}
+          value={status}
+          onChange={(value) => {
+            setStatus(value as ReportUserStatus);
+            resetPage();
+          }}
+          width="100%"
+        />
+        <Select
+          name="report-date-filter"
+          placeholder="Date"
+          options={REPORT_DATE_FILTER_OPTIONS}
+          value={reportFilerDate}
+          onChange={(value) => {
+            setReportFilerDate(value as ReportDateFilter);
+            resetPage();
+          }}
+          width="100%"
+        />
+      </Grid>
 
       <QueryState
         isLoading={isLoading || isFetching}

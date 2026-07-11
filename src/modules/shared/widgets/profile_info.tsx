@@ -28,7 +28,13 @@ const ProfileInfo: React.FC<iSwapDetails> = ({ detail, showStats = true }) => {
       gap={4}
       bg="#fff"
     >
-      <Box display="flex" borderRadius="full" overflow="hidden">
+      <Box
+        boxSize="48px"
+        borderRadius="full"
+        overflow="hidden"
+        flexShrink={0}
+        bg="#F0F0F0"
+      >
         <Image
           src={getImageSrcWithFallback(
             detail.ownerAvatar,
@@ -36,13 +42,12 @@ const ProfileInfo: React.FC<iSwapDetails> = ({ detail, showStats = true }) => {
             user
           )}
           alt={`${detail.owner || "User"} avatar`}
-          borderRadius="full"
-          height="100%"
-          width="100%"
+          boxSize="48px"
+          objectFit="cover"
           onError={createImageErrorHandler(setImageError)}
         />
       </Box>
-      <Box width="full">
+      <Box flex="1" minW={0}>
         <Text
           fontSize="16px"
           color="#222222"

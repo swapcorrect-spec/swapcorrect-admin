@@ -19,16 +19,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Routes />
       <Outlet />
-      <Toaster
-            position="top-right"
-            toastOptions={{
-              classNames: {
-                toast: "border p-4 rounded-md",
-                success: "!bg-green-100 !text-green-800",
-                error: "!bg-red-100 !text-red-800",
-              },
-            }}
-          />
+      <Toaster position="top-right" closeButton />
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

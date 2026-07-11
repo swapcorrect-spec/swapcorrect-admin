@@ -18,6 +18,8 @@ import { PATHS } from "~/modules/_constants/paths";
 import { useGetDashboardSummary, useGetAdvancedAnalytics } from "~/hooks/queries/dashboard/dashboard";
 import type { MetricFilter, PeriodicFilter } from "~/hooks/queries/dashboard/dashboard.type";
 import { useGetRecentActivities } from "~/hooks/queries/activity/activity";
+import { useGetUserInfo } from "~/hooks/queries/auth/auth";
+import { Auth } from "~/config/auth";
 
 const METRIC_FILTER_OPTIONS: { value: MetricFilter; label: string }[] = [
   { value: "All", label: "All Metrics" },
@@ -49,6 +51,10 @@ export const Dashboard = () => {
     useState<MetricFilter>("All");
   const [analyticsPeriodicFilter, setAnalyticsPeriodicFilter] =
     useState<PeriodicFilter>("ThisWeek");
+
+  const { data: user } = useGetUserInfo({
+    enabler: Auth.isAuthenticated(),
+  });
 
   const { data, isLoading } = useGetDashboardSummary({
     enabler: true,
@@ -121,12 +127,18 @@ export const Dashboard = () => {
     },
   ], [data]);
 
+  const displayName = user
+    ? `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+      user.userName ||
+      "User"
+    : "User";
+
   return (
     <>
       <PageLayout>
         <Flex justifyContent="space-between" alignItems="center">
           <Header
-            title="Welcome, Kathleen"
+            title={`Welcome, ${displayName}`}
             description="Overview of your dashboard"
           />
           <Box w={"180px"}>

@@ -1,12 +1,15 @@
 import { Box, Text, Flex } from "@chakra-ui/react";
 import { useState } from "react";
 import PageLayout from "~/modules/layout/page-layout";
-import { Button, PageHeaderWithBack, QueryState } from "~/modules/shared";
+import { Button, PageHeaderWithBack, QueryState, Tab } from "~/modules/shared";
 import ProfileInfo from "~/modules/shared/widgets/profile_info";
 import { ArrowLeft, ArrowRight, Flag } from "lucide-react";
 import { formatDateTime, getSwapStatusStyles } from "~/modules/util";
 import { useParams } from "react-router";
-import { useGetSwapProceeding } from "~/hooks/queries/swap-activity/swap-activity";
+import {
+  useGetSwapChatHistory,
+  useGetSwapProceeding,
+} from "~/hooks/queries/swap-activity/swap-activity";
 import type { SwapDetailsProps } from "~/types/base";
 import { FlaggedBadge } from "~/modules/app/listing/_components/flagged-badge";
 import {
@@ -95,10 +98,81 @@ const ParticipantBlock = ({
   </Box>
 );
 
+const ChatHistoryPanel = ({
+  swapProceedId,
+}: {
+  swapProceedId: string;
+}) => {
+  const {
+    data: chatMessages,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    refetch,
+  } = useGetSwapChatHistory({
+    swapProceedId,
+    enabler: !!swapProceedId,
+  });
+
+  return (
+    <QueryState
+      isLoading={isLoading || isFetching}
+      isError={isError}
+      error={error}
+      onRetry={() => refetch()}
+      isEmpty={chatMessages.length === 0}
+      emptyProps={{
+        title: "No chat history",
+        description: "There are no chat messages for this swap yet.",
+      }}
+      errorProps={{
+        title: "Could not load chat history",
+        description:
+          "We had trouble fetching the chat history for this swap. Please try again.",
+      }}
+      loadingMinH="260px"
+    >
+      <Flex direction="column" gap={3} mt={6}>
+        {chatMessages.map((message) => (
+          <Box
+            key={message.id}
+            border="1px solid #E9E9E9"
+            borderRadius="lg"
+            bg="#fff"
+            p={4}
+          >
+            <Flex
+              align="center"
+              justify="space-between"
+              gap={3}
+              mb={2}
+              flexWrap="wrap"
+            >
+              <Text fontWeight={600} color="#222222">
+                {message.senderName}
+              </Text>
+              <Text fontSize="12px" color="#737373">
+                {message.createdAt
+                  ? formatDateTime(message.createdAt)
+                  : "Time unavailable"}
+              </Text>
+            </Flex>
+            <Text color="#444444" fontSize="14px" whiteSpace="pre-wrap">
+              {message.message}
+            </Text>
+          </Box>
+        ))}
+      </Flex>
+    </QueryState>
+  );
+};
+
 export const SwapActivityInfo = () => {
   const { swapId: swapProceedId } = useParams<{ swapId: string }>();
   const [flagOpen, setFlagOpen] = useState(false);
   const [selectedSwap, setSelectedSwap] = useState<SwapFlagSummary | null>(null);
+  const [activeTab, setActiveTab] = useState("swap-details");
   const {
     data: swap,
     isLoading,
@@ -159,14 +233,14 @@ export const SwapActivityInfo = () => {
             swap ? `Initiated on ${formatDateTime(swap.createdOn)}` : undefined
           }
         />
-        {swap && (
+        {/* {swap && (
           <Button bg="#FFF0EF" width="fit-content" handleClick={openFlag}>
             <Flag color="#E42222" size={16} />
             <Text fontSize="14px" color="#E42222">
               {swap.isFlagged ? "Unflag Swap" : "Flag Swap"}
             </Text>
           </Button>
-        )}
+        )} */}
       </Flex>
       <QueryState
         isLoading={isLoading || isFetching}
@@ -185,75 +259,98 @@ export const SwapActivityInfo = () => {
       >
         {swap && (
           <>
-            <Flex mt={2} alignItems="center" gap={10}>
-              <ParticipantBlock
-                roleLabel="Swapper"
-                profileDetail={swapperProfile}
-                itemLabel="Listed Item"
-                items={listedItems}
+            <Box mt={2}>
+              <Tab
+                value={activeTab}
+                onValueChange={setActiveTab}
+                options={[
+                  {
+                    value: "swap-details",
+                    title: "Swap Details",
+                    children: (
+                      <>
+                        <Flex mt={6} alignItems="center" gap={10}>
+                          <ParticipantBlock
+                            roleLabel="Swapper"
+                            profileDetail={swapperProfile}
+                            itemLabel="Listed Item"
+                            items={listedItems}
+                          />
+                          <Box gap={4} display="flex" flexShrink={0}>
+                            <ArrowLeft size={40} color="#737373" />
+                            <ArrowRight size={40} color="#737373" />
+                          </Box>
+                          <ParticipantBlock
+                            roleLabel="Visitor"
+                            profileDetail={visitorProfile}
+                            itemLabel="Swapper Request Item(s)"
+                            items={requestItems}
+                          />
+                        </Flex>
+                        <Box
+                          border="1px solid #E9E9E9"
+                          p={2.5}
+                          borderRadius="lg"
+                          bg="#fff"
+                          my={8}
+                        >
+                          <Flex align="center" gap={2} mb={2.5} flexWrap="wrap">
+                            <Text fontWeight={500}>Swap Status</Text>
+                            {swap.isFlagged && <FlaggedBadge />}
+                          </Flex>
+                          <Text
+                            border="1px solid"
+                            borderColor={borderColor}
+                            bg={bg}
+                            color={textColor}
+                            py="5px"
+                            px="17px"
+                            borderRadius="37.74px"
+                            width="fit-content"
+                            mb={2.5}
+                            fontWeight={500}
+                            fontSize="13px"
+                          >
+                            {swap.status}
+                          </Text>
+                          <Box
+                            alignItems="center"
+                            justifyContent="space-between"
+                            display="flex"
+                            mb={2}
+                          >
+                            <Text fontWeight={500} fontSize="13px" color="#737373">
+                              Initiated on:
+                            </Text>
+                            <Text fontWeight={500} fontSize="13px" color="#222222">
+                              {formatDateTime(swap.createdOn)}
+                            </Text>
+                          </Box>
+                          <Box
+                            alignItems="center"
+                            justifyContent="space-between"
+                            display="flex"
+                          >
+                            <Text fontWeight={500} fontSize="13px" color="#737373">
+                              Last Activity
+                            </Text>
+                            <Text fontWeight={500} fontSize="13px" color="#222222">
+                              {formatDateTime(swap.lastActivity)}
+                            </Text>
+                          </Box>
+                        </Box>
+                      </>
+                    ),
+                  },
+                  // {
+                  //   value: "chat-history",
+                  //   title: "Chat History",
+                  //   children: (
+                  //     <ChatHistoryPanel swapProceedId={swapProceedId || ""} />
+                  //   ),
+                  // },
+                ]}
               />
-              <Box gap={4} display="flex" flexShrink={0}>
-                <ArrowLeft size={40} color="#737373" />
-                <ArrowRight size={40} color="#737373" />
-              </Box>
-              <ParticipantBlock
-                roleLabel="Visitor"
-                profileDetail={visitorProfile}
-                itemLabel="Swapper Request Item(s)"
-                items={requestItems}
-              />
-            </Flex>
-            <Box
-              border="1px solid #E9E9E9"
-              p={2.5}
-              borderRadius="lg"
-              bg="#fff"
-              my={8}
-            >
-              <Flex align="center" gap={2} mb={2.5} flexWrap="wrap">
-                <Text fontWeight={500}>Swap Status</Text>
-                {swap.isFlagged && <FlaggedBadge />}
-              </Flex>
-              <Text
-                border="1px solid"
-                borderColor={borderColor}
-                bg={bg}
-                color={textColor}
-                py="5px"
-                px="17px"
-                borderRadius="37.74px"
-                width="fit-content"
-                mb={2.5}
-                fontWeight={500}
-                fontSize="13px"
-              >
-                {swap.status}
-              </Text>
-              <Box
-                alignItems="center"
-                justifyContent="space-between"
-                display="flex"
-                mb={2}
-              >
-                <Text fontWeight={500} fontSize="13px" color="#737373">
-                  Initiated on:
-                </Text>
-                <Text fontWeight={500} fontSize="13px" color="#222222">
-                  {formatDateTime(swap.createdOn)}
-                </Text>
-              </Box>
-              <Box
-                alignItems="center"
-                justifyContent="space-between"
-                display="flex"
-              >
-                <Text fontWeight={500} fontSize="13px" color="#737373">
-                  Last Activity
-                </Text>
-                <Text fontWeight={500} fontSize="13px" color="#222222">
-                  {formatDateTime(swap.lastActivity)}
-                </Text>
-              </Box>
             </Box>
 
             <SwapFlagConfirm
