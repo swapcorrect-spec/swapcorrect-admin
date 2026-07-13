@@ -80,7 +80,7 @@ const Login: React.FC = () => {
               label="Password"
             />
             <Box display="flex" justifyContent="flex-end" pt={2}>
-              <Link color="#898989" fontSize="xs" w="fit-content" asChild>
+              <Link color="#898989" fontWeight={600}  textDecoration="underline" fontSize="xs" w="fit-content" asChild>
                 <RouterLink to={"/forgot-password"}>
                   Forgot Password
                 </RouterLink>

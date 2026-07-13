@@ -4729,9 +4729,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"swapshop-fe-admin@workspace:.":
+"swapcorrect-fe-admin@workspace:.":
   version: 0.0.0-use.local
-  resolution: "swapshop-fe-admin@workspace:."
+  resolution: "swapcorrect-fe-admin@workspace:."
   dependencies:
     "@chakra-ui/icons": "npm:^2.2.4"
     "@chakra-ui/react": "npm:^3.21.1"
