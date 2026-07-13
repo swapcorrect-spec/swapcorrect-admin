@@ -70,7 +70,7 @@ export const LogoutConfirmDialog: FC<LogoutConfirmDialogProps> = ({
             </Flex>
             <Dialog.Body p={0} mb={6}>
               <Text color="#737373" fontSize="sm" lineHeight="tall" textAlign="center">
-                You will be signed out of SwapShop Admin. You will need to log
+                You will be signed out of SwapCorrect Admin. You will need to log
                 in again to continue.
               </Text>
             </Dialog.Body>

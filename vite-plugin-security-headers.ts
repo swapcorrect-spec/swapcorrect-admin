@@ -20,7 +20,7 @@ export const securityHeadersPlugin = ({
   const headers = securityHeaders(csp);
 
   return {
-    name: "swapshop-security-headers",
+    name: "swapcorrect-security-headers",
     transformIndexHtml(html) {
       const cspMeta = `<meta http-equiv="Content-Security-Policy" content="${csp}" />`;
 

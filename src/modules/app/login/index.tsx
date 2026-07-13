@@ -50,8 +50,8 @@ const Login: React.FC = () => {
 
   return (
     <AuthForm
-      title="Welcome Back, Swapper!"
-      subtitle="Log in to continue your swap journey."
+      title="Welcome Back, Admin!"
+      subtitle="Login to continue your admin work."
     >
       {/* <Button variant={"secondary"} className="w-full py-6 border-[#EEEEEE] border text-[#000000] font-medium text-lg">
         <GoogleIcon style={{ width: "30px", height: "30px" }} /> Continue with Google
