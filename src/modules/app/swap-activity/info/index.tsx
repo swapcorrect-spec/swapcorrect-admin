@@ -1,13 +1,13 @@
 import { Box, Text, Flex } from "@chakra-ui/react";
 import { useState } from "react";
 import PageLayout from "~/modules/layout/page-layout";
-import { Button, PageHeaderWithBack, QueryState, Tab } from "~/modules/shared";
+import { PageHeaderWithBack, QueryState, Tab } from "~/modules/shared";
 import ProfileInfo from "~/modules/shared/widgets/profile_info";
-import { ArrowLeft, ArrowRight, Flag } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { formatDateTime, getSwapStatusStyles } from "~/modules/util";
 import { useParams } from "react-router";
 import {
-  useGetSwapChatHistory,
+  // useGetSwapChatHistory,
   useGetSwapProceeding,
 } from "~/hooks/queries/swap-activity/swap-activity";
 import type { SwapDetailsProps } from "~/types/base";
@@ -98,75 +98,75 @@ const ParticipantBlock = ({
   </Box>
 );
 
-const ChatHistoryPanel = ({
-  swapProceedId,
-}: {
-  swapProceedId: string;
-}) => {
-  const {
-    data: chatMessages,
-    isLoading,
-    isFetching,
-    isError,
-    error,
-    refetch,
-  } = useGetSwapChatHistory({
-    swapProceedId,
-    enabler: !!swapProceedId,
-  });
+// const ChatHistoryPanel = ({
+//   swapProceedId,
+// }: {
+//   swapProceedId: string;
+// }) => {
+//   const {
+//     data: chatMessages,
+//     isLoading,
+//     isFetching,
+//     isError,
+//     error,
+//     refetch,
+//   } = useGetSwapChatHistory({
+//     swapProceedId,
+//     enabler: !!swapProceedId,
+//   });
 
-  return (
-    <QueryState
-      isLoading={isLoading || isFetching}
-      isError={isError}
-      error={error}
-      onRetry={() => refetch()}
-      isEmpty={chatMessages.length === 0}
-      emptyProps={{
-        title: "No chat history",
-        description: "There are no chat messages for this swap yet.",
-      }}
-      errorProps={{
-        title: "Could not load chat history",
-        description:
-          "We had trouble fetching the chat history for this swap. Please try again.",
-      }}
-      loadingMinH="260px"
-    >
-      <Flex direction="column" gap={3} mt={6}>
-        {chatMessages.map((message) => (
-          <Box
-            key={message.id}
-            border="1px solid #E9E9E9"
-            borderRadius="lg"
-            bg="#fff"
-            p={4}
-          >
-            <Flex
-              align="center"
-              justify="space-between"
-              gap={3}
-              mb={2}
-              flexWrap="wrap"
-            >
-              <Text fontWeight={600} color="#222222">
-                {message.senderName}
-              </Text>
-              <Text fontSize="12px" color="#737373">
-                {message.createdAt
-                  ? formatDateTime(message.createdAt)
-                  : "Time unavailable"}
-              </Text>
-            </Flex>
-            <Text color="#444444" fontSize="14px" whiteSpace="pre-wrap">
-              {message.message}
-            </Text>
-          </Box>
-        ))}
-      </Flex>
-    </QueryState>
-  );
-};
+//   return (
+//     <QueryState
+//       isLoading={isLoading || isFetching}
+//       isError={isError}
+//       error={error}
+//       onRetry={() => refetch()}
+//       isEmpty={chatMessages.length === 0}
+//       emptyProps={{
+//         title: "No chat history",
+//         description: "There are no chat messages for this swap yet.",
+//       }}
+//       errorProps={{
+//         title: "Could not load chat history",
+//         description:
+//           "We had trouble fetching the chat history for this swap. Please try again.",
+//       }}
+//       loadingMinH="260px"
+//     >
+//       <Flex direction="column" gap={3} mt={6}>
+//         {chatMessages.map((message) => (
+//           <Box
+//             key={message.id}
+//             border="1px solid #E9E9E9"
+//             borderRadius="lg"
+//             bg="#fff"
+//             p={4}
+//           >
+//             <Flex
+//               align="center"
+//               justify="space-between"
+//               gap={3}
+//               mb={2}
+//               flexWrap="wrap"
+//             >
+//               <Text fontWeight={600} color="#222222">
+//                 {message.senderName}
+//               </Text>
+//               <Text fontSize="12px" color="#737373">
+//                 {message.createdAt
+//                   ? formatDateTime(message.createdAt)
+//                   : "Time unavailable"}
+//               </Text>
+//             </Flex>
+//             <Text color="#444444" fontSize="14px" whiteSpace="pre-wrap">
+//               {message.message}
+//             </Text>
+//           </Box>
+//         ))}
+//       </Flex>
+//     </QueryState>
+//   );
+// };
 
 export const SwapActivityInfo = () => {
   const { swapId: swapProceedId } = useParams<{ swapId: string }>();
@@ -198,20 +198,20 @@ export const SwapActivityInfo = () => {
   const listedItems = normalizeItems(swap?.listedItem);
   const requestItems = normalizeItems(swap?.swapperRequestItem);
 
-  const openFlag = () => {
-    if (!swap) return;
+  // const openFlag = () => {
+  //   if (!swap) return;
 
-    setSelectedSwap({
-      swapProceedId: swap.swapProceedId,
-      ownerName: swap.visitorName,
-      swapperName: swap.swapperName,
-      ownerItem: listedItems.join(", ") || "N/A",
-      swapperItem: requestItems.join(", ") || "N/A",
-      status: swap.status,
-      isFlagged: swap.isFlagged ?? false,
-    });
-    setFlagOpen(true);
-  };
+  //   setSelectedSwap({
+  //     swapProceedId: swap.swapProceedId,
+  //     ownerName: swap.visitorName,
+  //     swapperName: swap.swapperName,
+  //     ownerItem: listedItems.join(", ") || "N/A",
+  //     swapperItem: requestItems.join(", ") || "N/A",
+  //     status: swap.status,
+  //     isFlagged: swap.isFlagged ?? false,
+  //   });
+  //   setFlagOpen(true);
+  // };
 
   const closeFlag = () => {
     setFlagOpen(false);
