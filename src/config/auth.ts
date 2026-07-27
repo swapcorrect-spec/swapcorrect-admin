@@ -17,7 +17,22 @@ const AuthLocalStorageObject = {
   session_id: "session_id",
 };
 
+type AuthListener = () => void;
+
+const listeners = new Set<AuthListener>();
+
+const notifyAuthListeners = () => {
+  listeners.forEach((listener) => listener());
+};
+
 export class Auth {
+  static subscribe(listener: AuthListener) {
+    listeners.add(listener);
+    return () => {
+      listeners.delete(listener);
+    };
+  }
+
   static setToken(token: string) {
     localStorage.setItem(AuthLocalStorageObject.access, token);
     Cookies.set(access_token_key, token, {
@@ -25,14 +40,30 @@ export class Auth {
       secure: true,
       sameSite: "Strict",
     });
+    notifyAuthListeners();
   }
 
   static setRefreshToken(token: string) {
     localStorage.setItem(AuthLocalStorageObject.refresh, token);
+    notifyAuthListeners();
+  }
+
+  static setAuthTokens(accessToken: string, refreshToken?: string | null) {
+    localStorage.setItem(AuthLocalStorageObject.access, accessToken);
+    Cookies.set(access_token_key, accessToken, {
+      expires: 1,
+      secure: true,
+      sameSite: "Strict",
+    });
+    if (refreshToken) {
+      localStorage.setItem(AuthLocalStorageObject.refresh, refreshToken);
+    }
+    notifyAuthListeners();
   }
 
   static setSessionToken(session_id: string) {
     localStorage.setItem(AuthLocalStorageObject.session_id, session_id);
+    notifyAuthListeners();
   }
 
   static setCookieToken(token: string) {
@@ -53,17 +84,10 @@ export class Auth {
     }
   }
 
-  // static getToken() {
-  //   const encryptedToken = Cookies.get(access_token_key);
-  //   if (encryptedToken) {
-  //     const decryptedToken = Auth.decryptValue(encryptedToken, access_token_key);
-
-  //     return decryptedToken;
-  //   }
-  // }
   static getToken() {
     return localStorage.getItem(AuthLocalStorageObject.access);
   }
+
   static getRefreshToken() {
     return localStorage.getItem(AuthLocalStorageObject.refresh);
   }
@@ -103,13 +127,20 @@ export class Auth {
 
   static isAuthenticated() {
     try {
-      const decodedToken = this.getDecodedJwt();
+      const token = this.getToken();
+      if (!token) return false;
+
+      const decodedToken = this.getDecodedJwt(token);
       const hasProperties = decodedToken && Object.keys(decodedToken).length > 0;
       if (hasProperties) {
         const { exp } = decodedToken;
         const currentTime = Date.now() / 1000;
         if (exp) {
-          return exp > currentTime;
+          // Still treat as authenticated if we have a refresh token to renew with
+          if (exp <= currentTime) {
+            return !!this.getRefreshToken();
+          }
+          return true;
         }
         return true;
       }
@@ -118,6 +149,10 @@ export class Auth {
     } catch (_e) {
       return false;
     }
+  }
+
+  static hasSession() {
+    return !!this.getToken() || !!this.getRefreshToken();
   }
 
   static removeToken() {
@@ -131,5 +166,6 @@ export class Auth {
     localStorage.removeItem(AuthLocalStorageObject.session_id);
     Cookies.remove(access_token_key, { path: "/" });
     Cookies.remove("access_token_key", { path: "/" });
+    notifyAuthListeners();
   }
 }

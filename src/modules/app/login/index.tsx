@@ -9,15 +9,19 @@ import { PATHS } from "~/modules/_constants/paths";
 import  {  type loginPayload } from "./_validation";
 import AuthForm from "~/modules/shared/AuthForm";
 import { Button, Input, PasswordInput } from "~/modules/shared";
-import { Auth } from "~/config/auth";
+import { useAuth } from "~/context/auth-context";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { setAuthTokens } = useAuth();
   const { mutate, isPending } = useLogin({
-    onSuccess(_val: { displayMessage: string; result: { jwt: string } }) {
+    onSuccess(_val: {
+      displayMessage: string;
+      result: { jwt: string; refreshToken?: string };
+    }) {
       toast.success(_val.displayMessage, {
         onAutoClose: () => {
-          Auth.setToken(_val.result.jwt);
+          setAuthTokens(_val.result.jwt, _val.result.refreshToken);
           navigate(`${PATHS.DASHBOARD}`);
         },
       });

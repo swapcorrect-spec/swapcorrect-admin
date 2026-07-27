@@ -10,9 +10,17 @@ export interface ILoginResponse {
   displayMessage: string;
   result: {
     jwt: string;
+    refreshToken?: string;
     userRole: Array<"Visitor">;
   };
   errorMessages: string | null;
+}
+
+export interface ILogoutResponse {
+  statusCode: number;
+  displayMessage: string;
+  result: string | null;
+  errorMessages: null | string | string[];
 }
 
 export type ForgotPassword = {

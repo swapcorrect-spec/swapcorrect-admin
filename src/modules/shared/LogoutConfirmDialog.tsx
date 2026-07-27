@@ -27,7 +27,7 @@ export const LogoutConfirmDialog: FC<LogoutConfirmDialogProps> = ({
       open={open}
       placement="center"
       onOpenChange={(details) => {
-        if (!details.open) onClose();
+        if (!details.open && !isLoading) onClose();
       }}
       role="alertdialog"
     >

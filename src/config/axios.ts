@@ -1,5 +1,4 @@
-import axios, { type InternalAxiosRequestConfig } from "axios";
-
+import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { Auth } from "~/config/auth";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
@@ -8,19 +7,34 @@ export const API = axios.create({
   baseURL: BASE_URL + "/api",
 });
 
+type RetryConfig = InternalAxiosRequestConfig & { _retry?: boolean };
+
+let isRefreshing = false;
+let refreshQueue: Array<{
+  resolve: (token: string) => void;
+  reject: (error: unknown) => void;
+}> = [];
+
+const processQueue = (error: unknown, token: string | null = null) => {
+  refreshQueue.forEach(({ resolve, reject }) => {
+    if (error || !token) {
+      reject(error);
+    } else {
+      resolve(token);
+    }
+  });
+  refreshQueue = [];
+};
+
 API.interceptors.request.use(
   (config: InternalAxiosRequestConfig<unknown>) => {
-    if (Auth.isAuthenticated()) {
-      config.headers["Authorization"] = `Bearer ${Auth.getToken()}`;
+    const token = Auth.getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      Auth.removeToken(); // Call the logout function
-    }
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 API.interceptors.response.use(
@@ -30,47 +44,79 @@ API.interceptors.response.use(
     }
     return response;
   },
-  async (error) => {
-    const originalRequest = error.config;
+  async (error: AxiosError) => {
+    const originalRequest = error.config as RetryConfig | undefined;
 
-    if (error?.response?.status === 401 && !originalRequest?._retry) {
-      originalRequest._retry = true;
-      const refreshToken = Auth.getRefreshToken();
+    if (!originalRequest || error.response?.status !== 401) {
+      return Promise.reject(error);
+    }
 
-      if (!Auth.getToken()) {
-        Auth.removeToken(); // Call the logout function
-        return Promise.reject(error);
-      }
+    if (originalRequest.url?.includes("/auth/user/logout")) {
+      return Promise.reject(error);
+    }
 
-      originalRequest.headers["Authorization"] = `Bearer ${Auth.getToken()}`;
+    if (originalRequest.url?.includes("/auth/user/refresh-token")) {
+      Auth.removeToken();
+      return Promise.reject(error);
+    }
 
-      try {
-        const response = await axios.post(BASE_URL + "/api/v1" + "/auth/token/refresh/", {
-          refresh: refreshToken,
+    if (originalRequest._retry) {
+      Auth.removeToken();
+      return Promise.reject(error);
+    }
+
+    const refreshToken = Auth.getRefreshToken();
+    if (!refreshToken) {
+      Auth.removeToken();
+      return Promise.reject(error);
+    }
+
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        refreshQueue.push({
+          resolve: (token: string) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            resolve(API(originalRequest));
+          },
+          reject,
         });
+      });
+    }
 
-        if (response.status > 300) {
-          Auth.removeToken(); // Call the logout function
-          return Promise.reject(error);
+    originalRequest._retry = true;
+    isRefreshing = true;
+
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/api/auth/user/refresh-token`,
+        { refreshToken },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
         }
-        const newToken = response?.data.access;
-        Auth.setToken(newToken || "");
-        originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
-        return API(originalRequest);
-      } catch (error) {
-        Auth.removeToken(); // Call the logout function
-        return Promise.reject(error);
-      }
-    }
-    if (error?.response?.status === 401 && originalRequest?._retry) {
-      Auth.removeToken(); // Call the logout function
-      return Promise.reject(error);
-    }
-    if (error?.response?.status === 403) {
-      Auth.removeToken(); // Call the logout function
-      return Promise.reject(error);
-    }
+      );
 
-    return Promise.reject(error);
+      const newAccessToken = response?.data?.result?.jwt as string | undefined;
+      const newRefreshToken = response?.data?.result?.refreshToken as
+        | string
+        | undefined;
+
+      if (!newAccessToken) {
+        throw new Error("No access token returned from refresh");
+      }
+
+      Auth.setAuthTokens(newAccessToken, newRefreshToken);
+      processQueue(null, newAccessToken);
+      originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+      return API(originalRequest);
+    } catch (refreshError) {
+      processQueue(refreshError, null);
+      Auth.removeToken();
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
+    }
   }
 );

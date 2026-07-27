@@ -2,6 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
   LoginPayload,
   ILoginResponse,
+  ILogoutResponse,
   ForgotPasswordPayload,
   IFogotPasswordResponse,
   ResetPasswordPayload,
@@ -14,6 +15,7 @@ import type {
 import handleApiError from "~/utils/handle-api-error";
 import { postRequest, getRequest, getRequestParams, putRequest } from "~/config/request-methods";
 import type { MutationProps } from "~/types/mutation-prop-types";
+import { Auth } from "~/config/auth";
 
 export const GENERAL_USER_INFO = "GENERAL_USER_INFO";
 
@@ -176,5 +178,37 @@ export const useGetGeneralUserInfo = (props: { userId: string; enabler: boolean 
     error,
     isSuccess,
     refetch,
+  };
+};
+
+export const useLogoutApi = (props?: MutationProps) => {
+  const { onSuccess, onError } = props || {};
+
+  const { mutate, mutateAsync, isError, isSuccess, isPending } = useMutation({
+    mutationFn: async () => {
+      const token = Auth.getToken();
+      return postRequest<Record<string, never>, ILogoutResponse>({
+        url: "/auth/user/logout",
+        payload: {},
+        config: {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        },
+      });
+    },
+    onSuccess(values) {
+      onSuccess?.(values);
+    },
+    onError(err) {
+      const msgError = handleApiError(err);
+      onError?.(msgError, err);
+    },
+  });
+
+  return {
+    mutate,
+    mutateAsync,
+    isError,
+    isSuccess,
+    isPending,
   };
 };

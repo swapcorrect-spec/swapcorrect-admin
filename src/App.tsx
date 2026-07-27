@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Routes from "./modules/routes";
 import { Toaster } from "sonner";
+import { AuthProvider } from "./context/auth-context";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,10 +18,12 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Routes />
-      <Outlet />
-      <Toaster position="top-right" closeButton />
-      <ReactQueryDevtools initialIsOpen={false} />
+      <AuthProvider>
+        <Routes />
+        <Outlet />
+        <Toaster position="top-right" closeButton />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
