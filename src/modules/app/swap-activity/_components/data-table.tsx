@@ -1,225 +1,152 @@
 "use client";
 
-import { Text, Flex, Box, Image } from "@chakra-ui/react";
+import { Text, Box } from "@chakra-ui/react";
 import { TableComponent } from "~/modules/shared/table";
 import type { SwapActivityData } from "~/types/base";
-import { createImageErrorHandler, formatDateTime, getImageSrcWithFallback, getStatusStyles } from "~/modules/util";
-import { ArrowLeft, ArrowRight, Flag, OctagonAlert, Book } from "lucide-react";
+import { formatDateTime, getSwapStatusStyles } from "~/modules/util";
+import { Book } from "lucide-react";
 import { MenuItem, Menu } from "~/modules/shared";
 import { useNavigate } from "react-router";
 import { PATHS } from "~/modules/_constants/paths";
-import { useState } from "react";
-import user from "~/assets/images/user.png";
+import { toast } from "sonner";
 
+type SwapActivityTableRow = SwapActivityData;
+type SwapActivityColumn = keyof SwapActivityTableRow;
 
-interface iProps {
-  data?: any;
+interface SwapActivityTableProps {
+  data?: SwapActivityTableRow[];
   currentPage: number;
   onPageChange: (value: number) => void;
   totalPages: number;
   loading: boolean;
+  emptyDescription?: string;
 }
 
-const SwapActivityTable: React.FC<iProps> = ({
-  data,
+const COLUMN_ORDER: SwapActivityColumn[] = [
+  "ownerName",
+  "ownerItem",
+  "swapperName",
+  "swapperItem",
+  "status",
+  "initiatedOn",
+  "lastActivity",
+  "action",
+];
+
+const COLUMN_LABELS: Partial<Record<SwapActivityColumn, string>> = {
+  ownerName: "Owner",
+  ownerItem: "Owner Item",
+  swapperName: "Swapper",
+  swapperItem: "Swapper Item",
+  status: "Status",
+  initiatedOn: "Date Initiated",
+  lastActivity: "Last Activity",
+  action: "",
+};
+
+const SwapActivityTable: React.FC<SwapActivityTableProps> = ({
+  data = [],
   currentPage,
   onPageChange,
   totalPages,
   loading,
+  emptyDescription,
 }) => {
   const navigate = useNavigate();
-  const [profileImageError, setProfileImageError] = useState(false);
+
   const textProps = {
     color: "#737373",
     fontWeight: 500,
     fontSize: "14px",
+    whiteSpace: "nowrap" as const,
   };
 
-  // Generate consistent color based on name
-  const getAvatarColor = (name: string): string => {
-    if (!name) return "#007AFF";
-    const colors = [
-      "#007AFF", // Blue
-      "#34C759", // Green
-      "#FF9500", // Orange
-      "#FF3B30", // Red
-      "#AF52DE", // Purple
-      "#FF2D55", // Pink
-      "#5AC8FA", // Light Blue
-      "#FFCC00", // Yellow
-      "#5856D6", // Indigo
-      "#FF9500", // Orange
-    ];
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-      hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return colors[Math.abs(hash) % colors.length];
+  const nameTextProps = {
+    ...textProps,
+    color: "#222222",
   };
 
   const cellRenderers = {
-    swappers: (item: SwapActivityData) => (
-      <Flex gap="4px" alignItems="center">
-        <Box
-          w="fit-content"
-          display="flex"
-          height="32px"
-          width="32px"
-          borderRadius="full"
-          overflow="hidden"
-        >
-        <Image
-            src={getImageSrcWithFallback(
-              item.swapperImage || "",
-              profileImageError || !item.swapperImage,
-              user
-            )}
-            alt="Owner Avatar"
-            borderRadius="full"
-            height="100%"
-            width="100%"
-            onError={createImageErrorHandler(setProfileImageError)}
-          />
-        </Box>
-        <Text {...textProps} color={"#222222"}>
-          {item?.swapperOne || "N/A"}
-        </Text>
-  
-        <ArrowLeft size={16} color="#737373" />
-        <ArrowRight size={16} color="#737373" />
-        <Box
-          w="fit-content"
-          display="flex"
-          height="32px"
-          width="32px"
-          borderRadius="full"
-          overflow="hidden"
-        >
-        <Image
-            src={getImageSrcWithFallback(
-              item.visitorImage || "",
-              profileImageError || !item.visitorImage,
-              user
-            )}
-            alt="Owner Avatar"
-            borderRadius="full"
-            height="100%"
-            width="100%"
-            onError={createImageErrorHandler(setProfileImageError)}
-          />
-        </Box>
-        <Text {...textProps} color={"#222222"}>
-          {item?.swapperTwo || "N/A"}
-        </Text>
-      </Flex>
+    ownerName: (item: SwapActivityTableRow) => (
+      <Text {...nameTextProps}>{item.ownerName || "N/A"}</Text>
     ),
-    listedItems: (item: SwapActivityData) => (
-      <Flex alignItems="center" gap="4px">
-        <Text {...textProps} color={"#222222"}>
-          {item?.listedItem || "N/A"}
-        </Text>
-      </Flex>
+    ownerItem: (item: SwapActivityTableRow) => (
+      <Text {...nameTextProps} maxW="220px" truncate title={item.ownerItem}>
+        {item.ownerItem || "N/A"}
+      </Text>
     ),
-    items: (item: SwapActivityData) => (
-      <Flex alignItems="center" gap="4px">
-        <Text {...textProps} color={"#222222"}>
-          {item?.itemOne || "N/A"}
-        </Text>
-        <ArrowLeft size={16} color="#737373" />
-        <ArrowRight size={16} color="#737373" />
-        <Text {...textProps} color={"#222222"}>
-          {item?.itemTwo || "N/A"}
-        </Text>
-      </Flex>
+    swapperName: (item: SwapActivityTableRow) => (
+      <Text {...nameTextProps}>{item.swapperName || "N/A"}</Text>
     ),
-    status: (item: SwapActivityData) => {
-      const { borderColor, bg, textColor } = getStatusStyles(
-        item?.status?.toLowerCase() || "pending"
-      );
+    swapperItem: (item: SwapActivityTableRow) => (
+      <Text {...nameTextProps} maxW="220px" truncate title={item.swapperItem}>
+        {item.swapperItem || "N/A"}
+      </Text>
+    ),
+    status: (item: SwapActivityTableRow) => {
+      const { borderColor, bg, textColor } = getSwapStatusStyles(item.status);
       return (
         <Text
+          border="1px solid"
           borderColor={borderColor}
           bg={bg}
           color={textColor}
           py="5px"
           px="17px"
           borderRadius="37.74px"
-          width={"fit-content"}
+          width="fit-content"
+          fontWeight={500}
+          fontSize="13px"
+          whiteSpace="nowrap"
         >
-          {item?.status || "N/A"}
+          {item.status || "N/A"}
         </Text>
       );
     },
-    createdAt: (item: SwapActivityData) => (
+    initiatedOn: (item: SwapActivityTableRow) => (
       <Text {...textProps}>
-        {item?.createdAt ? formatDateTime(item.createdAt) : "N/A"}
+        {item.initiatedOn ? formatDateTime(item.initiatedOn) : "N/A"}
       </Text>
     ),
-    updatedAt: (item: SwapActivityData) => (
+    lastActivity: (item: SwapActivityTableRow) => (
       <Text {...textProps}>
-        {item?.updatedAt ? formatDateTime(item.updatedAt) : "N/A"}
+        {item.lastActivity ? formatDateTime(item.lastActivity) : "N/A"}
       </Text>
     ),
-    action: (item: SwapActivityData) => (
+    action: (item: SwapActivityTableRow) => (
       <Menu>
-        <Box>
+        <Box onClick={(event) => event.stopPropagation()}>
           <MenuItem
             label="View details"
             icon={<Book size={20} />}
-            onClick={() => navigate(`${PATHS.SWAPACTIVITY}/${item.swapProceedId}`)}
+            onClick={() => {
+              if (!item.swapProceedId) {
+                toast.error("Swap details are not available for this record.");
+                return;
+              }
+              navigate(`${PATHS.SWAPACTIVITY}/${item.swapProceedId}`);
+            }}
             value="view"
             styleProps={{ color: "#222222" }}
-          />
-          <MenuItem
-            label="Warn users"
-            icon={<OctagonAlert size={20} />}
-            onClick={() => console.log("View")}
-            value="warn"
-            styleProps={{ color: "#222222" }}
-          />
-          <MenuItem
-            label="Flag Swap"
-            icon={<Flag size={20} />}
-            onClick={() => console.log("Flag")}
-            value="flag"
-            styleProps={{ color: "#E42222" }}
           />
         </Box>
       </Menu>
     ),
   };
 
-  const columnOrder: (keyof SwapActivityData)[] = [
-    "swappers",
-    "listedItem",
-    "items",
-    "status",
-    "createdAt",
-    "updatedAt",
-    "action",
-  ];
-
-  const columnLabels = {
-    swappers: "Swappers",
-    listedItem: "Listed Item(s)",
-    items: "Items",
-    status: "Status",
-    createdAt: "Date Initiated",
-    updatedAt: "Last Activity",
-    action: "",
-  };
-
   return (
     <>
-      <TableComponent<SwapActivityData>
-        tableData={data || []}
+      <TableComponent<SwapActivityTableRow>
+        tableData={data}
         currentPage={currentPage}
         onPageChange={onPageChange}
         totalPages={totalPages || 1}
         cellRenderers={cellRenderers}
-        columnOrder={columnOrder}
-        columnLabels={columnLabels}
+        columnOrder={COLUMN_ORDER}
+        columnLabels={COLUMN_LABELS}
         isLoading={loading}
+        scrollable
+        emptyDescription={emptyDescription}
       />
     </>
   );

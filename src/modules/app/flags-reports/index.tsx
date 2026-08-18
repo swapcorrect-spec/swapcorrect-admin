@@ -1,114 +1,140 @@
-import { Flex } from "@chakra-ui/react";
+import { Flex, Grid } from "@chakra-ui/react";
 import PageLayout from "~/modules/layout/page-layout";
-import { Header, Select } from "~/modules/shared";
+import { Header, Input, QueryState, Select } from "~/modules/shared";
 import { useState } from "react";
 import FlagsAndReportTable from "./_components/data-table";
+import {
+  mapReportToTableRow,
+  useGetReports,
+} from "~/hooks/queries/report/report";
+import {
+  REPORT_DATE_FILTER_OPTIONS,
+  REPORT_STATUS_OPTIONS,
+  type ReportDateFilter,
+  type ReportUserStatus,
+} from "~/hooks/queries/report/report.type";
+import { useDebouncedValue } from "~/hooks/useDebouncedValue";
 
 export const FlagsAndReports = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
+  const [userIdInput, setUserIdInput] = useState("");
+  const [status, setStatus] = useState<ReportUserStatus>("All");
+  const [reportFilerDate, setReportFilerDate] =
+    useState<ReportDateFilter>("All");
+
+  const debouncedSearch = useDebouncedValue(searchInput, 400);
+  const debouncedUserId = useDebouncedValue(userIdInput, 400);
+
+  const resetPage = () => setCurrentPage(1);
+
   const onPageChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  const reportsData = [
-    {
-      reporter: "Alice Johnson",
-      type: "User Misconduct",
-      reportedEntity: "John Doe",
-      status: "New",
-      reason: "Spamming inappropriate messages",
-      createdAt: "2025-07-09T10:50:00Z",
-    },
-    {
-      reporter: "David Smith",
-      type: "Fraudulent Activity",
-      reportedEntity: "Mike Taylor",
-      status: "Resolved",
-      reason: "Reported for multiple failed payments",
-      createdAt: "2025-07-09T10:50:00Z",
-    },
-    {
-      reporter: "Olivia Green",
-      type: "Abuse",
-      reportedEntity: "Chris Brown",
-      status: "Dismissed",
-      reason: "Insufficient evidence to proceed",
-      createdAt: "2025-07-09T10:50:00Z",
-    },
-    {
-      reporter: "James Carter",
-      type: "System Exploit",
-      reportedEntity: "Emma White",
-      status: "Under Review",
-      reason: "Suspected API abuse for swapping",
-      createdAt: "2025-07-09T10:50:00Z",
-    },
-    {
-      reporter: "Sophia Turner",
-      type: "Scam Attempt",
-      reportedEntity: "Mark Allen",
-      status: "New",
-      reason: "Attempted to trade counterfeit items",
-      createdAt: "2025-07-09T10:50:00Z",
-    },
-    {
-      reporter: "Ethan Brooks",
-      type: "User Misconduct",
-      reportedEntity: "Grace Walker",
-      status: "Resolved",
-      reason: "User apologized and warning issued",
-      createdAt: "2025-07-09T10:50:00Z",
-    },
-    {
-      reporter: "Liam Davis",
-      type: "Fraudulent Activity",
-      reportedEntity: "Noah Adams",
-      status: "Dismissed",
-      reason: "Case closed after investigation",
-      createdAt: "2025-07-09T10:50:00Z",
-    },
-    {
-      reporter: "Isabella Scott",
-      type: "Abuse",
-      reportedEntity: "Lucas Hill",
-      status: "Under Review",
-      reason: "Reported for verbal abuse in chats",
-      createdAt: "2025-07-09T10:50:00Z",
-    },
-    {
-      reporter: "Mason Lee",
-      type: "Scam Attempt",
-      reportedEntity: "Henry Wright",
-      status: "New",
-      reason: "Fake payment screenshot submitted",
-      createdAt: "2025-07-09T10:50:00Z",
-    },
-    {
-      reporter: "Zoe Thompson",
-      type: "System Exploit",
-      reportedEntity: "Ava King",
-      status: "Resolved",
-      reason: "Exploit patched and account restored",
-      createdAt: "2025-07-09T10:50:00Z",
-    },
-  ];
+  const {
+    data: reportsData,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    refetch,
+  } = useGetReports({
+    enabler: true,
+    searhParam: debouncedSearch,
+    status,
+    reportFilerDate,
+    userId: debouncedUserId,
+    pageNumber: currentPage,
+    perpageSize: 20,
+  });
+
+  const reportsItems = (reportsData?.items ?? []).map(mapReportToTableRow);
 
   return (
     <PageLayout>
       <Flex justifyContent="space-between" alignItems="center" mb={7}>
         <Header
-          title="Recent Activity"
-          description="Monitor and manage all swaps between users on the platform"
+          title="Flags & Reports"
+          description="Monitor and manage all flags and reports on the platform"
         />
       </Flex>
 
-      <FlagsAndReportTable
-        data={reportsData}
-        currentPage={currentPage}
-        onPageChange={onPageChange}
-        totalPages={30}
-        loading={false}
-      />
+      <Grid
+        templateColumns="minmax(0, 1fr) minmax(0, 1fr) 180px 180px"
+        gap={4}
+        mb={6}
+        alignItems="end"
+      >
+        <Input
+          type="search"
+          name="report-search"
+          placeholder="Search reports"
+          value={searchInput}
+          handleChange={(e) => {
+            setSearchInput(e.target.value);
+            resetPage();
+          }}
+        />
+        <Input
+          type="search"
+          name="report-user-id"
+          placeholder="Filter by user ID"
+          value={userIdInput}
+          handleChange={(e) => {
+            setUserIdInput(e.target.value);
+            resetPage();
+          }}
+        />
+        <Select
+          name="report-status"
+          placeholder="Status"
+          options={REPORT_STATUS_OPTIONS}
+          value={status}
+          onChange={(value) => {
+            setStatus(value as ReportUserStatus);
+            resetPage();
+          }}
+          width="100%"
+        />
+        <Select
+          name="report-date-filter"
+          placeholder="Date"
+          options={REPORT_DATE_FILTER_OPTIONS}
+          value={reportFilerDate}
+          onChange={(value) => {
+            setReportFilerDate(value as ReportDateFilter);
+            resetPage();
+          }}
+          width="100%"
+        />
+      </Grid>
+
+      <QueryState
+        isLoading={isLoading || isFetching}
+        isError={isError}
+        error={error}
+        onRetry={() => refetch()}
+        isEmpty={!isLoading && !isFetching && reportsItems.length === 0}
+        emptyProps={{
+          title: "No reports yet",
+          description:
+            "There are no flags or reports to show. New reports will appear here when users file them.",
+        }}
+        errorProps={{
+          title: "Could not load reports",
+          description: "We had trouble fetching flags and reports. Please try again.",
+        }}
+      >
+        <FlagsAndReportTable
+          data={reportsItems}
+          currentPage={currentPage}
+          onPageChange={onPageChange}
+          totalPages={reportsData?.totalPages || 1}
+          loading={false}
+          emptyDescription="No flags or reports match your current filters."
+        />
+      </QueryState>
     </PageLayout>
   );
 };

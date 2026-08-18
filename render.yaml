@@ -1,0 +1,17 @@
+# Render blueprint — Static Site (recommended for Vite SPAs)
+# Dashboard: New > Static Site > connect repo > Render reads this file.
+services:
+  - type: web
+    name: swapshop-fe-admin
+    runtime: static
+    buildCommand: corepack enable && yarn install && yarn build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false
+      - key: VITE_APP_ACCESS_TOKEN
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

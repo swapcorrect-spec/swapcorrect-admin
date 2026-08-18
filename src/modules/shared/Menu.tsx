@@ -21,7 +21,7 @@ export const Menu: React.FC<iMenu> = ({
         {trigger}
       </ChakraMenu.Trigger>
       <ChakraMenu.Positioner>
-        <ChakraMenu.Content p={4} minH="100px" minW="210px" h="full">
+        <ChakraMenu.Content p={4} minW="210px" w="auto">
           {children}
         </ChakraMenu.Content>
       </ChakraMenu.Positioner>

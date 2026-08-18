@@ -10,9 +10,17 @@ export interface ILoginResponse {
   displayMessage: string;
   result: {
     jwt: string;
+    refreshToken?: string;
     userRole: Array<"Visitor">;
   };
   errorMessages: string | null;
+}
+
+export interface ILogoutResponse {
+  statusCode: number;
+  displayMessage: string;
+  result: string | null;
+  errorMessages: null | string | string[];
 }
 
 export type ForgotPassword = {
@@ -42,6 +50,23 @@ export interface IResetPasswordResponse {
   result: string;
   errorMessages: null | string;
 }
+
+export type ChangeSignedInPassword = {
+  oldPassword: string;
+  newPassword: string;
+};
+
+export type ChangeSignedInPasswordPayload = Prettify<
+  BaseApiPayloadDto<ChangeSignedInPassword>
+>;
+
+export interface IChangeSignedInPasswordResponse {
+  statusCode: number;
+  displayMessage: string;
+  result: string;
+  errorMessages: null | string;
+}
+
 export interface IGetUserInfoResponseData {
   statusCode: 200;
   displayMessage: string;
@@ -82,6 +107,7 @@ export interface IGetGeneralUserInfoResponseData {
     userName: string;
     gender: string;
     isSuspendUser: boolean;
+    isSuspended?: boolean;
     isFlag: boolean;
     isTwoFactorEnable: boolean;
     lastLoginTime: string;

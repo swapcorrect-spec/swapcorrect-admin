@@ -21,7 +21,9 @@ type InputProps = {
     | "url"
     | "search"
     | "textarea";
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => void;
   error?: boolean;
   errorMessage?: string;
   variant?: "outline" | "subtle" | "flushed";
@@ -73,9 +75,12 @@ export const Input: FC<InputProps> = ({
         <Textarea
           placeholder={placeholder}
           name={name}
+          value={value}
           variant={variant}
           resize={resize}
           size={size}
+          onChange={handleChange}
+          {...rest}
         />
       ) : (
         <InputGroup

@@ -10,18 +10,51 @@ import {
 } from "~/assets/images";
 import PageLayout from "~/modules/layout/page-layout";
 import { Header, Select } from "~/modules/shared";
-import { Box, Flex, Text, Grid, Skeleton, Button } from "@chakra-ui/react";
+import { Box, Flex, Text, Grid, Skeleton } from "@chakra-ui/react";
 import { Link } from "react-router";
 import InfoCard from "~/modules/shared/widgets/info_card";
 import { ChevronRight } from "lucide-react";
 import { PATHS } from "~/modules/_constants/paths";
 import { useGetDashboardSummary, useGetAdvancedAnalytics } from "~/hooks/queries/dashboard/dashboard";
+import type { MetricFilter, PeriodicFilter } from "~/hooks/queries/dashboard/dashboard.type";
 import { useGetRecentActivities } from "~/hooks/queries/activity/activity";
+import { useGetUserInfo } from "~/hooks/queries/auth/auth";
+import { Auth } from "~/config/auth";
+
+const METRIC_FILTER_OPTIONS: { value: MetricFilter; label: string }[] = [
+  { value: "All", label: "All Metrics" },
+  { value: "ActiveUsers", label: "Active Users" },
+  { value: "ApprovedListings", label: "Approved Listings" },
+  { value: "ActiveSwaps", label: "Active Swaps" },
+  { value: "CompletedSwaps", label: "Completed Swaps" },
+];
+
+const PERIODIC_FILTER_OPTIONS: { value: PeriodicFilter; label: string }[] = [
+  { value: "Today", label: "Today" },
+  { value: "ThisWeek", label: "This Week" },
+  { value: "ThisMonth", label: "This Month" },
+  { value: "AllTime", label: "All Time" },
+];
+
+const PERIODIC_CHART_LABELS: Record<PeriodicFilter, string> = {
+  Today: "Today",
+  ThisWeek: "1 Week Avg.",
+  ThisMonth: "This Month",
+  AllTime: "All Time",
+};
 
 const AnalyticsChart = lazy(() => import("./_components/AnalyticsChart").then(module => ({ default: module.AnalyticsChart })));
 
 export const Dashboard = () => {
-  const [filter, setFilter] = useState<"Today" | "ThisWeek" | "ThisMonth" | "AllTime">("Today");
+  const [filter, setFilter] = useState<PeriodicFilter>("Today");
+  const [analyticsMetricFilter, setAnalyticsMetricFilter] =
+    useState<MetricFilter>("All");
+  const [analyticsPeriodicFilter, setAnalyticsPeriodicFilter] =
+    useState<PeriodicFilter>("ThisWeek");
+
+  const { data: user } = useGetUserInfo({
+    enabler: Auth.isAuthenticated(),
+  });
 
   const { data, isLoading } = useGetDashboardSummary({
     enabler: true,
@@ -34,12 +67,12 @@ export const Dashboard = () => {
     pageSize: 7,
   });
 
-  const { data: analyticsData, isLoading: isLoadingAnalytics } = useGetAdvancedAnalytics({
-    enabler: true,
-    filter,
-  });
-
-  const [selectedMetric, setSelectedMetric] = useState(0);
+  const { data: analyticsData, isLoading: isLoadingAnalytics } =
+    useGetAdvancedAnalytics({
+      enabler: true,
+      metricFilter: analyticsMetricFilter,
+      periodicFilter: analyticsPeriodicFilter,
+    });
 
   const chartData = useMemo(() => {
     if (!analyticsData?.monthlySwaps) return [];
@@ -94,12 +127,18 @@ export const Dashboard = () => {
     },
   ], [data]);
 
+  const displayName = user
+    ? `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+      user.userName ||
+      "User"
+    : "User";
+
   return (
     <>
       <PageLayout>
         <Flex justifyContent="space-between" alignItems="center">
           <Header
-            title="Welcome, Kathleen"
+            title={`Welcome, ${displayName}`}
             description="Overview of your dashboard"
           />
           <Box w={"180px"}>
@@ -236,27 +275,34 @@ export const Dashboard = () => {
               borderBottom="1px solid #EAEAEA"
               py="20px"
               px="16px"
-              display="flex"
-              alignItems="center"
-              justifyContent="space-between"
             >
               <Text fontSize="20px" color="#222222" fontWeight={500}>
                 Advanced Analytics
               </Text>
-              <Box w="120px">
-                <Select
-                  name="analytics-filter"
-                  placeholder="Month"
-                  options={[
-                    { value: "Today", label: "Today" },
-                    { value: "ThisWeek", label: "This Week" },
-                    { value: "ThisMonth", label: "Month" },
-                    { value: "AllTime", label: "All Time" },
-                  ]}
-                  value={filter}
-                  onChange={(val) => setFilter(val as typeof filter)}
-                />
-              </Box>
+              <Flex gap={3} mt={4} flexWrap="wrap">
+                <Box minW="160px" flex="1">
+                  <Select
+                    name="analytics-metric-filter"
+                    placeholder="Metric"
+                    options={METRIC_FILTER_OPTIONS}
+                    value={analyticsMetricFilter}
+                    onChange={(val) =>
+                      setAnalyticsMetricFilter(val as MetricFilter)
+                    }
+                  />
+                </Box>
+                <Box minW="140px" flex="1">
+                  <Select
+                    name="analytics-periodic-filter"
+                    placeholder="Period"
+                    options={PERIODIC_FILTER_OPTIONS}
+                    value={analyticsPeriodicFilter}
+                    onChange={(val) =>
+                      setAnalyticsPeriodicFilter(val as PeriodicFilter)
+                    }
+                  />
+                </Box>
+              </Flex>
             </Box>
             <Box px="16px" py="20px">
               {isLoadingAnalytics ? (
@@ -267,32 +313,38 @@ export const Dashboard = () => {
               ) : (
                 <>
                   <Text fontSize="14px" color="#737373" mb="16px">
-                    Track monthly swap activity and performance metrics across different time periods
+                    Track monthly swap activity and performance metrics across
+                    different time periods
                   </Text>
-                  
-                  {/* Metric Tabs */}
+
                   <Flex gap="8px" mb="24px" flexWrap="wrap">
                     {analyticsData?.metrics?.map((metric, index) => (
-                      <Button
-                        key={index}
-                        size="sm"
-                        variant={selectedMetric === index ? "solid" : "outline"}
-                        colorScheme={selectedMetric === index ? "blue" : "gray"}
-                        onClick={() => setSelectedMetric(index)}
+                      <Box
+                        key={`${metric.name}-${index}`}
+                        px="12px"
+                        py="8px"
                         borderRadius="6px"
                         fontSize="12px"
                         fontWeight={500}
-                        px="12px"
-                        py="8px"
+                        border="1px solid #EAEAEA"
+                        bg="#F9FAFB"
+                        color="#222222"
                       >
-                        {metric.name} {Math.round(metric.percentage)}%
-                      </Button>
+                        {metric.name}{" "}
+                        <Text as="span" color="#737373">
+                          {metric.count} ({Math.round(metric.percentage)}%)
+                        </Text>
+                      </Box>
                     ))}
                   </Flex>
 
-                  {/* Chart */}
                   <Suspense fallback={<Skeleton height="250px" />}>
-                    <AnalyticsChart chartData={chartData} />
+                    <AnalyticsChart
+                      chartData={chartData}
+                      periodLabel={
+                        PERIODIC_CHART_LABELS[analyticsPeriodicFilter]
+                      }
+                    />
                   </Suspense>
                 </>
               )}

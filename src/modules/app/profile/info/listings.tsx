@@ -1,9 +1,13 @@
-import { Box, Text, Image, Flex, Skeleton, Spinner } from "@chakra-ui/react";
-import MomentAgo from "~/components/moment-ago";
+import { Box, Text, Image, Flex, Skeleton } from "@chakra-ui/react";
 import { getStatusStyles, createImageErrorHandler, getImageSrcWithFallback } from "~/modules/util";
-import type { ListingItem } from "~/hooks/queries/listing/listing.type";
+import {
+  resolveListingSwapStatusLabel,
+  type ListingItem,
+} from "~/hooks/queries/listing/listing.type";
 import swapitem from "~/assets/images/swap_item.png";
 import { useGetListings } from "~/hooks/queries/listing/listing";
+import { EmptyState, ErrorState } from "~/modules/shared";
+import { Pagination } from "~/modules/shared/pagination";
 import { useState } from "react";
 
 interface iList {
@@ -13,16 +17,10 @@ interface iList {
 export const List: React.FC<iList> = ({ item }) => {
   const [imageError, setImageError] = useState(false);
   
-  // Map reviewStage to status
-  const statusMap: Record<string, string> = {
-    Pending: "pending",
-    Published: "active",
-    Negotiation: "pending",
-    Swapped: "completed",
-  };
-  const status = statusMap[item.reviewStage] || item.reviewStage?.toLowerCase() || "pending";
-
-  const { borderColor, bg, textColor } = getStatusStyles(status);
+  const statusLabel = resolveListingSwapStatusLabel(item);
+  const { borderColor, bg, textColor } = getStatusStyles(
+    statusLabel.toLowerCase()
+  );
 
   // Get first media item
   const firstMedia = item.media?.[0];
@@ -101,7 +99,7 @@ export const List: React.FC<iList> = ({ item }) => {
               color={textColor}
               borderRadius="37.74px"
             >
-              {item.reviewStage}
+              {statusLabel}
             </Text>
             {item.itemCondition && (
               <Text
@@ -158,19 +156,23 @@ interface UserListingsProps {
 }
 
 const UserListings: React.FC<UserListingsProps> = ({ userId }) => {
-  const { data: listingsData, isLoading } = useGetListings({
+  const [currentPage, setCurrentPage] = useState(1);
+  const { data: listingsData, isLoading, isError, error, refetch } =
+    useGetListings({
     enabler: !!userId,
     listingUserId: userId?.toString(),
-    pageNumber: 1,
-    pageSize: 20,
+    pageNumber: currentPage,
+    pageSize: 10,
   });
 
   const listings = listingsData?.items || [];
+  const totalPages = listingsData?.totalPages || 1;
+  const totalCount = listingsData?.totalCount ?? listings.length;
 
   return (
     <Box>
       <Text color="#222222" fontWeight={500} mb={5} fontSize={"14px"}>
-        Active Listing ({listings.length})
+        Active Listing ({totalCount})
       </Text>
       {isLoading ? (
         <Box>
@@ -181,21 +183,35 @@ const UserListings: React.FC<UserListingsProps> = ({ userId }) => {
           ))}
         </Box>
       ) : listings.length > 0 ? (
-        <Flex direction="column" gap={4}>
-          {listings.map((item: ListingItem) => (
-            <List key={item.listingId} item={item} />
-          ))}
-        </Flex>
-      ) : (
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
+        <>
+          <Flex direction="column" gap={4}>
+            {listings.map((item: ListingItem) => (
+              <List key={item.listingId} item={item} />
+            ))}
+          </Flex>
+          {totalPages > 1 && (
+            <Box mt={5}>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            </Box>
+          )}
+        </>
+      ) : isError ? (
+        <ErrorState
           minH="200px"
-          color="#737373"
-        >
-          <Text fontSize="sm">No listings found</Text>
-        </Box>
+          title="Could not load listings"
+          error={error}
+          onRetry={() => refetch()}
+        />
+      ) : (
+        <EmptyState
+          minH="200px"
+          title="No listings"
+          description="This user has no active listings to show."
+        />
       )}
     </Box>
   );

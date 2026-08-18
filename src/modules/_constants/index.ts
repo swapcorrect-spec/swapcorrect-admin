@@ -76,10 +76,10 @@ export const notifyType = [
     title: "All Notifications",
     value: "all",
   },
-  {
-    title: "Unread",
-    value: "unread",
-  },
+  // {
+  //   title: "Unread",
+  //   value: "unread",
+  // },
 ];
 
 export const mockListings = [

@@ -10,16 +10,25 @@ import {
   SwapActivity,
   UserMgmt,
   UserMgmtFilled,
-  UserRole,
   Flag,
+  Counter,
 } from "~/assets/images";
 import { PATHS } from "../_constants/paths";
 import { useLocation, Link } from "react-router-dom";
 import { Box, Flex, Text } from "@chakra-ui/react";
+import { useLogout } from "~/hooks/useLogout";
+import { LogoutConfirmDialog } from "~/modules/shared";
 
 export const Sidebar = () => {
   const location = useLocation();
   const path = location.pathname;
+  const {
+    isModalOpen,
+    isLoggingOut,
+    openLogoutModal,
+    closeLogoutModal,
+    confirmLogout,
+  } = useLogout();
 
   const SIDEBAR_LIST = [
     {
@@ -51,6 +60,12 @@ export const Sidebar = () => {
       iconFilled: <Listing />,
       iconOutline: <Flag />,
       link: PATHS.FLAGSANDREPORTS,
+    },
+    {
+      title: "Transactions",
+      iconFilled: <Counter />,
+      iconOutline: <Counter />,
+      link: PATHS.TRANSACTIONS,
     },
   ];
 
@@ -158,7 +173,14 @@ export const Sidebar = () => {
           }
         )}
 
-        <Box p={3} borderRadius="md" width="100%" cursor={"pointer"}>
+        <Box
+          p={3}
+          borderRadius="md"
+          width="100%"
+          cursor="pointer"
+          onClick={openLogoutModal}
+          _hover={{ bg: "#F6F6F6" }}
+        >
           <Flex align="center" justify="start" gap={2}>
             <Box p="6px" borderRadius="lg" display="flex" alignItems="center">
               <LogOut />
@@ -169,6 +191,13 @@ export const Sidebar = () => {
           </Flex>
         </Box>
       </Flex>
+
+      <LogoutConfirmDialog
+        open={isModalOpen}
+        onClose={closeLogoutModal}
+        onConfirm={confirmLogout}
+        isLoading={isLoggingOut}
+      />
     </Flex>
   );
 };

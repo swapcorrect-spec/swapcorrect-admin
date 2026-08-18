@@ -1,8 +1,9 @@
 "use client";
 
-import { Table, Skeleton, Flex, Box, Text } from "@chakra-ui/react";
+import { Table, Skeleton, Box } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 import type { DataItem, ITableProps } from "~/types/base";
+import { EmptyState } from "./EmptyState";
 import { Pagination } from "./pagination";
 
 type CellRenderer<T> = (item: T, column: keyof T) => ReactNode;
@@ -13,6 +14,9 @@ export interface EnhancedTableProps<T extends DataItem> extends ITableProps<T> {
   columnLabels?: Partial<Record<keyof T, string>>;
   isLoading?: boolean;
   showPagination?: boolean;
+  scrollable?: boolean;
+  emptyState?: ReactNode;
+  emptyDescription?: string;
 }
 
 export function TableComponent<T extends DataItem>({
@@ -24,6 +28,10 @@ export function TableComponent<T extends DataItem>({
   columnOrder,
   columnLabels = {},
   isLoading = true,
+  showPagination = true,
+  scrollable = false,
+  emptyState,
+  emptyDescription = "No data available for this view.",
 }: EnhancedTableProps<T>) {
   const columns =
     columnOrder ||
@@ -47,6 +55,10 @@ export function TableComponent<T extends DataItem>({
     return String(item[column]);
   };
 
+  const tableWrapperProps = scrollable
+    ? { overflowX: "auto" as const, overflowY: "hidden" as const }
+    : { overflow: "hidden" as const };
+
   if (isLoading) {
     return (
       <Box w="full">
@@ -54,10 +66,14 @@ export function TableComponent<T extends DataItem>({
           borderWidth="1px"
           borderColor="gray.100"
           rounded="md"
-          overflow="hidden"
           mb={6}
+          {...tableWrapperProps}
         >
-          <Table.Root size="md" variant="outline">
+          <Table.Root
+            size="md"
+            variant="outline"
+            minW={scrollable ? "max-content" : undefined}
+          >
             {/* Table Header */}
             <Table.Header bg="#FAFAFA">
               <Table.Row>
@@ -103,18 +119,12 @@ export function TableComponent<T extends DataItem>({
 
   if (tableData.length === 0) {
     return (
-      <Flex
-        direction="column"
-        align="center"
-        justify="center"
-        h="50vh"
-        color="gray.500"
-      >
-        {/* <EmptyProductIcon /> */}
-        <Text fontSize="sm" mt={2}>
-          No data available
-        </Text>
-      </Flex>
+      emptyState ?? (
+        <EmptyState
+          title="No results"
+          description={emptyDescription}
+        />
+      )
     );
   }
 
@@ -124,10 +134,14 @@ export function TableComponent<T extends DataItem>({
         borderWidth="1px"
         borderColor="gray.100"
         rounded="md"
-        overflow="hidden"
         mb={6}
+        {...tableWrapperProps}
       >
-        <Table.Root size="md" variant="outline">
+        <Table.Root
+          size="md"
+          variant="outline"
+          minW={scrollable ? "max-content" : undefined}
+        >
           {/* Table Header */}
           <Table.Header bg="#FAFAFA">
             <Table.Row>
@@ -171,11 +185,13 @@ export function TableComponent<T extends DataItem>({
           </Table.Body>
         </Table.Root>
       </Box>
-      <Pagination
-        totalPages={totalPages}
-        currentPage={currentPage}
-        onPageChange={safeOnPageChange}
-      />
+      {showPagination && (
+        <Pagination
+          totalPages={totalPages}
+          currentPage={currentPage}
+          onPageChange={safeOnPageChange}
+        />
+      )}
     </Box>
   );
 }

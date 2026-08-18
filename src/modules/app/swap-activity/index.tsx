@@ -1,57 +1,49 @@
 import { Flex } from "@chakra-ui/react";
 import PageLayout from "~/modules/layout/page-layout";
-import { Header } from "~/modules/shared";
+import { Header, QueryState, Select } from "~/modules/shared";
 import { useState } from "react";
 import SwapActivityTable from "./_components/data-table";
-import { useSearchSwaps } from "~/hooks/queries/swap-activity/swap-activity";
+import { useGetAdminSwapActivity } from "~/hooks/queries/swap-activity/swap-activity";
+import {
+  SWAP_ACTIVITY_FILTER_OPTIONS,
+  type SwapActivityFilter,
+} from "~/hooks/queries/swap-activity/swap-activity.type";
+import type { SwapActivityData } from "~/types/base";
 
 export const SwapActivity = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [swapListingStatus, setSwapListingStatus] = useState<
-  "Published" | "Negotiation" | "Swapped" | "All"
->("All");
-const [listingDate, setListingDate] = useState<"All" | "LastWeek" | "LastMonth">("All");  
-  
+  const [filter, setFilter] = useState<SwapActivityFilter>("AllTime");
+
   const onPageChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  const { data: swapActivityData, isLoading, isFetching } = useSearchSwaps({
+  const {
+    data: swapActivityData,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    refetch,
+  } = useGetAdminSwapActivity({
     enabler: true,
     pageNumber: currentPage,
-    perpageSize: 20,
-    swapListingStatus,
-    listingDate
+    pageSize: 20,
+    filter,
   });
 
-  const swapActivityItems = (swapActivityData?.items || []).map((item: any) => {
-    const ownerItems = Array.isArray(item.swapperRequestItem) ? item.swapperRequestItem : [item.swapperRequestItem];
-    const swapperItems = Array.isArray(item.swapperItem) ? item.swapperItem : [item.swapperItem];
-    const listedItems = Array.isArray(item.listedItem) ? item.listedItem : [item.listedItem];
-    
-    const getInitials = (name: string) => {
-      if (!name) return "N/A";
-      const parts = name.trim().split(" ");
-      if (parts.length >= 2) {
-        return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
-      }
-      return name.substring(0, 2).toUpperCase();
-    };
-
-    return {
-      itemOne: ownerItems.join(", "),
-      itemTwo: swapperItems.join(", "),
-      listedItem: listedItems.join(", "),
-      swapperOne: item.swapperName || "",
-      swapperTwo: item.visitorName || "",
-      swapperImage: item.swapperImage || "",
-      visitorImage: item.visitorImage || "",
-      status: item.status || "",
-      createdAt: item.createdOn || "",
-      updatedAt: item.lastActivity || "",
-      swapProceedId: item.swapProceedId || "",
-    };
-  });
+  const swapActivityItems: SwapActivityData[] = (
+    swapActivityData?.items || []
+  ).map((item) => ({
+    swapProceedId: item.id ?? "",
+    ownerName: item.ownerName || "N/A",
+    swapperName: item.swapperName || "N/A",
+    ownerItem: item.ownerItem || "N/A",
+    swapperItem: item.swapperItem || "N/A",
+    status: item.status || "",
+    initiatedOn: item.initiatedOn || "",
+    lastActivity: item.lastActivity || "",
+  }));
 
   return (
     <PageLayout>
@@ -60,15 +52,44 @@ const [listingDate, setListingDate] = useState<"All" | "LastWeek" | "LastMonth">
           title="Swap Activity"
           description="Monitor and manage all swaps between users on the platform"
         />
+        <Select
+          name="swap-activity-filter"
+          options={SWAP_ACTIVITY_FILTER_OPTIONS}
+          value={filter}
+          onChange={(value) => {
+            setFilter(value as SwapActivityFilter);
+            setCurrentPage(1);
+          }}
+          width="180px"
+        />
       </Flex>
 
-      <SwapActivityTable
-        data={swapActivityItems}
-        currentPage={currentPage}
-        onPageChange={onPageChange}
-        totalPages={swapActivityData?.totalPages || 1}
-        loading={isLoading || isFetching}
-      />
+      <QueryState
+        isLoading={isLoading || isFetching}
+        isError={isError}
+        error={error}
+        onRetry={() => refetch()}
+        isEmpty={swapActivityItems.length === 0}
+        emptyProps={{
+          title: "No swap activity",
+          description:
+            "There are no swaps matching your filters. Try adjusting the date range.",
+        }}
+        errorProps={{
+          title: "Could not load swap activity",
+          description:
+            "We had trouble fetching swap activity. Please try again.",
+        }}
+      >
+        <SwapActivityTable
+          data={swapActivityItems}
+          currentPage={currentPage}
+          onPageChange={onPageChange}
+          totalPages={swapActivityData?.totalPages || 1}
+          loading={false}
+          emptyDescription="No swap activity matches your current filters."
+        />
+      </QueryState>
     </PageLayout>
   );
 };

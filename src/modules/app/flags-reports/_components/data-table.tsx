@@ -1,27 +1,58 @@
 "use client";
 
-import { Text, Flex, Box } from "@chakra-ui/react";
+import { Text, Flex, Box, Image } from "@chakra-ui/react";
+import { useState } from "react";
 import { TableComponent } from "~/modules/shared/table";
 import type { FlagData } from "~/types/base";
-import { formatDateTime, getStatusStyles } from "~/modules/util";
-import { Menu, MenuItem } from "~/modules/shared";
 import {
-  Book,
-  Check,
-  Flag,
-  OctagonAlert,
-  TriangleAlert,
-  X,
-} from "lucide-react";
+  createImageErrorHandler,
+  formatDateTime,
+  getImageSrcWithFallback,
+  getStatusStyles,
+} from "~/modules/util";
+import { Menu, MenuItem } from "~/modules/shared";
+import { Book } from "lucide-react";
 import { useNavigate } from "react-router";
 import { PATHS } from "~/modules/_constants/paths";
+import userFallback from "~/assets/images/user.png";
+
+const AvatarCell = ({
+  src,
+  alt,
+}: {
+  src?: string | null;
+  alt: string;
+}) => {
+  const [imageError, setImageError] = useState(false);
+  const missingImage = !src?.trim();
+
+  return (
+    <Box
+      h={8}
+      w={8}
+      flexShrink={0}
+      borderRadius="full"
+      overflow="hidden"
+      bg="#F0F0F0"
+    >
+      <Image
+        src={getImageSrcWithFallback(src, imageError || missingImage, userFallback)}
+        alt={alt}
+        boxSize="32px"
+        objectFit="cover"
+        onError={createImageErrorHandler(setImageError)}
+      />
+    </Box>
+  );
+};
 
 interface iProps {
-  data?: any;
+  data?: FlagData[];
   currentPage: number;
   onPageChange: (value: number) => void;
   totalPages: number;
   loading: boolean;
+  emptyDescription?: string;
 }
 
 const FlagsAndReportTable: React.FC<iProps> = ({
@@ -31,6 +62,7 @@ const FlagsAndReportTable: React.FC<iProps> = ({
 
   totalPages,
   loading,
+  emptyDescription,
 }) => {
   const navigate = useNavigate();
   const textProps = {
@@ -41,8 +73,8 @@ const FlagsAndReportTable: React.FC<iProps> = ({
 
   const cellRenderers = {
     reporter: (item: FlagData) => (
-      <Flex gap="4px" alignItems="center">
-        <Box borderRadius={"full"} h={8} w={8}></Box>
+      <Flex gap="8px" alignItems="center">
+        <AvatarCell src={item.reporterImg} alt={item.reporter} />
         <Text {...textProps} color={"#222222"}>
           {item.reporter}
         </Text>
@@ -50,8 +82,8 @@ const FlagsAndReportTable: React.FC<iProps> = ({
     ),
     type: (item: FlagData) => <Text {...textProps}>{item?.type}</Text>,
     reportedEntity: (item: FlagData) => (
-      <Flex gap="4px" alignItems="center">
-        <Box borderRadius={"full"} h={8} w={8}></Box>
+      <Flex gap="8px" alignItems="center">
+        <AvatarCell src={item.reportedPersonImg} alt={item.reportedEntity} />
         <Text {...textProps} color={"#222222"}>
           {item.reportedEntity}
         </Text>
@@ -79,51 +111,18 @@ const FlagsAndReportTable: React.FC<iProps> = ({
         </Text>
       );
     },
-    action: () => (
+    action: (item: FlagData) => (
       <Menu>
         <Box>
           <MenuItem
             label="View details"
             icon={<Book size={20} />}
-            onClick={() => navigate(`${PATHS.FLAGSANDREPORTS}/1`)}
+            onClick={() =>
+              item.reportId &&
+              navigate(`${PATHS.FLAGSANDREPORTS}/${item.reportId}`)
+            }
             value="view"
             styleProps={{ color: "#222222" }}
-          />
-
-          <MenuItem
-            label="Mark resolved"
-            icon={<Check size={20} />}
-            onClick={() => console.log("Hello world!")}
-            value="resolved"
-            styleProps={{ color: "#222222" }}
-          />
-          <MenuItem
-            label="Dismiss"
-            icon={<X size={20} />}
-            onClick={() => console.log("Hello world!")}
-            value="dismiss"
-            styleProps={{ color: "#222222" }}
-          />
-          <MenuItem
-            label="Warn user"
-            icon={<TriangleAlert size={20} />}
-            onClick={() => console.log("View")}
-            value="warn"
-            styleProps={{ color: "#222222" }}
-          />
-          <MenuItem
-            label="Suspend user"
-            icon={<OctagonAlert size={20} />}
-            onClick={() => console.log("View")}
-            value="suspend"
-            styleProps={{ color: "#222222" }}
-          />
-          <MenuItem
-            label="Flag Swap"
-            icon={<Flag size={20} />}
-            onClick={() => console.log("Flag")}
-            value="flag"
-            styleProps={{ color: "#E42222" }}
           />
         </Box>
       </Menu>
@@ -153,14 +152,15 @@ const FlagsAndReportTable: React.FC<iProps> = ({
   return (
     <>
       <TableComponent<FlagData>
-        tableData={data}
+        tableData={data ?? []}
         currentPage={currentPage}
         onPageChange={onPageChange}
-        totalPages={Math.ceil(totalPages / 10)}
+        totalPages={totalPages}
         cellRenderers={cellRenderers}
         columnOrder={columnOrder}
         columnLabels={columnLabels}
         isLoading={loading}
+        emptyDescription={emptyDescription}
       />
     </>
   );

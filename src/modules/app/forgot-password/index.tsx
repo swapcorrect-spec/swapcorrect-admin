@@ -8,7 +8,7 @@ import { useForgotPassword, useResetPassword } from "~/hooks/queries/auth/auth";
 import { type ForgotPassword as ForgotPasswordProp, type ResetPassword } from "~/hooks/queries/auth/auth.type";
 import { PATHS } from "~/modules/_constants/paths";
 import AuthForm from "~/modules/shared/AuthForm";
-import { Button, Input } from "~/modules/shared";
+import { Button, Input, PasswordInput } from "~/modules/shared";
 import { getValidationSchema } from "./_validation";
 
 type formStep = "email" | "code" | "password";
@@ -78,7 +78,7 @@ const ForgotPassword: React.FC = () => {
     validationSchema: validationSchemas,
   });
 
-  const { values, handleBlur, handleChange, handleSubmit, errors, touched, setFieldValue, resetForm } = formik;
+  const { values, handleChange, handleSubmit, errors, touched, setFieldValue, resetForm } = formik;
 
   return (
     <AuthForm title="" subtitle="">
@@ -88,9 +88,9 @@ const ForgotPassword: React.FC = () => {
             <Heading color="#000000" fontSize={{ base: "2xl", md: "4xl" }} textAlign="left" fontWeight="medium">
               Forgot Password
             </Heading>
-            <Text color="#737373" fontSize="base" fontWeight="normal" textAlign="left" mt={2} mb={8} lineHeight="tight">
+            {/* <Text color="#737373" fontSize="base" fontWeight="normal" textAlign="left" mt={2} mb={8} lineHeight="tight">
               Enter Your Registered Email
-            </Text>
+            </Text> */}
           </>
         ) : formStep === "code" ? (
           <>
@@ -124,7 +124,7 @@ const ForgotPassword: React.FC = () => {
                 value={values.email}
                 error={!!errors.email}
                 errorMessage={errors.email}
-                label="Email Address"
+                label= "Enter Your Registered Email"
               />
             </>
           ) : formStep === "code" ? (
@@ -155,8 +155,7 @@ const ForgotPassword: React.FC = () => {
             </Box>
           ) : (
             <>
-              <Input
-                type="password"
+              <PasswordInput
                 placeholder="Password"
                 name="password"
                 handleChange={handleChange}
@@ -165,8 +164,7 @@ const ForgotPassword: React.FC = () => {
                 errorMessage={errors.password}
                 label="Password"
               />
-              <Input
-                type="password"
+              <PasswordInput
                 placeholder="Confirm Password"
                 name="confirm_password"
                 handleChange={handleChange}

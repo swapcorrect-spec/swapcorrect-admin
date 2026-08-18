@@ -1,6 +1,7 @@
 import { Box, Image, Text, Flex } from "@chakra-ui/react";
 import { CircleArrowRight, Dot } from "lucide-react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
+import { PATHS } from "~/modules/_constants/paths";
 import { Star } from "~/assets/images";
 import user from "~/assets/images/user.png";
 import { createImageErrorHandler, getImageSrcWithFallback } from "~/modules/util";
@@ -9,10 +10,12 @@ import { useState } from "react";
 
 interface iSwapDetails {
   detail: SwapDetailsProps;
+  showStats?: boolean;
 }
 
-const ProfileInfo: React.FC<iSwapDetails> = ({ detail }) => {
+const ProfileInfo: React.FC<iSwapDetails> = ({ detail, showStats = true }) => {
   const [imageError, setImageError] = useState(false);
+  const missingAvatar = !detail.ownerAvatar?.trim();
 
   return (
     <Flex
@@ -25,32 +28,54 @@ const ProfileInfo: React.FC<iSwapDetails> = ({ detail }) => {
       gap={4}
       bg="#fff"
     >
-      <Box display="flex" height="62px" width="62px" borderRadius="full" overflow="hidden">
+      <Box
+        boxSize="48px"
+        borderRadius="full"
+        overflow="hidden"
+        flexShrink={0}
+        bg="#F0F0F0"
+      >
         <Image
-          src={getImageSrcWithFallback(detail.ownerAvatar || "", imageError, user)}
-          alt="Owner Avatar"
-          borderRadius="full"
-          height="100%"
-          width="100%"
+          src={getImageSrcWithFallback(
+            detail.ownerAvatar,
+            imageError || missingAvatar,
+            user
+          )}
+          alt={`${detail.owner || "User"} avatar`}
+          boxSize="48px"
+          objectFit="cover"
           onError={createImageErrorHandler(setImageError)}
         />
       </Box>
-      <Box width="full">
-        <Text fontSize="16px" color="#222222" fontWeight="500" mb="12px">
+      <Box flex="1" minW={0}>
+        <Text
+          fontSize="16px"
+          color="#222222"
+          fontWeight="500"
+          mb={showStats ? "12px" : 0}
+        >
           {detail.owner}
         </Text>
-        <Text
-          fontSize="14px"
-          color="#737373"
-          display="flex"
-          alignItems="center"
-          gap={2}
-        >
-          {detail.rating} <Star /> <Dot size={"4px"} />
-          {detail.swap.total} swaps
-        </Text>
+        {showStats && (
+          <Text
+            fontSize="14px"
+            color="#737373"
+            display="flex"
+            alignItems="center"
+            gap={2}
+          >
+            {detail.rating} <Star /> <Dot size={"4px"} />
+            {detail.swap.total} swaps
+          </Text>
+        )}
       </Box>
-      <Link to="">
+      <Link
+        to={detail.ownerId ? `${PATHS.PROFILE}/${detail.ownerId}` : "#"}
+        style={{
+          pointerEvents: detail.ownerId ? "auto" : "none",
+          opacity: detail.ownerId ? 1 : 0.5,
+        }}
+      >
         <Text
           w="fit-content"
           textAlign="center"

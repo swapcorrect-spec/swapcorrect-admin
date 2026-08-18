@@ -1,31 +1,42 @@
 "use client";
-import {
-  Flex,
-  Box,
-  Button,
-  Text,
-  Tabs,
-  Menu,
-  Badge,
-  VStack,
-} from "@chakra-ui/react";
-
-// SVGs
-
+import { Flex, Box, Text, Menu, Image, Skeleton } from "@chakra-ui/react";
+import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { PATHS } from "../_constants/paths";
-import { mockNotifications, notifyType } from "../_constants";
 import { Bell } from "~/assets/images";
-import Notification from "~/modules/shared/widgets";
-import profyle from "~/assets/images/profyle.png";
+import userFallback from "~/assets/images/user.png";
+import { useGetUserInfo } from "~/hooks/queries/auth/auth";
+import { useLogout } from "~/hooks/useLogout";
+import { Auth } from "~/config/auth";
+import { LogoutConfirmDialog } from "~/modules/shared";
+import { NotificationMenu } from "./notification-menu";
+import {
+  createImageErrorHandler,
+  getImageSrcWithFallback,
+} from "~/modules/util";
 
 export const Navbar: React.FC = () => {
   const path = useLocation().pathname;
+  const [imageError, setImageError] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const {
+    isModalOpen,
+    isLoggingOut,
+    openLogoutModal,
+    closeLogoutModal,
+    confirmLogout,
+  } = useLogout();
 
-  const handleLogout = () => {
-    localStorage.clear();
-    // navigate(`/${PATHS.LOGIN}`);
-  };
+  const { data: user, isLoading } = useGetUserInfo({
+    enabler: Auth.isAuthenticated(),
+  });
+
+  const displayName = user
+    ? `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+      user.userName ||
+      "User"
+    : "User";
   function getPageTitle(pathname: string): string {
     if (pathname === "/dashboard") return "Dashboard";
     if (pathname === "/listing") return "Listing";
@@ -60,67 +71,72 @@ export const Navbar: React.FC = () => {
       </Text>
 
       <Flex align="center" gap={5}>
-        <Menu.Root>
-          <Menu.Trigger as={Box} position="relative" cursor="pointer">
-            <Bell />
-            <Badge
-              position="absolute"
-              top="-3px"
-              right="-2px"
-              color="white"
-              bg="#E42222"
-              fontSize="0.7rem"
-              borderRadius="full"
-              px={1}
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              4
-            </Badge>
+        <Menu.Root
+          onOpenChange={(details) => setNotificationsOpen(details.open)}
+        >
+          <Menu.Trigger
+            as={Box}
+            cursor="pointer"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Bell width={22} height={22} />
           </Menu.Trigger>
           <Menu.Positioner>
-            <Menu.Content p={4} maxH="75vh" overflowY="auto" w="500px">
-              <Tabs.Root
-                variant="enclosed"
-                display={"flex"}
-                defaultValue={"all"}
-              >
-                <Tabs.List width={"100%"}>
-                  {notifyType.map((tab, index) => (
-                    <Tabs.Trigger key={index} value={tab.value} width={"100%"}>
-                      {tab.title}
-                    </Tabs.Trigger>
-                  ))}
-                </Tabs.List>
-              </Tabs.Root>
-              <Flex direction="column" gap={3} mt={4}>
-                {mockNotifications.map((notify, idx) => (
-                  <Box
-                    key={idx}
-                    border="1px solid #EAEAEA"
-                    borderRadius="md"
-                    bg="gray.50"
-                  >
-                    <Notification notify={notify} />
-                  </Box>
-                ))}
-              </Flex>
-            </Menu.Content>
+            <NotificationMenu
+              open={notificationsOpen && Auth.isAuthenticated()}
+            />
           </Menu.Positioner>
         </Menu.Root>
 
         <Menu.Root>
           <Menu.Trigger>
-            <Flex align="center" gap={3} cursor="pointer" fontWeight={500}>
-              <Box>
-                <img
-                  src={profyle}
-                  alt="Profile icon"
-                  style={{ width: "32px", height: "32px", borderRadius: "50%" }}
-                />
-              </Box>
-              Wisdom Apavie
+            <Flex
+              align="center"
+              gap={2}
+              cursor="pointer"
+              fontWeight={500}
+              border="1px solid #E9E9E9"
+              borderRadius="full"
+              py="4px"
+              pl="4px"
+              pr="12px"
+              _hover={{ bg: "#FAFAFA" }}
+              transition="background 0.15s ease"
+            >
+              {isLoading ? (
+                <Skeleton boxSize="32px" borderRadius="full" />
+              ) : (
+                <Box
+                  boxSize="32px"
+                  borderRadius="full"
+                  overflow="hidden"
+                  flexShrink={0}
+                >
+                  <Image
+                    src={getImageSrcWithFallback(
+                      user?.profilePicture,
+                      imageError || !user?.profilePicture?.trim(),
+                      userFallback
+                    )}
+                    alt={displayName}
+                    boxSize="32px"
+                    objectFit="cover"
+                    onError={createImageErrorHandler(setImageError)}
+                  />
+                </Box>
+              )}
+              {isLoading ? (
+                <Skeleton height="16px" width="100px" />
+              ) : (
+                <>
+                  <Text color="#222222" fontSize="14px">
+                    {displayName}
+                  </Text>
+                  <ChevronDown size={16} color="#737373" />
+                </>
+              )}
             </Flex>
           </Menu.Trigger>
           <Menu.Positioner>
@@ -137,13 +153,24 @@ export const Navbar: React.FC = () => {
                 </Menu.Item>
               </Link>
 
-              <Menu.Item onClick={handleLogout} value="logout" cursor="pointer">
+              <Menu.Item
+                onClick={openLogoutModal}
+                value="logout"
+                cursor="pointer"
+              >
                 Logout
               </Menu.Item>
             </Menu.Content>
           </Menu.Positioner>
         </Menu.Root>
       </Flex>
+
+      <LogoutConfirmDialog
+        open={isModalOpen}
+        onClose={closeLogoutModal}
+        onConfirm={confirmLogout}
+        isLoading={isLoggingOut}
+      />
     </Flex>
   );
 };

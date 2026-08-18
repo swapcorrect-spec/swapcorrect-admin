@@ -1,90 +1,89 @@
-import { useQuery } from "@tanstack/react-query";
-import { getRequestParams, getRequest } from "~/config/request-methods";
-import type { ListingsResponse, SwapListingStatus, ListingDate, ListingDetailsResponse, ListingItem } from "./listing.type";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { SWAP_ACTIVITY } from "~/hooks/queries/swap-activity/swap-activity";
+import {
+  getRequestParams,
+  getRequest,
+  putRequest,
+} from "~/config/request-methods";
+import type {
+  ListingsResponse,
+  SwapListingStatus,
+  ListingDate,
+  ReviewStage,
+  ListingDetailsResponse,
+  UpdateListingReviewPayload,
+  UpdateListingReviewResponse,
+  FlagContentPayload,
+  FlagContentResponse,
+} from "./listing.type";
+import type { MutationProps } from "~/types/mutation-prop-types";
+import handleApiError from "~/utils/handle-api-error";
 
 export const LISTINGS = "LISTINGS";
 
 export const useGetListings = (props: {
   enabler: boolean;
-  userId?: string;
   searchParam?: string;
   listingUserId?: string;
-  categoryId?: string;
-  location?: string;
-  lowestRange?: number;
-  highestRange?: number;
   swapListingStatus?: SwapListingStatus;
+  reviewStage?: ReviewStage;
   listingDate?: ListingDate;
   pageNumber?: number;
   pageSize?: number;
 }) => {
   const {
     enabler = true,
-    userId,
     searchParam,
     listingUserId,
-    categoryId,
-    location,
-    lowestRange,
-    highestRange,
     swapListingStatus = "All",
+    reviewStage = "All",
     listingDate = "All",
     pageNumber = 1,
     pageSize = 20,
   } = props;
 
-  const { data, isError, isSuccess, isLoading, isFetching, error } = useQuery({
-    queryKey: [
-      LISTINGS,
-      userId,
-      searchParam,
-      listingUserId,
-      categoryId,
-      location,
-      lowestRange,
-      highestRange,
-      swapListingStatus,
-      listingDate,
-      pageNumber,
-      pageSize,
-    ],
-    queryFn: async ({ signal }) =>
-      getRequestParams<
-        {
-          userId?: string;
-          searchParam?: string;
-          listingUserId?: string;
-          categoryId?: string;
-          location?: string;
-          lowestRange?: number;
-          highestRange?: number;
-          swapListingStatus?: string;
-          listingDate?: string;
-          pageNumber: number;
-          pageSize: number;
-        },
-        ListingsResponse
-      >({
-        url: "/Admin/paginated/search_item",
-        params: {
-          userId,
-          searchParam,
-          listingUserId,
-          categoryId,
-          location,
-          lowestRange,
-          highestRange,
-          swapListingStatus,
-          listingDate,
-          pageNumber,
-          pageSize,
-        },
-        config: { signal },
-      }),
-    enabled: !!enabler,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    gcTime: 5 * 60 * 1000, // 5 minutes
-  });
+  const { data, isError, isSuccess, isLoading, isFetching, error, refetch } =
+    useQuery({
+      queryKey: [
+        LISTINGS,
+        searchParam,
+        listingUserId,
+        swapListingStatus,
+        reviewStage,
+        listingDate,
+        pageNumber,
+        pageSize,
+      ],
+      queryFn: async ({ signal }) =>
+        getRequestParams<
+          {
+            searhParam?: string;
+            listingUserId?: string;
+            swapListingStatus?: SwapListingStatus;
+            reviewStage?: ReviewStage;
+            listingDate?: ListingDate;
+            pageNumber: number;
+            perpageSize: number;
+          },
+          ListingsResponse
+        >({
+          url: "/Admin/paginated/search_item",
+          params: {
+            searhParam: searchParam?.trim() || undefined,
+            listingUserId: listingUserId || undefined,
+            swapListingStatus:
+              swapListingStatus === "All" ? undefined : swapListingStatus,
+            reviewStage: reviewStage === "All" ? undefined : reviewStage,
+            listingDate: listingDate === "All" ? undefined : listingDate,
+            pageNumber,
+            perpageSize: pageSize,
+          },
+          config: { signal },
+        }),
+      enabled: !!enabler,
+      staleTime: 2 * 60 * 1000,
+      gcTime: 5 * 60 * 1000,
+    });
 
   return {
     data: data?.result,
@@ -93,24 +92,26 @@ export const useGetListings = (props: {
     isError,
     error,
     isSuccess,
+    refetch,
   };
 };
 
 export const LISTING_DETAILS = "LISTING_DETAILS";
 
-export const useGetListingDetails = (props: { 
+export const useGetListingDetails = (props: {
   enabler: boolean;
   listingId: string;
 }) => {
   const { enabler, listingId } = props;
-  const { data, isError, isSuccess, isLoading, isFetching, error } = useQuery({
-    queryKey: [LISTING_DETAILS, listingId],
-    queryFn: () =>
-      getRequest<ListingDetailsResponse>({
-        url: `/listing_item/listing_details?listingId=${listingId}`,
-      }),
-    enabled: !!enabler && !!listingId,
-  });
+  const { data, isError, isSuccess, isLoading, isFetching, error, refetch } =
+    useQuery({
+      queryKey: [LISTING_DETAILS, listingId],
+      queryFn: () =>
+        getRequest<ListingDetailsResponse>({
+          url: `/listing_item/listing_details?listingId=${listingId}`,
+        }),
+      enabled: !!enabler && !!listingId,
+    });
 
   return {
     data: data?.result,
@@ -119,6 +120,64 @@ export const useGetListingDetails = (props: {
     isError,
     error,
     isSuccess,
+    refetch,
   };
 };
 
+export const useUpdateListingReview = (props: MutationProps) => {
+  const { onSuccess, onError } = props;
+  const queryClient = useQueryClient();
+
+  const { mutate, isError, isSuccess, isPending } = useMutation({
+    mutationFn: (payload: UpdateListingReviewPayload) =>
+      putRequest<UpdateListingReviewPayload, UpdateListingReviewResponse>({
+        url: "/Admin/review/update",
+        payload,
+      }),
+    onSuccess(values) {
+      queryClient.invalidateQueries({ queryKey: [LISTINGS] });
+      onSuccess(values);
+    },
+    onError(err) {
+      const msgError = handleApiError(err);
+      onError?.(msgError, err);
+    },
+  });
+
+  return {
+    mutate,
+    isError,
+    isSuccess,
+    isPending,
+  };
+};
+
+export const useFlagContent = (props: MutationProps) => {
+  const { onSuccess, onError } = props;
+  const queryClient = useQueryClient();
+
+  const { mutate, isError, isSuccess, isPending } = useMutation({
+    mutationFn: (payload: FlagContentPayload) =>
+      putRequest<FlagContentPayload, FlagContentResponse>({
+        url: "/Admin/flag-content",
+        payload,
+      }),
+    onSuccess(values) {
+      queryClient.invalidateQueries({ queryKey: [LISTINGS] });
+      queryClient.invalidateQueries({ queryKey: [SWAP_ACTIVITY] });
+      queryClient.invalidateQueries({ queryKey: ["SWAP_PROCEEDING"] });
+      onSuccess(values);
+    },
+    onError(err) {
+      const msgError = handleApiError(err);
+      onError?.(msgError, err);
+    },
+  });
+
+  return {
+    mutate,
+    isError,
+    isSuccess,
+    isPending,
+  };
+};

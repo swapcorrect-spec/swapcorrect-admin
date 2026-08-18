@@ -34,7 +34,9 @@ export interface ITableProps<T extends DataItem> {
 export interface UsersData extends DataItem {
   profilePicture: string;
   profile: string;
-  trustScore?: string;
+  email?: string;
+  isSuspended?: boolean;
+  trustScore?: string | number;
   id: string | number;
   swaps: number;
   productid?: string;
@@ -45,22 +47,24 @@ export interface UsersData extends DataItem {
 }
 export interface SwapActivityData extends DataItem {
   swapProceedId: string;
-  listedItem: string;
-  itemOne: string;
-  itemTwo: string;
-  swapperOne: string;
-  swapperTwo: string;
-  swapperImage: string;
-  visitorImage: string;
+  ownerName: string;
+  swapperName: string;
+  ownerItem: string;
+  swapperItem: string;
   status: string;
-  createdAt: string;
-  updatedAt: string;
+  initiatedOn: string;
+  lastActivity: string;
+  isFlagged?: boolean;
+  action?: string;
 }
 
 export interface FlagData extends DataItem {
+  reportId?: string;
   reporter: string;
+  reporterImg?: string | null;
   type: string;
   reportedEntity: string;
+  reportedPersonImg?: string | null;
   status: string;
   createdAt: string;
   reason?: string;
@@ -77,11 +81,15 @@ export interface SwapDetailsProps {
   name: string;
   condition: string;
   price: number | string;
+  estimatedCurrency?: string;
   itemUrl: string;
   isVideo?: boolean;
   mediaType?: "Image" | "Video" | "Document";
   category: string;
+  listType?: string;
   status: string;
+  reviewStage?: string;
+  isFlagged?: boolean;
   description: string;
   location: string;
   dateListed: string;
